@@ -28,6 +28,8 @@
 #include <linux/console.h>
 #include <linux/pci.h>
 
+#include <drm/drm_modeset_helper.h>
+
 #include "via_drv.h"
 
 
