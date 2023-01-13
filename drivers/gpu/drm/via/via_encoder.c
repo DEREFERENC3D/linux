@@ -24,8 +24,6 @@
  * Kevin Brace <kevinbrace@bracecomputerlab.com>
  */
 
-#include <linux/pci_ids.h>
-
 #include "via_drv.h"
 
 
