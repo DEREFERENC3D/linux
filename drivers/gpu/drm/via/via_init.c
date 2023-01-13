@@ -33,8 +33,10 @@
 #include <linux/pci.h>
 
 #include <drm/drm_atomic_helper.h>
+#include <drm/drm_crtc_helper.h>
 #include <drm/drm_gem_framebuffer_helper.h>
 #include <drm/drm_mode_config.h>
+#include <drm/drm_probe_helper.h>
 
 #include "via_drv.h"
 
@@ -1241,6 +1243,74 @@ void via_mode_config_init(struct via_drm_priv *dev_priv)
 	dev->mode_config.cursor_height = VIA_CURSOR_SIZE;
 
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+}
+
+int via_modeset_init(struct drm_device *dev)
+{
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
+	uint32_t i;
+	int ret = 0;
+
+	via_mode_config_init(dev_priv);
+
+	/* Initialize the number of display connectors. */
+	dev_priv->number_fp = 0;
+	dev_priv->number_dvi = 0;
+
+	via_i2c_reg_init(dev_priv);
+	ret = via_i2c_init(dev);
+	if (ret) {
+		DRM_ERROR("Failed to initialize I2C bus!\n");
+		goto exit;
+	}
+
+	for (i = 0; i < VIA_MAX_CRTC; i++) {
+		ret = via_crtc_init(dev_priv, i);
+		if (ret) {
+			goto exit;
+		}
+	}
+
+	via_ext_dvi_probe(dev);
+	via_tmds_probe(dev);
+
+	via_lvds_probe(dev);
+
+	via_dac_probe(dev);
+
+
+	via_ext_dvi_init(dev);
+	via_tmds_init(dev);
+
+	via_dac_init(dev);
+
+	via_lvds_init(dev);
+
+	switch (pdev->device) {
+	case PCI_DEVICE_ID_VIA_CHROME9_HD:
+		via_hdmi_init(dev, VIA_DI_PORT_NONE);
+		break;
+	default:
+		break;
+	}
+
+	drm_mode_config_reset(dev);
+
+	drm_kms_helper_poll_init(dev);
+exit:
+	return ret;
+}
+
+void via_modeset_fini(struct drm_device *dev)
+{
+	drm_kms_helper_poll_fini(dev);
+
+	drm_helper_force_disable_all(dev);
+
+	drm_mode_config_cleanup(dev);
+
+	via_i2c_exit();
 }
 
 int via_drm_init(struct drm_device *dev)

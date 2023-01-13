@@ -338,6 +338,8 @@ void via_graphics_unlock(struct via_drm_priv *dev_priv);
 int via_device_init(struct via_drm_priv *dev_priv);
 void via_device_fini(struct via_drm_priv *dev_priv);
 void via_mode_config_init(struct via_drm_priv *dev_priv);
+int via_modeset_init(struct drm_device *dev);
+void via_modeset_fini(struct drm_device *dev);
 int via_drm_init(struct drm_device *dev);
 void via_drm_fini(struct drm_device *dev);
 
@@ -373,10 +375,6 @@ extern const struct drm_plane_helper_funcs via_cursor_drm_plane_helper_funcs;
 extern const struct drm_plane_funcs via_cursor_drm_plane_funcs;
 extern const uint32_t via_cursor_formats[];
 extern const unsigned int via_cursor_formats_size;
-
-/* display */
-int via_modeset_init(struct drm_device *dev);
-void via_modeset_fini(struct drm_device *dev);
 
 /* i2c */
 struct i2c_adapter *via_find_ddc_bus(int port);
