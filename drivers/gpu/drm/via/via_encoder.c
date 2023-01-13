@@ -24,6 +24,8 @@
  * Kevin Brace <kevinbrace@bracecomputerlab.com>
  */
 
+#include <drm/drm_encoder.h>
+
 #include "via_drv.h"
 
 
