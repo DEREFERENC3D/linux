@@ -27,7 +27,6 @@
  */
 
 #include <linux/delay.h>
-#include <linux/pci.h>
 
 #include <drm/drm_atomic_state_helper.h>
 #include <drm/drm_connector.h>
