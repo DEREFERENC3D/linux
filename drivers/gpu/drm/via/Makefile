@@ -3,11 +3,11 @@
 # Direct Rendering Infrastructure (DRI) in XFree86 4.1.0 and higher.
 
 ccflags-y := -Iinclude/drm
-via-y := via_crtc.o \
+via-y := via_connector.o \
+		via_crtc.o \
 		via_crtc_hw.o \
 		via_cursor.o \
 		via_dac.o \
-		via_display.o \
 		via_drv.o \
 		via_encoder.o \
 		via_hdmi.o \
