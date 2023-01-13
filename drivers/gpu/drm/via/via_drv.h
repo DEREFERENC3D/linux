@@ -370,6 +370,7 @@ void via_transmitter_data_drive_strength(struct via_drm_priv *dev_priv,
 					u32 di_port, u8 drive_strength);
 void via_transmitter_display_source(struct via_drm_priv *dev_priv,
 					u32 di_port, int index);
+void via_encoder_cleanup(struct drm_encoder *encoder);
 
 extern const struct drm_plane_helper_funcs via_cursor_drm_plane_helper_funcs;
 extern const struct drm_plane_funcs via_cursor_drm_plane_funcs;
@@ -396,9 +397,6 @@ void via_set_vclock(struct drm_crtc *crtc, u32 clk);
 void via_load_crtc_pixel_timing(struct drm_crtc *crtc,
 				struct drm_display_mode *mode);
 int via_crtc_init(struct via_drm_priv *dev_priv, uint32_t index);
-
-/* encoders */
-void via_encoder_cleanup(struct drm_encoder *encoder);
 
 /* connectors */
 void via_connector_destroy(struct drm_connector *connector);

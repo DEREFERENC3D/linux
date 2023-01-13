@@ -30,14 +30,6 @@
 
 #include "via_drv.h"
 
-void via_encoder_cleanup(struct drm_encoder *encoder)
-{
-	struct via_encoder *enc = container_of(encoder, struct via_encoder, base);
-
-	drm_encoder_cleanup(encoder);
-	kfree(enc);
-}
-
 void via_connector_destroy(struct drm_connector *connector)
 {
 	struct via_connector *con = container_of(connector, struct via_connector, base);
