@@ -27,7 +27,6 @@
  */
 
 #include <drm/drm_connector.h>
-#include <drm/drm_crtc.h>
 
 #include "via_drv.h"
 
