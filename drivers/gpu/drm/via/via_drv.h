@@ -39,7 +39,6 @@
 #include <drm/drm_encoder.h>
 #include <drm/drm_plane.h>
 
-#include <drm/ttm/ttm_bo_api.h>
 #include <drm/ttm/ttm_bo_driver.h>
 #include <drm/ttm/ttm_placement.h>
 
