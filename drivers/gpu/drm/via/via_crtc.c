@@ -1598,13 +1598,13 @@ void via_mode_set_nofb(struct drm_crtc *crtc)
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
+	/* Load standard registers */
+	via_load_vpit_regs(dev_priv);
+
+	/* Unlock */
+	via_unlock_crtc(VGABASE, pdev->device);
+
 	if (!iga->index) {
-		/* Load standard registers */
-		via_load_vpit_regs(dev_priv);
-
-		/* Unlock */
-		via_unlock_crtc(VGABASE, pdev->device);
-
 		/* IGA1 reset */
 		vga_wcrt(VGABASE, 0x09, 0x00); /* initial CR09=0 */
 		svga_wcrt_mask(VGABASE, 0x11, 0x00, BIT(6));
@@ -1635,48 +1635,7 @@ void via_mode_set_nofb(struct drm_crtc *crtc)
 
 		svga_wcrt_mask(VGABASE, 0x47,
 				reg_value, BIT(7) | BIT(6) | BIT(3));
-
-		/* Relock */
-		via_lock_crtc(VGABASE);
-
-		/* Set non-interlace / interlace mode. */
-		via_iga1_set_interlace_mode(VGABASE,
-					adjusted_mode->flags &
-					DRM_MODE_FLAG_INTERLACE);
-
-		/* No HSYNC shift. */
-		via_iga1_set_hsync_shift(VGABASE, 0x05);
-
-		/* Load display FIFO. */
-		ret = via_iga1_display_fifo_regs(dev, dev_priv,
-						iga, adjusted_mode,
-						crtc->primary->fb);
-		if (ret) {
-			goto exit;
-		}
-
-		/* Set PLL */
-		if (adjusted_mode->clock) {
-			u32 clock = adjusted_mode->clock * 1000;
-			u32 pll_regs;
-
-			if (iga->scaling_mode & VIA_SHRINK)
-				clock *= 2;
-			pll_regs = via_get_clk_value(crtc->dev, clock);
-			via_set_vclock(crtc, pll_regs);
-		}
-
-		via_iga_common_init(pdev, VGABASE);
-
-		/* Set palette LUT to 8-bit mode. */
-		via_iga1_set_palette_lut_resolution(VGABASE, true);
 	} else {
-		/* Load standard registers */
-		via_load_vpit_regs(dev_priv);
-
-		/* Unlock */
-		via_unlock_crtc(VGABASE, pdev->device);
-
 		/* disable IGA scales first */
 		via_disable_iga_scaling(crtc);
 
@@ -1757,10 +1716,44 @@ void via_mode_set_nofb(struct drm_crtc *crtc)
 				}
 			}
 		}
+	}
 
-		/* Relock */
-		via_lock_crtc(VGABASE);
+	/* Relock */
+	via_lock_crtc(VGABASE);
 
+	if (!iga->index) {
+		/* Set non-interlace / interlace mode. */
+		via_iga1_set_interlace_mode(VGABASE,
+					adjusted_mode->flags &
+					DRM_MODE_FLAG_INTERLACE);
+
+		/* No HSYNC shift. */
+		via_iga1_set_hsync_shift(VGABASE, 0x05);
+
+		/* Load display FIFO. */
+		ret = via_iga1_display_fifo_regs(dev, dev_priv,
+						iga, adjusted_mode,
+						crtc->primary->fb);
+		if (ret) {
+			goto exit;
+		}
+
+		/* Set PLL */
+		if (adjusted_mode->clock) {
+			u32 clock = adjusted_mode->clock * 1000;
+			u32 pll_regs;
+
+			if (iga->scaling_mode & VIA_SHRINK)
+				clock *= 2;
+			pll_regs = via_get_clk_value(crtc->dev, clock);
+			via_set_vclock(crtc, pll_regs);
+		}
+
+		via_iga_common_init(pdev, VGABASE);
+
+		/* Set palette LUT to 8-bit mode. */
+		via_iga1_set_palette_lut_resolution(VGABASE, true);
+	} else {
 		/* Set non-interlace / interlace mode. */
 		via_iga2_set_interlace_mode(VGABASE,
 					adjusted_mode->flags &
@@ -1792,7 +1785,6 @@ void via_mode_set_nofb(struct drm_crtc *crtc)
 
 		svga_wcrt_mask(VGABASE, 0x6A, BIT(7), BIT(7));
 	}
-
 exit:
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
