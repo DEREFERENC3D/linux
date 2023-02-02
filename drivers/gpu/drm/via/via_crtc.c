@@ -1601,8 +1601,20 @@ void via_mode_set_nofb(struct drm_crtc *crtc)
 	/* Load standard registers */
 	via_load_vpit_regs(dev_priv);
 
-	/* Unlock */
-	via_unlock_crtc(VGABASE, pdev->device);
+	/*
+	 * For VX855 and VX900 chipsets, CRTC unlock register is
+	 * CR47[4].  For all others, CR47[0].
+	 */
+	if ((pdev->device == PCI_DEVICE_ID_VIA_CHROME9_HCM) ||
+		(pdev->device == PCI_DEVICE_ID_VIA_CHROME9_HD)) {
+		reg_value = BIT(4);
+	} else {
+		reg_value = BIT(0);
+	}
+
+	/* Unlock CRTC registers. */
+	svga_wcrt_mask(VGABASE, 0x11, 0x00, BIT(7));
+	svga_wcrt_mask(VGABASE, 0x47, 0x00, reg_value);
 
 	if (!iga->index) {
 		/* IGA1 reset */

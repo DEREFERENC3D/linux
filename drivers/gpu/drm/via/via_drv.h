@@ -30,8 +30,6 @@
 #define _VIA_DRV_H
 
 
-#include <linux/pci_ids.h>
-
 #include <video/vga.h>
 
 #include <drm/drm_connector.h>
@@ -310,18 +308,6 @@ static inline void
 via_lock_crtc(void __iomem *regs)
 {
 	svga_wcrt_mask(regs, 0x11, BIT(7), BIT(7));
-}
-
-static inline void
-via_unlock_crtc(void __iomem *regs, int pci_id)
-{
-	u8 mask = BIT(0);
-
-	svga_wcrt_mask(regs, 0x11, 0, BIT(7));
-	if ((pci_id == PCI_DEVICE_ID_VIA_CHROME9_HCM) ||
-	    (pci_id == PCI_DEVICE_ID_VIA_CHROME9_HD))
-		mask = BIT(4);
-	svga_wcrt_mask(regs, 0x47, 0, mask);
 }
 
 
