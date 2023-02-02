@@ -1730,9 +1730,6 @@ void via_mode_set_nofb(struct drm_crtc *crtc)
 		}
 	}
 
-	/* Relock */
-	via_lock_crtc(VGABASE);
-
 	if (!iga->index) {
 		/* Set non-interlace / interlace mode. */
 		via_iga1_set_interlace_mode(VGABASE,

@@ -30,8 +30,6 @@
 #define _VIA_DRV_H
 
 
-#include <video/vga.h>
-
 #include <drm/drm_connector.h>
 #include <drm/drm_crtc.h>
 #include <drm/drm_encoder.h>
@@ -302,13 +300,6 @@ struct via_drm_priv {
 	VIA_WRITE(reg, (data & mask) | (VIA_READ(reg) & ~mask)) \
 
 #define VGABASE (VIA_BASE+VIA_MMIO_VGABASE)
-
-
-static inline void
-via_lock_crtc(void __iomem *regs)
-{
-	svga_wcrt_mask(regs, 0x11, BIT(7), BIT(7));
-}
 
 
 extern int via_driver_num_ioctls;
