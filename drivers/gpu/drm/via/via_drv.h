@@ -35,7 +35,7 @@
 #include <drm/drm_encoder.h>
 #include <drm/drm_plane.h>
 
-#include <drm/ttm/ttm_bo_driver.h>
+#include <drm/ttm/ttm_bo.h>
 #include <drm/ttm/ttm_placement.h>
 
 #include "via_crtc_hw.h"
