@@ -259,8 +259,6 @@ static int via_cursor_prepare_fb(struct drm_plane *plane,
 	struct via_bo *bo;
 	int ret = 0;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
-
 	if (!new_state->fb) {
 		goto exit;
 	}
@@ -282,7 +280,6 @@ static int via_cursor_prepare_fb(struct drm_plane *plane,
 	}
 
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 	return ret;
 }
 
@@ -293,8 +290,6 @@ static void via_cursor_cleanup_fb(struct drm_plane *plane,
 	struct ttm_buffer_object *ttm_bo;
 	struct via_bo *bo;
 	int ret;
-
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
 	if (!old_state->fb) {
 		goto exit;
@@ -314,7 +309,7 @@ static void via_cursor_cleanup_fb(struct drm_plane *plane,
 	ttm_bo_unreserve(ttm_bo);
 
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	return;
 }
 
 static int via_cursor_atomic_check(struct drm_plane *plane,
@@ -325,8 +320,6 @@ static int via_cursor_atomic_check(struct drm_plane *plane,
 	struct drm_crtc_state *new_crtc_state;
 	struct drm_framebuffer *fb = new_plane_state->fb;
 	int ret = 0;
-
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
 	if ((!new_plane_state->crtc) || (!new_plane_state->visible)) {
 		goto exit;
@@ -348,7 +341,6 @@ static int via_cursor_atomic_check(struct drm_plane *plane,
 					DRM_PLANE_NO_SCALING,
 					true, true);
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 	return ret;
 }
 
@@ -363,8 +355,6 @@ static void via_cursor_atomic_update(struct drm_plane *plane,
 	struct drm_gem_object *gem;
 	struct ttm_buffer_object *ttm_bo;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
-
 	if (new_state->fb != old_state->fb) {
 		gem = new_state->fb->obj[0];
 		ttm_bo = container_of(gem, struct ttm_buffer_object, base);
@@ -373,8 +363,6 @@ static void via_cursor_atomic_update(struct drm_plane *plane,
 
 	via_set_hi_location(crtc, new_state->crtc_x, new_state->crtc_y);
 	via_show_cursor(crtc);
-
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
 
 void via_cursor_atomic_disable(struct drm_plane *plane,
@@ -384,13 +372,9 @@ void via_cursor_atomic_disable(struct drm_plane *plane,
 			drm_atomic_get_new_plane_state(state, plane);
 	struct drm_crtc *crtc = new_state->crtc;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
-
 	if (crtc) {
 		via_hide_cursor(crtc);
 	}
-
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
 
 const struct drm_plane_helper_funcs via_cursor_drm_plane_helper_funcs = {
