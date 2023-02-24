@@ -16,12 +16,15 @@
 
 #include "via_drv.h"
 
-enum viafb_i2c_adap;
-
-#include <linux/via_i2c.h>
-
 #define SERIAL	0
 #define	GPIO	1
+
+struct via_i2c_stuff {
+	u16 i2c_port;			/* GPIO or I2C port */
+	u16 is_active;			/* Being used as I2C? */
+	struct i2c_adapter adapter;
+	struct i2c_algo_bit_data algo;
+};
 
 static struct via_i2c_stuff via_i2c_par[5];
 
