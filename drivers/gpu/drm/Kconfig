@@ -239,8 +239,6 @@ source "drivers/gpu/drm/amd/amdgpu/Kconfig"
 
 source "drivers/gpu/drm/nouveau/Kconfig"
 
-source "drivers/gpu/drm/via/Kconfig"
-
 source "drivers/gpu/drm/i915/Kconfig"
 
 source "drivers/gpu/drm/kmb/Kconfig"
@@ -275,6 +273,8 @@ source "drivers/gpu/drm/rockchip/Kconfig"
 source "drivers/gpu/drm/vmwgfx/Kconfig"
 
 source "drivers/gpu/drm/gma500/Kconfig"
+
+source "drivers/gpu/drm/via/Kconfig"
 
 source "drivers/gpu/drm/udl/Kconfig"
 
