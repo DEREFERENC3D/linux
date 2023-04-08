@@ -398,12 +398,12 @@ static void via_load_vpit_regs(struct via_drm_priv *dev_priv)
 }
 
 static int via_iga1_display_fifo_regs(struct drm_device *dev,
-					struct via_drm_priv *dev_priv,
 					struct via_crtc *iga,
 					struct drm_display_mode *mode,
 					struct drm_framebuffer *fb)
 {
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	u32 reg_value;
 	unsigned int fifo_max_depth = 0;
 	unsigned int fifo_threshold = 0;
@@ -800,12 +800,12 @@ exit:
 }
 
 static int via_iga2_display_fifo_regs(struct drm_device *dev,
-					struct via_drm_priv *dev_priv,
 					struct via_crtc *iga,
 					struct drm_display_mode *mode,
 					struct drm_framebuffer *fb)
 {
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	u32 reg_value;
 	unsigned int fifo_max_depth = 0;
 	unsigned int fifo_threshold = 0;
@@ -1745,9 +1745,8 @@ void via_mode_set_nofb(struct drm_crtc *crtc)
 		via_iga1_set_hsync_shift(VGABASE, 0x05);
 
 		/* Load display FIFO. */
-		ret = via_iga1_display_fifo_regs(dev, dev_priv,
-						iga, adjusted_mode,
-						crtc->primary->fb);
+		ret = via_iga1_display_fifo_regs(dev, iga, adjusted_mode,
+							crtc->primary->fb);
 		if (ret) {
 			goto exit;
 		}
@@ -1774,9 +1773,8 @@ void via_mode_set_nofb(struct drm_crtc *crtc)
 					DRM_MODE_FLAG_INTERLACE);
 
 		/* Load display FIFO. */
-		ret = via_iga2_display_fifo_regs(dev, dev_priv,
-						iga, adjusted_mode,
-						crtc->primary->fb);
+		ret = via_iga2_display_fifo_regs(dev, iga, adjusted_mode,
+							crtc->primary->fb);
 		if (ret) {
 			goto exit;
 		}
