@@ -1929,8 +1929,7 @@ void via_primary_atomic_update(struct drm_plane *plane,
 		vga_wcrt(VGABASE, 0x34, (addr >> 16) & 0xFF);
 
 		/* Load fetch count registers */
-		pitch = ALIGN(crtc->mode.hdisplay * fb->format->cpp[0],
-				16);
+		pitch = ALIGN(crtc->mode.hdisplay * fb->format->cpp[0],	16);
 		load_value_to_registers(VGABASE, &iga->fetch, pitch >> 4);
 
 		/* Set the primary pitch */
@@ -1956,7 +1955,7 @@ void via_primary_atomic_update(struct drm_plane *plane,
 		svga_wcrt_mask(VGABASE, 0xA3, ((addr >> 26) & 0x07), 0x07);
 
 		/* Load fetch count registers */
-		pitch = ALIGN(crtc->mode.hdisplay * (fb->format->cpp[0] * 8) >> 3, 16);
+		pitch = ALIGN(crtc->mode.hdisplay * fb->format->cpp[0], 16);
 		load_value_to_registers(VGABASE, &iga->fetch, pitch >> 4);
 
 		/* Set secondary pitch */
