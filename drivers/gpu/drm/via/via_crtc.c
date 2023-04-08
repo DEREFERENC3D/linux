@@ -106,86 +106,78 @@ static void via_iga_common_init(struct drm_device *dev)
 }
 
 static void via_iga1_set_color_depth(struct drm_device *dev,
-					u8 depth)
+					u8 cpp, u8 depth)
 {
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
-	u8 value;
+	u8 data;
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
-	value = 0x00;
+	data = 0x00;
 
 	/* Set the color depth for IGA1. */
-	switch (depth) {
-	case 8:
+	switch (cpp) {
+	case 1:
+		data |= BIT(4);
 		break;
-	case 16:
-		/* Bit 4 is for 555 (15-bit) / 565 (16-bit) color selection. */
-		value |= BIT(4) | BIT(2);
+	case 2:
+		data = (depth == 15) ? BIT(2) : BIT(4) | BIT(2);
 		break;
-	case 24:
-		value |= BIT(3) | BIT(2);
+	case 4:
+		data = (depth == 30) ? BIT(3) : BIT(3) | BIT(2);
+		data |= BIT(4);
 		break;
 	default:
 		break;
 	}
 
-	if ((depth == 8) || (depth == 16) || (depth == 24)) {
-		/* 3C5.15[4]   - Hi Color Mode Select
-		 *               0: 555
-		 *               1: 565
-		 * 3C5.15[3:2] - Display Color Depth Select
-		 *               00: 8bpp
-		 *               01: 16bpp
-		 *               10: 30bpp
-		 *               11: 32bpp */
-		svga_wseq_mask(VGABASE, 0x15, value,
-				BIT(4) | BIT(3) | BIT(2));
-		DRM_INFO("IGA1 Color Depth: %d bit\n", depth);
-	} else {
-		DRM_ERROR("Unsupported IGA1 Color Depth: %d bit\n",
-				depth);
-	}
+	/*
+	 * 3C5.15[4]   - Hi Color Mode Select
+	 *               0: 555
+	 *               1: 565
+	 * 3C5.15[3:2] - Display Color Depth Select
+	 *               00: 8bpp
+	 *               01: 16bpp
+	 *               10: 30bpp
+	 *               11: 32bpp
+	 */
+	svga_wseq_mask(VGABASE, 0x15, data, BIT(4) | BIT(3) | BIT(2));
 
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
 
 static void via_iga2_set_color_depth(struct drm_device *dev,
-					u8 depth)
+					u8 cpp, u8 depth)
 {
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
-	u8 value;
+	u8 data;
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
-	value = 0x00;
+	data = 0x00;
 
 	/* Set the color depth for IGA2. */
 	switch (depth) {
-	case 8:
+	case 1:
 		break;
-	case 16:
-		value = BIT(6);
+	case 2:
+		data = BIT(6);
 		break;
-	case 24:
-		value = BIT(7) | BIT(6);
+	case 4:
+		data = (depth == 30) ? BIT(7) : BIT(7) | BIT(6);
 		break;
 	default:
 		break;
 	}
 
-	if ((depth == 8) || (depth == 16) || (depth == 24)) {
-		/* 3X5.67[7:6] - Display Color Depth Select
-		 *               00: 8bpp
-		 *               01: 16bpp
-		 *               10: 30bpp
-		 *               11: 32bpp */
-		svga_wcrt_mask(VGABASE, 0x67, value, 0xC0);
-		DRM_INFO("IGA2 Color Depth: %d bit\n", depth);
-	} else {
-		DRM_ERROR("Unsupported IGA2 Color Depth: %d bit\n",
-				depth);
-	}
+	/*
+	 * 3X5.67[7:6] - Display Color Depth Select
+	 *               00: 8bpp
+	 *               01: 16bpp
+	 *               10: 30bpp
+	 *               11: 32bpp
+	 */
+	svga_wcrt_mask(VGABASE, 0x67, data, BIT(7) | BIT(6));
 
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
@@ -1922,7 +1914,9 @@ void via_primary_atomic_update(struct drm_plane *plane,
 	bo = to_ttm_bo(ttm_bo);
 
 	if (!iga->index) {
-		via_iga1_set_color_depth(dev, fb->format->depth);
+		via_iga1_set_color_depth(dev,
+						fb->format->cpp[0],
+						fb->format->depth);
 
 		/* Set the framebuffer offset */
 		addr = round_up((ttm_bo->resource->start << PAGE_SHIFT) +
@@ -1946,7 +1940,9 @@ void via_primary_atomic_update(struct drm_plane *plane,
 		 * second adapter */
 		load_value_to_registers(VGABASE, &iga->offset, pitch >> 3);
 	} else {
-		via_iga2_set_color_depth(dev, fb->format->depth);
+		via_iga2_set_color_depth(dev,
+						fb->format->cpp[0],
+						fb->format->depth);
 
 		/* Set the framebuffer offset */
 		addr = round_up((ttm_bo->resource->start << PAGE_SHIFT) +
