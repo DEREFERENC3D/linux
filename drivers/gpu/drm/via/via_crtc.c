@@ -65,8 +65,11 @@ static struct vga_regset vpit_table[] = {
 	{VGA_GFX_I, 0x08, 0xFF, 0xFF }
 };
 
-static void via_iga_common_init(struct pci_dev *pdev, void __iomem *regs)
+static void via_iga_common_init(struct drm_device *dev)
 {
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
+
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
 	/* Be careful with 3C5.15[5] - Wrap Around Disable.
@@ -77,7 +80,7 @@ static void via_iga_common_init(struct pci_dev *pdev, void __iomem *regs)
 	 * 3C5.15[1]   - Extended Display Mode Enable
 	 *               0: Disable
 	 *               1: Enable */
-	svga_wseq_mask(regs, 0x15, BIT(5) | BIT(1), BIT(5) | BIT(1));
+	svga_wseq_mask(VGABASE, 0x15, BIT(5) | BIT(1), BIT(5) | BIT(1));
 
 	/*
 	 * It was observed on NeoWare CA10 thin client with DVI that not
@@ -85,7 +88,7 @@ static void via_iga_common_init(struct pci_dev *pdev, void __iomem *regs)
 	 * distorted.
 	 */
 	if (pdev->device == PCI_DEVICE_ID_VIA_CLE266_GFX) {
-		svga_wcrt_mask(regs, 0x55, 0x00, BIT(7));
+		svga_wcrt_mask(VGABASE, 0x55, 0x00, BIT(7));
 	}
 
 	/*
@@ -97,7 +100,7 @@ static void via_iga_common_init(struct pci_dev *pdev, void __iomem *regs)
 	 *               0: Disable
 	 *               1: Enable
 	 */
-	svga_wcrt_mask(regs, 0x6B, 0x00, BIT(3));
+	svga_wcrt_mask(VGABASE, 0x6B, 0x00, BIT(3));
 
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
@@ -1758,7 +1761,7 @@ void via_mode_set_nofb(struct drm_crtc *crtc)
 			via_set_vclock(crtc, pll_regs);
 		}
 
-		via_iga_common_init(pdev, VGABASE);
+		via_iga_common_init(dev);
 
 		/* Set palette LUT to 8-bit mode. */
 		via_iga1_set_palette_lut_resolution(VGABASE, true);
@@ -1787,7 +1790,7 @@ void via_mode_set_nofb(struct drm_crtc *crtc)
 			via_set_vclock(crtc, pll_regs);
 		}
 
-		via_iga_common_init(pdev, VGABASE);
+		via_iga_common_init(dev);
 
 		/* Set palette LUT to 8-bit mode. */
 		via_iga2_set_palette_lut_resolution(VGABASE, true);
