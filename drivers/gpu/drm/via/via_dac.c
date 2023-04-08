@@ -422,12 +422,11 @@ void via_dac_probe(struct drm_device *dev)
 {
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
-	u16 chipset = pdev->device;
 	u8 sr13, sr5a;
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
-	switch (chipset) {
+	switch (pdev->device) {
 	case PCI_DEVICE_ID_VIA_UNICHROME_PRO_II:
 	case PCI_DEVICE_ID_VIA_CHROME9_HC3:
 	case PCI_DEVICE_ID_VIA_CHROME9_HCM:

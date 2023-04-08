@@ -458,13 +458,12 @@ void via_tmds_probe(struct drm_device *dev)
 {
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
-	u16 chipset = pdev->device;
 	u8 sr13, sr5a;
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
 	/* Detect the presence of integrated TMDS transmitter. */
-	switch (chipset) {
+	switch (pdev->device) {
 	case PCI_DEVICE_ID_VIA_UNICHROME_PRO_II:
 	case PCI_DEVICE_ID_VIA_CHROME9_HC3:
 		sr5a = vga_rseq(VGABASE, 0x5a);
@@ -588,7 +587,6 @@ void via_ext_dvi_probe(struct drm_device *dev)
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	struct i2c_adapter *i2c_bus;
-	u16 chipset = pdev->device;
 	u8 sr12, sr13;
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
@@ -635,7 +633,7 @@ void via_ext_dvi_probe(struct drm_device *dev)
 	DRM_DEBUG_KMS("SR13: 0x%02x\n", sr13);
 
 	if (dev_priv->ext_tmds_presence) {
-		switch (chipset) {
+		switch (pdev->device) {
 		case PCI_DEVICE_ID_VIA_CLE266_GFX:
 			/* 3C5.12[5] - FPD18 pin strapping (DIP0)
 			 *             0: DVI

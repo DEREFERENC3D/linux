@@ -608,20 +608,19 @@ static void via_lvds_dpms(struct drm_encoder *encoder, int mode)
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	/* PCI Device ID */
-	u16 chipset = pdev->device;
-
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
 	switch (mode) {
 	case DRM_MODE_DPMS_ON:
-		via_lvds_power(dev_priv, chipset, enc->di_port, true);
+		via_lvds_power(dev_priv, pdev->device, enc->di_port,
+				true);
 		via_lvds_io_pad_setting(dev_priv, enc->di_port, true);
 		break;
 	case DRM_MODE_DPMS_SUSPEND:
 	case DRM_MODE_DPMS_STANDBY:
 	case DRM_MODE_DPMS_OFF:
-		via_lvds_power(dev_priv, chipset, enc->di_port, false);
+		via_lvds_power(dev_priv, pdev->device, enc->di_port,
+				false);
 		via_lvds_io_pad_setting(dev_priv, enc->di_port, false);
 		break;
 	default:
@@ -639,12 +638,9 @@ static void via_lvds_prepare(struct drm_encoder *encoder)
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	/* PCI Device ID */
-	u16 chipset = pdev->device;
-
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
-	via_lvds_power(dev_priv, chipset, enc->di_port, false);
+	via_lvds_power(dev_priv, pdev->device, enc->di_port, false);
 	via_lvds_io_pad_setting(dev_priv, enc->di_port, false);
 
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
@@ -658,12 +654,9 @@ static void via_lvds_commit(struct drm_encoder *encoder)
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	/* PCI Device ID */
-	u16 chipset = pdev->device;
-
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
-	via_lvds_power(dev_priv, chipset, enc->di_port, true);
+	via_lvds_power(dev_priv, pdev->device, enc->di_port, true);
 	via_lvds_io_pad_setting(dev_priv, enc->di_port, true);
 
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
@@ -679,13 +672,10 @@ via_lvds_mode_set(struct drm_encoder *encoder, struct drm_display_mode *mode,
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	/* PCI Device ID */
-	u16 chipset = pdev->device;
-
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
 	/* Temporary implementation.*/
-	switch (chipset) {
+	switch (pdev->device) {
 	case PCI_DEVICE_ID_VIA_CHROME9_HC:
 		via_fpdp_low_set_adjustment(VGABASE, 0x08);
 		break;
@@ -693,7 +683,7 @@ via_lvds_mode_set(struct drm_encoder *encoder, struct drm_display_mode *mode,
 		break;
 	}
 
-	switch (chipset) {
+	switch (pdev->device) {
 	case PCI_DEVICE_ID_VIA_UNICHROME_PRO_II:
 	case PCI_DEVICE_ID_VIA_CHROME9_HC3:
 	case PCI_DEVICE_ID_VIA_CHROME9_HCM:
@@ -724,12 +714,9 @@ static void via_lvds_disable(struct drm_encoder *encoder)
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	/* PCI Device ID */
-	u16 chipset = pdev->device;
-
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
-	via_lvds_power(dev_priv, chipset, enc->di_port, false);
+	via_lvds_power(dev_priv, pdev->device, enc->di_port, false);
 	via_lvds_io_pad_setting(dev_priv, enc->di_port, false);
 
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
@@ -947,7 +934,6 @@ void via_lvds_probe(struct drm_device *dev)
 	struct drm_connector connector;
 	struct i2c_adapter *i2c_bus;
 	struct edid *edid;
-	u16 chipset = pdev->device;
 	u8 sr12, sr13, sr5a;
 	u8 cr3b;
 
@@ -957,13 +943,12 @@ void via_lvds_probe(struct drm_device *dev)
 	sr13 = vga_rseq(VGABASE, 0x13);
 	cr3b = vga_rcrt(VGABASE, 0x3b);
 
-	DRM_DEBUG_KMS("chipset: 0x%04x\n", chipset);
 	DRM_DEBUG_KMS("sr12: 0x%02x\n", sr12);
 	DRM_DEBUG_KMS("sr13: 0x%02x\n", sr13);
 	DRM_DEBUG_KMS("cr3b: 0x%02x\n", cr3b);
 
 	/* Detect the presence of FPs. */
-	switch (chipset) {
+	switch (pdev->device) {
 	case PCI_DEVICE_ID_VIA_CLE266_GFX:
 		/*
 		 * 3C5.12[4] - FPD17 pin strapping (DIP1)
