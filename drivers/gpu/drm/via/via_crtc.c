@@ -2233,8 +2233,6 @@ exit:
 
 static const uint32_t via_primary_formats[] = {
 	DRM_FORMAT_XRGB8888,
-	DRM_FORMAT_ARGB8888,
-	DRM_FORMAT_RGB888,
 	DRM_FORMAT_RGB565,
 	DRM_FORMAT_RGB332,
 };
