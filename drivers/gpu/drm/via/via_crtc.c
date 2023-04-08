@@ -105,9 +105,10 @@ static void via_iga_common_init(struct drm_device *dev)
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
 
-static void via_iga1_set_color_depth(struct via_drm_priv *dev_priv,
+static void via_iga1_set_color_depth(struct drm_device *dev,
 					u8 depth)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	u8 value;
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
@@ -149,9 +150,10 @@ static void via_iga1_set_color_depth(struct via_drm_priv *dev_priv,
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
 
-static void via_iga2_set_color_depth(struct via_drm_priv *dev_priv,
+static void via_iga2_set_color_depth(struct drm_device *dev,
 					u8 depth)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	u8 value;
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
@@ -1922,7 +1924,7 @@ void via_primary_atomic_update(struct drm_plane *plane,
 	bo = to_ttm_bo(ttm_bo);
 
 	if (!iga->index) {
-		via_iga1_set_color_depth(dev_priv, fb->format->depth);
+		via_iga1_set_color_depth(dev, fb->format->depth);
 
 		/* Set the framebuffer offset */
 		addr = round_up((ttm_bo->resource->start << PAGE_SHIFT) +
@@ -1946,7 +1948,7 @@ void via_primary_atomic_update(struct drm_plane *plane,
 		 * second adapter */
 		load_value_to_registers(VGABASE, &iga->offset, pitch >> 3);
 	} else {
-		via_iga2_set_color_depth(dev_priv, fb->format->depth);
+		via_iga2_set_color_depth(dev, fb->format->depth);
 
 		/* Set the framebuffer offset */
 		addr = round_up((ttm_bo->resource->start << PAGE_SHIFT) +
