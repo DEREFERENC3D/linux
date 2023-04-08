@@ -2234,7 +2234,7 @@ exit:
 static const uint32_t via_primary_formats[] = {
 	DRM_FORMAT_XRGB8888,
 	DRM_FORMAT_RGB565,
-	DRM_FORMAT_RGB332,
+	DRM_FORMAT_C8,
 };
 
 int via_crtc_init(struct via_drm_priv *dev_priv, uint32_t index)
