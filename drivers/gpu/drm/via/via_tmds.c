@@ -225,7 +225,7 @@ static void via_tmds_dpms(struct drm_encoder *encoder, int mode)
 		via_tmds_io_pad_setting(dev, enc->di_port, false);
 		break;
 	default:
-		DRM_ERROR("Bad DPMS mode.");
+		drm_err(dev, "Bad DPMS mode.");
 		break;
 	}
 
@@ -549,7 +549,7 @@ void via_tmds_init(struct drm_device *dev)
 
 	enc = kzalloc(sizeof(*enc) + sizeof(*con), GFP_KERNEL);
 	if (!enc) {
-		DRM_ERROR("Failed to allocate connector "
+		drm_err(dev, "Failed to allocate connector "
 				"and encoder.\n");
 		goto exit;
 	}
