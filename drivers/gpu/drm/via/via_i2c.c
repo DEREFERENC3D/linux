@@ -200,7 +200,7 @@ int via_i2c_init(struct drm_device *dev)
 
 		ret = create_i2c_bus(dev, i2c);
 		if (ret < 0)
-			DRM_ERROR("cannot create i2c bus %x:%d\n",
+			drm_err(dev, "cannot create i2c bus %x:%d\n",
 					ports[i], ret);
 		i2c++;
 	}
