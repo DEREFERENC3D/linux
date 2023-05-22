@@ -2220,7 +2220,7 @@ static int via_gamma_init(struct drm_crtc *crtc)
 
 	ret = drm_mode_crtc_set_gamma_size(crtc, 256);
 	if (ret) {
-		DRM_ERROR("Failed to set gamma size!\n");
+		drm_err(dev, "Failed to set gamma size!\n");
 		goto exit;
 	}
 
@@ -2256,7 +2256,7 @@ int via_crtc_init(struct via_drm_priv *dev_priv, uint32_t index)
 	primary = kzalloc(sizeof(struct drm_plane), GFP_KERNEL);
 	if (!primary) {
 		ret = -ENOMEM;
-		DRM_ERROR("Failed to allocate a primary plane.\n");
+		drm_err(dev, "Failed to allocate a primary plane.\n");
 		goto exit;
 	}
 
@@ -2268,7 +2268,7 @@ int via_crtc_init(struct via_drm_priv *dev_priv, uint32_t index)
 			ARRAY_SIZE(via_primary_formats),
 			NULL, DRM_PLANE_TYPE_PRIMARY, NULL);
 	if (ret) {
-		DRM_ERROR("Failed to initialize a primary "
+		drm_err(dev, "Failed to initialize a primary "
 				"plane.\n");
 		goto free_primary;
 	}
@@ -2276,7 +2276,7 @@ int via_crtc_init(struct via_drm_priv *dev_priv, uint32_t index)
 	cursor = kzalloc(sizeof(struct drm_plane), GFP_KERNEL);
 	if (!cursor) {
 		ret = -ENOMEM;
-		DRM_ERROR("Failed to allocate a cursor plane.\n");
+		drm_err(dev, "Failed to allocate a cursor plane.\n");
 		goto cleanup_primary;
 	}
 
@@ -2288,7 +2288,7 @@ int via_crtc_init(struct via_drm_priv *dev_priv, uint32_t index)
 			via_cursor_formats_size,
 			NULL, DRM_PLANE_TYPE_CURSOR, NULL);
 	if (ret) {
-		DRM_ERROR("Failed to initialize a cursor "
+		drm_err(dev, "Failed to initialize a cursor "
 				"plane.\n");
 		goto free_cursor;
 	}
@@ -2296,7 +2296,7 @@ int via_crtc_init(struct via_drm_priv *dev_priv, uint32_t index)
 	iga = kzalloc(sizeof(struct via_crtc), GFP_KERNEL);
 	if (!iga) {
 		ret = -ENOMEM;
-		DRM_ERROR("Failed to allocate CRTC storage.\n");
+		drm_err(dev, "Failed to allocate CRTC storage.\n");
 		goto cleanup_cursor;
 	}
 
@@ -2307,7 +2307,7 @@ int via_crtc_init(struct via_drm_priv *dev_priv, uint32_t index)
 					&via_drm_crtc_funcs,
 					NULL);
 	if (ret) {
-		DRM_ERROR("Failed to initialize CRTC!\n");
+		drm_err(dev, "Failed to initialize CRTC!\n");
 		goto free_crtc;
 	}
 
