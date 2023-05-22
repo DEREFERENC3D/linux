@@ -955,7 +955,7 @@ int via_vram_detect(struct drm_device *dev)
 		break;
 	}
 
-	DRM_INFO("Found %s video RAM.\n", name);
+	drm_dbg_driver(dev, "Found %s video RAM.\n", name);
 out_err:
 	if (bridge)
 		pci_dev_put(bridge);
