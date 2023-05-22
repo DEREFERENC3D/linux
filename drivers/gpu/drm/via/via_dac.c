@@ -137,7 +137,7 @@ static void via_dac_dpms(struct drm_encoder *encoder, int mode)
 		via_dac_power(dev_priv, false);
 		break;
 	default:
-		DRM_ERROR("Bad DPMS mode.");
+		drm_err(dev, "Bad DPMS mode.");
 		break;
 	}
 
@@ -484,7 +484,7 @@ void via_dac_init(struct drm_device *dev)
 
 	enc = kzalloc(sizeof(*enc) + sizeof(*con), GFP_KERNEL);
 	if (!enc) {
-		DRM_ERROR("Failed to allocate connector and encoder\n");
+		drm_err(dev, "Failed to allocate connector and encoder\n");
 		return;
 	}
 	con = &enc->cons[0];
