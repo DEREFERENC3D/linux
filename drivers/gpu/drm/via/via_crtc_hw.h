@@ -104,8 +104,6 @@ via_iga1_set_palette_lut_resolution(void __iomem *regs,
 	 *             0: 6-bit
 	 *             1: 8-bit */
 	svga_wseq_mask(regs, 0x15, palette_lut ? BIT(7) : 0x00, BIT(7));
-	DRM_DEBUG_KMS("IGA1 Palette LUT Resolution: %s bit\n",
-			palette_lut ? "8" : "6");
 }
 
 static inline void
@@ -117,8 +115,6 @@ via_iga2_set_palette_lut_resolution(void __iomem *regs,
 	 *             0: 6-bit
 	 *             1: 8-bit */
 	svga_wcrt_mask(regs, 0x6a, palette_lut ? BIT(5) : 0x00, BIT(5));
-	DRM_DEBUG_KMS("IGA2 Palette LUT Resolution: %s bit\n",
-			palette_lut ? "8" : "6");
 }
 
 static inline void
@@ -126,8 +122,6 @@ via_iga1_set_interlace_mode(void __iomem *regs, bool interlace_mode)
 {
 	svga_wcrt_mask(regs, 0x33,
 			interlace_mode ? BIT(6) : 0x00, BIT(6));
-	DRM_DEBUG_KMS("IGA1 Interlace Mode: %s\n",
-			interlace_mode ? "On" : "Off");
 }
 
 static inline void
@@ -135,8 +129,6 @@ via_iga2_set_interlace_mode(void __iomem *regs, bool interlace_mode)
 {
 	svga_wcrt_mask(regs, 0x67,
 			interlace_mode ? BIT(5) : 0x00, BIT(5));
-	DRM_DEBUG_KMS("IGA2 Interlace Mode: %s\n",
-			interlace_mode ? "On" : "Off");
 }
 
 /*
@@ -147,8 +139,6 @@ via_iga1_set_hsync_shift(void __iomem *regs, u8 shift_value)
 {
 	/* 3X5.33[2:0] - IGA1 HSYNC Shift */
 	svga_wcrt_mask(regs, 0x33, shift_value, BIT(2) | BIT(1) | BIT(0));
-	DRM_DEBUG_KMS("IGA1 HSYNC Shift: %u\n",
-				(shift_value & 0x07));
 }
 
 /*
@@ -164,11 +154,6 @@ via_dip0_set_io_pad_state(void __iomem *regs, u8 io_pad_state)
 	 *               11: Pad on/off according to the
 	 *                   Power Management Status (PMS) */
 	svga_wseq_mask(regs, 0x1E, io_pad_state << 6, BIT(7) | BIT(6));
-	DRM_DEBUG_KMS("DIP0 I/O Pad State: %s\n",
-			((io_pad_state & (BIT(1) | BIT(0))) == 0x03) ? "On" :
-			((io_pad_state & (BIT(1) | BIT(0))) == 0x02) ? "Conditional" :
-			((io_pad_state & (BIT(1) | BIT(0))) == 0x01) ? "Off" :
-								       "Off");
 }
 
 /*
@@ -184,8 +169,6 @@ via_dip0_set_output_enable(void __iomem *regs, bool output_enable)
 	*             1: Output Enable
 	*/
 	svga_wcrt_mask(regs, 0x6c, output_enable ? BIT(0) : 0x00, BIT(0));
-	DRM_DEBUG_KMS("DIP0 Output: %s\n",
-			output_enable ? "Enable" : "Disable");
 }
 
 /*
@@ -201,8 +184,6 @@ via_dip0_set_clock_source(void __iomem *regs, bool clock_source)
 	 *             1: Internal
 	 */
 	svga_wcrt_mask(regs, 0x6c, clock_source ? BIT(5) : 0x00, BIT(5));
-	DRM_DEBUG_KMS("DIP0 Clock Source: %s\n",
-			clock_source ? "Internal" : "External");
 }
 
 /*
@@ -218,8 +199,6 @@ via_dip0_set_display_source(void __iomem *regs, u8 display_source)
 	 *             1: Secondary Display
 	 */
 	svga_wcrt_mask(regs, 0x6c, display_source << 7, BIT(7));
-	DRM_DEBUG_KMS("DIP0 Display Source: IGA%d\n",
-			(display_source & 0x01) + 1);
 }
 
 /*
@@ -235,11 +214,6 @@ via_dip1_set_io_pad_state(void __iomem *regs, u8 io_pad_state)
 	 *               11: I/O pad on
 	 */
 	svga_wseq_mask(regs, 0x1e, io_pad_state << 4, BIT(5) | BIT(4));
-	DRM_DEBUG_KMS("DIP1 I/O Pad State: %s\n",
-			((io_pad_state & (BIT(1) | BIT(0))) == 0x03) ? "On" :
-			((io_pad_state & (BIT(1) | BIT(0))) == 0x02) ? "Conditional" :
-			((io_pad_state & (BIT(1) | BIT(0))) == 0x01) ? "Off" :
-									"Off");
 }
 
 /*
@@ -255,8 +229,6 @@ via_dip1_set_output_enable(void __iomem *regs, bool output_enable)
 	 *             1: Output Enable
 	 */
 	svga_wcrt_mask(regs, 0x93, output_enable ? BIT(0) : 0x00, BIT(0));
-	DRM_DEBUG_KMS("DIP1 Output: %s\n",
-			output_enable ? "Enable" : "Disable");
 }
 
 /*
@@ -272,8 +244,6 @@ via_dip1_set_clock_source(void __iomem *regs, bool clock_source)
 	 *             1: Internal
 	 */
 	svga_wcrt_mask(regs, 0x93, clock_source ? BIT(5) : 0x00, BIT(5));
-	DRM_DEBUG_KMS("DIP1 Clock Source: %s\n",
-			clock_source ? "Internal" : "External");
 }
 
 /*
@@ -289,8 +259,6 @@ via_dip1_set_display_source(void __iomem *regs, u8 display_source)
 	 *             1: IGA2
 	 */
 	svga_wcrt_mask(regs, 0x93, display_source << 7, BIT(7));
-	DRM_DEBUG_KMS("DIP1 Display Source: IGA%d\n",
-			(display_source & 0x01) + 1);
 }
 
 /*
@@ -305,11 +273,6 @@ via_dvp0_set_io_pad_state(void __iomem *regs, u8 io_pad_state)
 	 *               11: Pad on/off according to the
 	 *                   Power Management Status (PMS) */
 	svga_wseq_mask(regs, 0x1E, io_pad_state << 6, BIT(7) | BIT(6));
-	DRM_DEBUG_KMS("DVP0 I/O Pad State: %s\n",
-			((io_pad_state & (BIT(1) | BIT(0))) == 0x03) ? "On" :
-			((io_pad_state & (BIT(1) | BIT(0))) == 0x02) ? "Conditional" :
-			((io_pad_state & (BIT(1) | BIT(0))) == 0x01) ? "Off" :
-								       "Off");
 }
 
 /*
@@ -326,9 +289,6 @@ via_dvp0_set_clock_drive_strength(void __iomem *regs,
 	/* 3C5.2A[4] - DVP0 Clock Drive Strength Bit [1] */
 	svga_wseq_mask(regs, 0x2A,
 			clock_drive_strength << 3, BIT(4));
-
-	DRM_DEBUG_KMS("DVP0 Clock I/O Pad Drive Strength: %lu\n",
-			clock_drive_strength & (BIT(1) | BIT(0)));
 }
 
 /*
@@ -345,9 +305,6 @@ via_dvp0_set_data_drive_strength(void __iomem *regs,
 	/* 3C5.2A[5] - DVP0 Data Drive Strength Bit [1] */
 	svga_wseq_mask(regs, 0x2A,
 			data_drive_strength << 4, BIT(5));
-
-	DRM_DEBUG_KMS("DVP0 Data I/O Pads Drive Strength: %lu\n",
-			data_drive_strength & (BIT(1) | BIT(0)));
 }
 
 /*
@@ -360,8 +317,6 @@ via_dvp0_set_display_source(void __iomem *regs, u8 display_source)
 	 *             0: Primary Display
 	 *             1: Secondary Display */
 	svga_wcrt_mask(regs, 0x96, display_source << 4, BIT(4));
-	DRM_DEBUG_KMS("DVP0 Display Source: IGA%d\n",
-			(display_source & 0x01) + 1);
 }
 
 /*
@@ -376,11 +331,6 @@ via_dvp1_set_io_pad_state(void __iomem *regs, u8 io_pad_state)
 	 *               11: Pad on/off according to the
 	 *                   Power Management Status (PMS) */
 	svga_wseq_mask(regs, 0x1E, io_pad_state << 4, BIT(5) | BIT(4));
-	DRM_DEBUG_KMS("DVP1 I/O Pad State: %s\n",
-			((io_pad_state & (BIT(1) | BIT(0))) == 0x03) ? "On" :
-			((io_pad_state & (BIT(1) | BIT(0))) == 0x02) ? "Conditional" :
-			((io_pad_state & (BIT(1) | BIT(0))) == 0x01) ? "Off" :
-								       "Off");
 }
 
 /*
@@ -397,8 +347,6 @@ via_dvp1_set_clock_drive_strength(void __iomem *regs,
 	 *               11: highest */
 	svga_wseq_mask(regs, 0x65,
 			clock_drive_strength << 2, BIT(3) | BIT(2));
-	DRM_DEBUG_KMS("DVP1 Clock I/O Pad Drive Strength: %lu\n",
-			clock_drive_strength & (BIT(1) | BIT(0)));
 }
 
 /*
@@ -415,8 +363,6 @@ via_dvp1_set_data_drive_strength(void __iomem *regs,
 	 *               11: highest */
 	svga_wseq_mask(regs, 0x65,
 			data_drive_strength, BIT(1) | BIT(0));
-	DRM_DEBUG_KMS("DVP1 Data I/O Pads Drive Strength: %lu\n",
-			data_drive_strength & (BIT(1) | BIT(0)));
 }
 
 /*
@@ -429,8 +375,6 @@ via_dvp1_set_display_source(void __iomem *regs, u8 display_source)
 	 *             0: Primary Display
 	 *             1: Secondary Display */
 	svga_wcrt_mask(regs, 0x9B, display_source << 4, BIT(4));
-	DRM_DEBUG_KMS("DVP1 Display Source: IGA%d\n",
-			(display_source & 0x01) + 1);
 }
 
 /*
@@ -443,8 +387,6 @@ static inline void via_dac_set_power(void __iomem *regs, bool output_state)
 	 *             1: DAC off */
 	svga_wcrt_mask(regs, 0x47,
 			output_state ? 0x00 : BIT(2), BIT(2));
-	DRM_DEBUG_KMS("Analog (VGA) Power: %s\n",
-			output_state ? "On" : "Off");
 }
 
 /*
@@ -460,14 +402,6 @@ static inline void via_dac_set_dpms_control(void __iomem *regs,
 	 *               11: Off */
 	svga_wcrt_mask(regs, 0x36,
 			dpms_control << 4, BIT(5) | BIT(4));
-	DRM_DEBUG_KMS("Analog (VGA) DPMS: %s\n",
-			((dpms_control & (BIT(1) | BIT(0))) == 0x03) ?
-				"Off" :
-			((dpms_control & (BIT(1) | BIT(0))) == 0x02) ?
-				"Suspend" :
-			((dpms_control & (BIT(1) | BIT(0))) == 0x01) ?
-				"Standby" :
-				"On");
 }
 
 /*
@@ -484,10 +418,6 @@ static inline void via_dac_set_sync_polarity(void __iomem *regs,
 	 *          1: Negative */
 	svga_wmisc_mask(regs,
 			sync_polarity << 6, (BIT(1) | BIT(0)) << 6);
-	DRM_DEBUG_KMS("Analog (VGA) Horizontal Sync Polarity: %s\n",
-			(sync_polarity & BIT(0)) ? "-" : "+");
-	DRM_DEBUG_KMS("Analog (VGA) Vertical Sync Polarity: %s\n",
-			(sync_polarity & BIT(1)) ? "-" : "+");
 }
 
 /*
@@ -501,8 +431,6 @@ static inline void via_dac_set_display_source(void __iomem *regs,
 	 *             1: Secondary Display Stream (IGA2) */
 	svga_wseq_mask(regs, 0x16,
 			display_source << 6, BIT(6));
-	DRM_DEBUG_KMS("Analog (VGA) Display Source: IGA%d\n",
-			(display_source & 0x01) + 1);
 }
 
 /*
@@ -517,9 +445,6 @@ static inline void via_lvds_set_primary_power_seq_type(void __iomem *regs,
 	 *             1: Software Control */
 	svga_wcrt_mask(regs, 0x91,
 			ctrl_type ? 0x00 : BIT(0), BIT(0));
-	DRM_DEBUG_KMS("FP Primary Power Sequence Control Type: "
-			"%s Control\n",
-			ctrl_type ? "Hardware" : "Software");
 }
 
 /*
@@ -534,8 +459,6 @@ static inline void via_lvds_set_primary_soft_back_light(void __iomem *regs,
 	 *             1: On */
 	svga_wcrt_mask(regs, 0x91,
 			soft_on ? BIT(1) : 0x00, BIT(1));
-	DRM_DEBUG_KMS("FP Primary Software Controlled Back Light: "
-			"%s\n", soft_on ? "On" : "Off");
 }
 
 /*
@@ -550,8 +473,6 @@ static inline void via_lvds_set_primary_soft_vee(void __iomem *regs,
 	 *             1: On */
 	svga_wcrt_mask(regs, 0x91,
 			soft_on ? BIT(2) : 0x00, BIT(2));
-	DRM_DEBUG_KMS("FP Primary Software Controlled VEE: %s\n",
-			soft_on ? "On" : "Off");
 }
 
 /*
@@ -566,8 +487,6 @@ static inline void via_lvds_set_primary_soft_data(void __iomem *regs,
 	 *             1: On */
 	svga_wcrt_mask(regs, 0x91,
 			soft_on ? BIT(3) : 0x00, BIT(3));
-	DRM_DEBUG_KMS("FP Primary Software Controlled Data: %s\n",
-			soft_on ? "On" : "Off");
 }
 
 /*
@@ -582,8 +501,6 @@ static inline void via_lvds_set_primary_soft_vdd(void __iomem *regs,
 	 *             1: On */
 	svga_wcrt_mask(regs, 0x91,
 			soft_on ? BIT(4) : 0x00, BIT(4));
-	DRM_DEBUG_KMS("FP Primary Software Controlled VDD: %s\n",
-			soft_on ? "On" : "Off");
 }
 
 /*
@@ -598,8 +515,6 @@ static inline void via_lvds_set_primary_direct_back_light_ctrl(
 	 *             1: Off */
 	svga_wcrt_mask(regs, 0x91,
 			direct_on ? 0x00 : BIT(6), BIT(6));
-	DRM_DEBUG_KMS("FP Primary Direct Back Light Control: %s\n",
-			direct_on ? "On" : "Off");
 }
 
 /*
@@ -614,8 +529,6 @@ static inline void via_lvds_set_primary_direct_display_period(
 	 *             1: Off */
 	svga_wcrt_mask(regs, 0x91,
 			direct_on ? 0x00 : BIT(7), BIT(7));
-	DRM_DEBUG_KMS("FP Primary Direct Display Period Control: %s\n",
-			direct_on ? "On" : "Off");
 }
 
 /*
@@ -630,8 +543,6 @@ static inline void via_lvds_set_primary_hard_power(void __iomem *regs,
 	 *             1: Hardware Controlled Power On */
 	svga_wcrt_mask(regs, 0x6A,
 			power_state ? BIT(3) : 0x00, BIT(3));
-	DRM_DEBUG_KMS("FP Primary Hardware Controlled Power "
-			"Sequence: %s\n", power_state ? "On" : "Off");
 }
 
 /*
@@ -646,9 +557,6 @@ static inline void via_lvds_set_secondary_power_seq_type(void __iomem *regs,
 	 *             1: Software Control */
 	svga_wcrt_mask(regs, 0xD3,
 			ctrl_type ? 0x00 : BIT(0), BIT(0));
-	DRM_DEBUG_KMS("FP Secondary Power Sequence Control Type: "
-			"%s Control\n",
-			ctrl_type ? "Hardware" : "Software");
 }
 
 /*
@@ -663,8 +571,6 @@ static inline void via_lvds_set_secondary_soft_back_light(void __iomem *regs,
 	 *             1: On */
 	svga_wcrt_mask(regs, 0xD3,
 			soft_on ? BIT(1) : 0x00, BIT(1));
-	DRM_DEBUG_KMS("FP Secondary Software Controlled Back Light: "
-			"%s\n", soft_on ? "On" : "Off");
 }
 
 /*
@@ -679,8 +585,6 @@ static inline void via_lvds_set_secondary_soft_vee(void __iomem *regs,
 	 *             1: On */
 	svga_wcrt_mask(regs, 0xD3,
 			soft_on ? BIT(2) : 0x00, BIT(2));
-	DRM_DEBUG_KMS("FP Secondary Software Controlled VEE: %s\n",
-			soft_on ? "On" : "Off");
 }
 
 /*
@@ -695,8 +599,6 @@ static inline void via_lvds_set_secondary_soft_data(void __iomem *regs,
 	 *             1: On */
 	svga_wcrt_mask(regs, 0xD3,
 			soft_on ? BIT(3) : 0x00, BIT(3));
-	DRM_DEBUG_KMS("FP Secondary Software Controlled Data: %s\n",
-			soft_on ? "On" : "Off");
 }
 
 /*
@@ -711,8 +613,6 @@ static inline void via_lvds_set_secondary_soft_vdd(void __iomem *regs,
 	 *             1: On */
 	svga_wcrt_mask(regs, 0xD3,
 			soft_on ? BIT(4) : 0x00, BIT(4));
-	DRM_DEBUG_KMS("FP Secondary Software Controlled VDD: %s\n",
-			soft_on ? "On" : "Off");
 }
 
 /*
@@ -727,8 +627,6 @@ static inline void via_lvds_set_secondary_direct_back_light_ctrl(
 	 *             1: Off */
 	svga_wcrt_mask(regs, 0xD3,
 			direct_on ? 0x00 : BIT(6), BIT(6));
-	DRM_DEBUG_KMS("FP Secondary Direct Back Light "
-			"Control: %s\n", direct_on ? "On" : "Off");
 }
 
 /*
@@ -743,8 +641,6 @@ static inline void via_lvds_set_secondary_direct_display_period(
 	 *             1: Off */
 	svga_wcrt_mask(regs, 0xD3,
 			direct_on ? 0x00 : BIT(7), BIT(7));
-	DRM_DEBUG_KMS("FP Secondary Direct Display Period "
-			"Control: %s\n", direct_on ? "On" : "Off");
 }
 
 /*
@@ -758,8 +654,6 @@ static inline void via_lvds_set_secondary_hard_power(void __iomem *regs,
 	 *             1: On */
 	svga_wcrt_mask(regs, 0xD4,
 			power_state ? BIT(1) : 0x00, BIT(1));
-	DRM_DEBUG_KMS("FP Secondary Hardware Controlled Power "
-			"Sequence: %s\n", power_state ? "On" : "Off");
 }
 
 /*
@@ -775,14 +669,6 @@ via_fpdp_low_set_io_pad_state(void __iomem *regs, u8 io_pad_state)
 	 *                   Power Management Status (PMS) */
 	svga_wseq_mask(regs, 0x2A,
 			io_pad_state, BIT(1) | BIT(0));
-	DRM_DEBUG_KMS("FPDP Low I/O Pad State: %s\n",
-			((io_pad_state & (BIT(1) | BIT(0))) == 0x03) ?
-				"On" :
-			((io_pad_state & (BIT(1) | BIT(0))) == 0x02) ?
-				"Conditional" :
-			((io_pad_state & (BIT(1) | BIT(0))) == 0x01) ?
-				"Off" :
-				"Off");
 }
 
 /*
@@ -794,9 +680,6 @@ via_fpdp_low_set_adjustment(void __iomem *regs, u8 adjustment)
 	/* 3X5.99[3:0] - FPDP Low Adjustment */
 	svga_wcrt_mask(regs, 0x99,
 			adjustment, BIT(3) | BIT(2) | BIT(1) | BIT(0));
-	DRM_DEBUG_KMS("FPDP Low Adjustment: %lu\n",
-			(adjustment & (BIT(3) | BIT(2) |
-					BIT(1) | BIT(0))));
 }
 
 /*
@@ -810,8 +693,6 @@ via_fpdp_low_set_display_source(void __iomem *regs, u8 display_source)
 	 *             1: Secondary Display */
 	svga_wcrt_mask(regs, 0x99,
 			display_source << 4, BIT(4));
-	DRM_DEBUG_KMS("FPDP Low Display Source: IGA%d\n",
-			(display_source & 0x01) + 1);
 }
 
 /*
@@ -827,14 +708,6 @@ via_fpdp_high_set_io_pad_state(void __iomem *regs, u8 io_pad_state)
 	 *                   Power Management Status (PMS) */
 	svga_wseq_mask(regs, 0x2A,
 			io_pad_state << 2, BIT(3) | BIT(2));
-	DRM_DEBUG_KMS("FPDP High I/O Pad State: %s\n",
-			((io_pad_state & (BIT(1) | BIT(0))) == 0x03) ?
-				"On" :
-			((io_pad_state & (BIT(1) | BIT(0))) == 0x02) ?
-				"Conditional" :
-			((io_pad_state & (BIT(1) | BIT(0))) == 0x01) ?
-				"Off" :
-				"Off");
 }
 
 /*
@@ -846,9 +719,6 @@ via_fpdp_high_set_adjustment(void __iomem *regs, u8 adjustment)
 	/* 3X5.97[3:0] - FPDP High Adjustment */
 	svga_wcrt_mask(regs, 0x97,
 			adjustment, BIT(3) | BIT(2) | BIT(1) | BIT(0));
-	DRM_DEBUG_KMS("FPDP High Adjustment: %lu\n",
-			(adjustment & (BIT(3) | BIT(2) |
-					BIT(1) | BIT(0))));
 }
 
 /*
@@ -862,8 +732,6 @@ via_fpdp_high_set_display_source(void __iomem *regs, u8 display_source)
 	 *             1: Secondary Display */
 	svga_wcrt_mask(regs, 0x97,
 			display_source << 4, BIT(4));
-	DRM_DEBUG_KMS("FPDP High Display Source: IGA%d\n",
-			(display_source & 0x01) + 1);
 }
 
 /*
@@ -877,8 +745,6 @@ via_lvds1_set_power(void __iomem *regs, bool power_state)
 	 *             1: Power off */
 	svga_wcrt_mask(regs, 0xD2,
 			power_state ? 0x00 : BIT(7), BIT(7));
-	DRM_DEBUG_KMS("LVDS1 Power State: %s\n",
-			power_state ? "On" : "Off");
 }
 
 /*
@@ -892,8 +758,6 @@ via_lvds1_set_power_seq(void __iomem *regs, bool softCtrl)
 	 *             0: Hardware Control
 	 *             1: Software Control */
 	svga_wcrt_mask(regs, 0x91, softCtrl ? BIT(0) : 0, BIT(0));
-	DRM_DEBUG_KMS("LVDS1 Power Sequence: %s Control\n",
-			softCtrl ? "Software" : "Hardware");
 }
 
 /*
@@ -908,8 +772,6 @@ via_lvds1_set_soft_data(void __iomem *regs, bool softOn)
 	 *             0: Off
 	 *             1: On */
 	svga_wcrt_mask(regs, 0x91, softOn ? BIT(3) : 0, BIT(3));
-	DRM_DEBUG_KMS("LVDS1 Software Controlled Data Path: %s\n",
-			softOn ? "On" : "Off");
 }
 
 /*
@@ -923,8 +785,6 @@ via_lvds1_set_soft_vdd(void __iomem *regs, bool softOn)
 	 *             0: Off
 	 *             1: On */
 	svga_wcrt_mask(regs, 0x91, softOn ? BIT(4) : 0, BIT(4));
-	DRM_DEBUG_KMS("LVDS1 Software Controlled Vdd: %s\n",
-			softOn ? "On" : "Off");
 }
 
 /*
@@ -940,8 +800,6 @@ via_lvds1_set_soft_display_period(void __iomem *regs, bool softOn)
 	 *             0: On
 	 *             1: Off */
 	svga_wcrt_mask(regs, 0x91, softOn ? 0 : BIT(7), BIT(7));
-	DRM_DEBUG_KMS("LVDS1 Software Controlled Display Period: %s\n",
-			softOn ? "On" : "Off");
 }
 
 /*
@@ -957,14 +815,6 @@ via_lvds1_set_io_pad_setting(void __iomem *regs, u8 io_pad_state)
 	 *                   Power Management Status (PMS) */
 	svga_wseq_mask(regs, 0x2A,
 			io_pad_state, BIT(1) | BIT(0));
-	DRM_DEBUG_KMS("LVDS1 I/O Pad State: %s\n",
-			((io_pad_state & (BIT(1) | BIT(0))) == 0x03) ?
-				"On" :
-			((io_pad_state & (BIT(1) | BIT(0))) == 0x02) ?
-				"Conditional" :
-			((io_pad_state & (BIT(1) | BIT(0))) == 0x01) ?
-				"Off" :
-				"Off");
 }
 
 /*
@@ -978,8 +828,6 @@ via_lvds1_set_format(void __iomem *regs, u8 format)
 	 *             1: OPENLDI Mode */
 	svga_wcrt_mask(regs, 0xd2,
 			format << 1, BIT(1));
-	DRM_DEBUG_KMS("LVDS1 Format: %s\n",
-			(format & BIT(0)) ? "OPENLDI" : "SPWG");
 }
 
 /*
@@ -993,9 +841,6 @@ via_lvds1_set_output_format(void __iomem *regs, u8 output_format)
 	 *             1: Sequential */
 	svga_wcrt_mask(regs, 0x88,
 			output_format << 6, BIT(6));
-	DRM_DEBUG_KMS("LVDS1 Output Format: %s\n",
-			(output_format & BIT(0)) ?
-			"Sequential" : "Rotation");
 }
 
 /*
@@ -1010,9 +855,6 @@ via_lvds1_set_dithering(void __iomem *regs, bool dithering)
 	 *             1: 18 bits (dithering on) */
 	svga_wcrt_mask(regs, 0x88,
 			dithering ? BIT(0) : 0x00, BIT(0));
-	DRM_DEBUG_KMS("LVDS1 Color Dithering: %s\n",
-			dithering ?
-			"On (18 bit color)" : "Off (24 bit color)");
 }
 
 /*
@@ -1026,8 +868,6 @@ via_lvds1_set_display_source(void __iomem *regs, u8 display_source)
 	 *             1: Secondary Display */
 	svga_wcrt_mask(regs, 0x99,
 			display_source << 4, BIT(4));
-	DRM_DEBUG_KMS("LVDS1 Display Source: IGA%d\n",
-			(display_source & 0x01) + 1);
 }
 
 /*
@@ -1041,8 +881,6 @@ via_lvds2_set_power(void __iomem *regs, bool power_state)
 	 *             1: Power off */
 	svga_wcrt_mask(regs, 0xD2,
 			power_state ? 0x00 : BIT(6), BIT(6));
-	DRM_DEBUG_KMS("LVDS2 Power State: %s\n",
-			power_state ? "On" : "Off");
 }
 
 /*
@@ -1058,14 +896,6 @@ via_lvds2_set_io_pad_setting(void __iomem *regs, u8 io_pad_state)
 	 *                   Power Management Status (PMS) */
 	svga_wseq_mask(regs, 0x2A,
 			io_pad_state << 2, BIT(3) | BIT(2));
-	DRM_DEBUG_KMS("LVDS2 I/O Pad State: %s\n",
-			((io_pad_state & (BIT(1) | BIT(0))) == 0x03) ?
-				"On" :
-			((io_pad_state & (BIT(1) | BIT(0))) == 0x02) ?
-				"Conditional" :
-			((io_pad_state & (BIT(1) | BIT(0))) == 0x01) ?
-				"Off" :
-				"Off");
 }
 
 /*
@@ -1078,8 +908,6 @@ via_lvds2_set_format(void __iomem *regs, u8 format)
 	 *             0: SPWG Mode
 	 *             1: OPENLDI Mode */
 	svga_wcrt_mask(regs, 0xd2, format, BIT(0));
-	DRM_DEBUG_KMS("LVDS2 Format: %s\n",
-			(format & BIT(0)) ? "OPENLDI" : "SPWG");
 }
 
 /*
@@ -1092,9 +920,6 @@ via_lvds2_set_output_format(void __iomem *regs, u8 output_format)
 	 *             0: Rotation
 	 *             1: Sequential */
 	svga_wcrt_mask(regs, 0xd4, output_format << 7, BIT(7));
-	DRM_DEBUG_KMS("LVDS2 Output Format: %s\n",
-			(output_format & BIT(0)) ?
-			"Sequential" : "Rotation");
 }
 
 /*
@@ -1109,9 +934,6 @@ via_lvds2_set_dithering(void __iomem *regs, bool dithering)
 	 *             1: 18 bits (dithering on) */
 	svga_wcrt_mask(regs, 0xd4,
 			dithering ? BIT(6) : 0x00, BIT(6));
-	DRM_DEBUG_KMS("LVDS2 Color Dithering: %s\n",
-			dithering ?
-			"On (18 bit color)" : "Off (24 bit color)");
 }
 
 /*
@@ -1125,8 +947,6 @@ via_lvds2_set_display_source(void __iomem *regs, u8 display_source)
 	 *             1: Secondary Display */
 	svga_wcrt_mask(regs, 0x97,
 			display_source << 4, BIT(4));
-	DRM_DEBUG_KMS("LVDS2 Display Source: IGA%d\n",
-			(display_source & 0x01) + 1);
 }
 
 /*
@@ -1140,8 +960,6 @@ via_tmds_set_power(void __iomem *regs, bool powerState)
 	 *             1: TMDS power down */
 	svga_wcrt_mask(regs, 0xD2,
 			powerState ? 0x00 : BIT(3), BIT(3));
-	DRM_DEBUG_KMS("TMDS (DVI) Power State: %s\n",
-			powerState ? "On" : "Off");
 }
 
 /*
@@ -1159,10 +977,6 @@ via_tmds_set_sync_polarity(void __iomem *regs, u8 syncPolarity)
 	 *              1: Negative */
 	svga_wcrt_mask(regs, 0x97,
 			syncPolarity << 5, BIT(6) | BIT(5));
-	DRM_DEBUG_KMS("TMDS (DVI) Horizontal Sync Polarity: %s\n",
-			(syncPolarity & BIT(0)) ? "-" : "+");
-	DRM_DEBUG_KMS("TMDS (DVI) Vertical Sync Polarity: %s\n",
-			(syncPolarity & BIT(1)) ? "-" : "+");
 }
 
 /*
@@ -1178,8 +992,6 @@ via_tmds_set_display_source(void __iomem *regs, u8 displaySource)
 	 *             1: Secondary Display */
 	svga_wcrt_mask(regs, 0x99,
 			displaySource << 4, BIT(4));
-	DRM_DEBUG_KMS("TMDS (DVI) Display Source: IGA%d\n",
-			(displaySource & 0x01) + 1);
 }
 
 
