@@ -958,16 +958,6 @@ out_err:
 	return ret;
 }
 
-static void via_flag_init(struct via_drm_priv *dev_priv)
-{
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
-
-	/* Set this flag for ttm_bo_device_init. */
-	dev_priv->need_dma32 = true;
-
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
-}
-
 static void via_quirks_init(struct via_drm_priv *dev_priv)
 {
 	struct drm_device *dev = &dev_priv->dev;
@@ -1175,7 +1165,6 @@ int via_device_init(struct via_drm_priv *dev_priv)
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
-	via_flag_init(dev_priv);
 	via_quirks_init(dev_priv);
 
 	ret = via_vram_detect(dev_priv);

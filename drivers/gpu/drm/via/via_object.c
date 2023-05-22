@@ -289,7 +289,7 @@ int via_mm_init(struct via_drm_priv *dev_priv)
 				dev->anon_inode->i_mapping,
 				dev->vma_offset_manager,
 				false,
-				dev_priv->need_dma32);
+				true);
 	if (ret) {
 		DRM_ERROR("Failed initializing buffer object driver.\n");
 		goto exit;
