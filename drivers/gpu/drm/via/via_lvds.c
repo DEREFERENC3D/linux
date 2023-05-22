@@ -125,7 +125,8 @@ static void via_init_td_timing_regs(struct drm_device *dev)
 	}
 }
 
-static bool via_fp_probe_edid(struct i2c_adapter *i2c_bus)
+static bool via_fp_probe_edid(struct drm_device *dev,
+				struct i2c_adapter *i2c_bus)
 {
 	u8 out = 0x0;
 	u8 buf[8];
@@ -781,7 +782,7 @@ via_lvds_detect(struct drm_connector *connector, bool force)
 			continue;
 		}
 
-		if (!via_fp_probe_edid(i2c_bus)) {
+		if (!via_fp_probe_edid(dev, i2c_bus)) {
 			i2c_bus_bit = i2c_bus_bit << 1;
 			continue;
 		}
