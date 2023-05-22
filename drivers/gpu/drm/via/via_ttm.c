@@ -42,9 +42,11 @@
 static void via_bo_move_notify(struct ttm_buffer_object *bo, bool evict,
 				struct ttm_resource *new_mem)
 {
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	struct drm_device *dev = bo->base.dev;
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
+
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return;
 }
 
@@ -78,9 +80,10 @@ static void via_ttm_tt_destroy(struct ttm_device *bdev, struct ttm_tt *tt)
 static void via_bo_evict_flags(struct ttm_buffer_object *bo,
 				struct ttm_placement *placement)
 {
+	struct drm_device *dev = bo->base.dev;
 	struct via_bo *driver_bo = to_ttm_bo(bo);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (bo->destroy == &via_ttm_bo_destroy) {
 		goto exit;
@@ -97,7 +100,7 @@ static void via_bo_evict_flags(struct ttm_buffer_object *bo,
 
 	*placement = driver_bo->placement;
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static int via_bo_move(struct ttm_buffer_object *bo, bool evict,
@@ -131,11 +134,13 @@ static int via_bo_move(struct ttm_buffer_object *bo, bool evict,
 
 static void via_bo_delete_mem_notify(struct ttm_buffer_object *bo)
 {
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	struct drm_device *dev = bo->base.dev;
+
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	via_bo_move_notify(bo, false, NULL);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return;
 }
 
@@ -144,9 +149,10 @@ static int via_bo_io_mem_reserve(struct ttm_device *bdev,
 {
 	struct via_drm_priv *dev_priv = container_of(bdev,
 						struct via_drm_priv, bdev);
+	struct drm_device *dev = &dev_priv->dev;
 	int ret = 0;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	switch (mem->mem_type) {
 	case TTM_PL_SYSTEM:
@@ -161,7 +167,7 @@ static int via_bo_io_mem_reserve(struct ttm_device *bdev,
 		break;
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
