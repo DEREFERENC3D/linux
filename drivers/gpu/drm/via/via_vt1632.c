@@ -44,7 +44,9 @@
 #define VIA_VT1632_PDB		BIT(0)
 
 
-static void via_vt1632_power(struct i2c_adapter *i2c_bus, bool power_state)
+static void via_vt1632_power(struct drm_device *dev,
+				struct i2c_adapter *i2c_bus,
+				bool power_state)
 {
 	u8 buf;
 	u8 power_bit;
@@ -63,7 +65,8 @@ static void via_vt1632_power(struct i2c_adapter *i2c_bus, bool power_state)
 }
 
 
-static bool via_vt1632_sense(struct i2c_adapter *i2c_bus)
+static bool via_vt1632_sense(struct drm_device *dev,
+				struct i2c_adapter *i2c_bus)
 {
 	u8 buf;
 	bool rx_detected = false;
@@ -82,7 +85,8 @@ static bool via_vt1632_sense(struct i2c_adapter *i2c_bus)
 	return rx_detected;
 }
 
-static void via_vt1632_display_registers(struct i2c_adapter *i2c_bus)
+static void via_vt1632_display_registers(struct drm_device *dev,
+					struct i2c_adapter *i2c_bus)
 {
 	uint8_t i;
 	u8 buf;
@@ -98,7 +102,8 @@ static void via_vt1632_display_registers(struct i2c_adapter *i2c_bus)
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
 
-static void via_vt1632_init_registers(struct i2c_adapter *i2c_bus)
+static void via_vt1632_init_registers(struct drm_device *dev,
+					struct i2c_adapter *i2c_bus)
 {
 	u8 buf;
 
@@ -175,16 +180,16 @@ static void via_vt1632_dpms(struct drm_encoder *encoder, int mode)
 		goto exit;
 	}
 
-	via_vt1632_display_registers(i2c_bus);
+	via_vt1632_display_registers(dev, i2c_bus);
 	switch (mode) {
 	case DRM_MODE_DPMS_ON:
-		via_vt1632_power(i2c_bus, true);
+		via_vt1632_power(dev, i2c_bus, true);
 		via_transmitter_io_pad_state(dev_priv, enc->di_port, true);
 		break;
 	case DRM_MODE_DPMS_STANDBY:
 	case DRM_MODE_DPMS_SUSPEND:
 	case DRM_MODE_DPMS_OFF:
-		via_vt1632_power(i2c_bus, false);
+		via_vt1632_power(dev, i2c_bus, false);
 		via_transmitter_io_pad_state(dev_priv, enc->di_port, false);
 		break;
 	default:
@@ -244,9 +249,9 @@ static void via_vt1632_mode_set(struct drm_encoder *encoder,
 		via_clock_source(dev_priv, enc->di_port, true);
 	}
 
-	via_vt1632_display_registers(i2c_bus);
-	via_vt1632_init_registers(i2c_bus);
-	via_vt1632_display_registers(i2c_bus);
+	via_vt1632_display_registers(dev, i2c_bus);
+	via_vt1632_init_registers(dev, i2c_bus);
+	via_vt1632_display_registers(dev, i2c_bus);
 
 	via_transmitter_display_source(dev_priv, enc->di_port, iga->index);
 exit:
@@ -280,7 +285,7 @@ static void via_vt1632_prepare(struct drm_encoder *encoder)
 		goto exit;
 	}
 
-	via_vt1632_power(i2c_bus, false);
+	via_vt1632_power(dev, i2c_bus, false);
 	via_transmitter_io_pad_state(dev_priv, enc->di_port, false);
 	if (pdev->device == PCI_DEVICE_ID_VIA_CLE266_GFX) {
 		via_output_enable(dev_priv, enc->di_port, false);
@@ -316,7 +321,7 @@ static void via_vt1632_commit(struct drm_encoder *encoder)
 		goto exit;
 	}
 
-	via_vt1632_power(i2c_bus, true);
+	via_vt1632_power(dev, i2c_bus, true);
 	via_transmitter_io_pad_state(dev_priv, enc->di_port, true);
 	if (pdev->device == PCI_DEVICE_ID_VIA_CLE266_GFX) {
 		via_output_enable(dev_priv, enc->di_port, true);
@@ -351,7 +356,7 @@ static void via_vt1632_disable(struct drm_encoder *encoder)
 		goto exit;
 	}
 
-	via_vt1632_power(i2c_bus, false);
+	via_vt1632_power(dev, i2c_bus, false);
 	via_transmitter_io_pad_state(dev_priv, enc->di_port, false);
 exit:
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
@@ -373,6 +378,7 @@ static enum drm_connector_status via_vt1632_detect(
 					struct drm_connector *connector,
 					bool force)
 {
+	struct drm_device *dev = connector->dev;
 	struct via_connector *con = container_of(connector,
 					struct via_connector, base);
 	struct i2c_adapter *i2c_bus;
@@ -395,7 +401,7 @@ static enum drm_connector_status via_vt1632_detect(
 		goto exit;
 	}
 
-	if (via_vt1632_sense(i2c_bus)) {
+	if (via_vt1632_sense(dev, i2c_bus)) {
 		ret = connector_status_connected;
 		DRM_DEBUG_KMS("DVI detected.\n");
 	}
@@ -516,7 +522,8 @@ via_vt1632_drm_connector_helper_funcs = {
 	.get_modes = via_vt1632_get_modes,
 };
 
-bool via_vt1632_probe(struct i2c_adapter *i2c_bus)
+bool via_vt1632_probe(struct drm_device *dev,
+			struct i2c_adapter *i2c_bus)
 {
 	u8 buf;
 	u16 vendor_id, device_id, revision;
