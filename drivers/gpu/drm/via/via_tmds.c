@@ -40,7 +40,7 @@ static void via_tmds_power(struct drm_device *dev, bool power_state)
 {
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (power_state) {
 		via_lvds1_set_soft_display_period(VGABASE, true);
@@ -55,7 +55,7 @@ static void via_tmds_power(struct drm_device *dev, bool power_state)
 	DRM_INFO("DVI Power: %s\n",
 			power_state ? "On" : "Off");
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_tmds_io_pad_setting(struct drm_device *dev,
@@ -63,7 +63,7 @@ static void via_tmds_io_pad_setting(struct drm_device *dev,
 {
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	switch(di_port) {
 	case VIA_DI_PORT_TMDS:
@@ -74,9 +74,9 @@ static void via_tmds_io_pad_setting(struct drm_device *dev,
 		break;
 	}
 
-	DRM_DEBUG_KMS("DVI I/O Pad: %s\n", io_pad_on ? "On": "Off");
+	drm_dbg_kms(dev, "DVI I/O Pad: %s\n", io_pad_on ? "On": "Off");
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 /*
@@ -88,7 +88,7 @@ static void via_tmds_init_reg(struct drm_device *dev)
 {
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	/* Turn off hardware controlled FP power on / off circuit. */
 	via_lvds_set_primary_hard_power(VGABASE, false);
@@ -149,7 +149,7 @@ static void via_tmds_init_reg(struct drm_device *dev)
 	 *             (This bit has a RW1C attribute.) */
 	svga_wseq_mask(VGABASE, 0x2b, 0x40, 0x40);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 /*
@@ -162,7 +162,7 @@ static void via_tmds_sync_polarity(struct drm_device *dev,
 
 	u8 syncPolarity = 0x00;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (flags & DRM_MODE_FLAG_NHSYNC) {
 		syncPolarity |= BIT(0);
@@ -178,7 +178,7 @@ static void via_tmds_sync_polarity(struct drm_device *dev,
 	DRM_INFO("TMDS (DVI) Vertical Sync Polarity: %s\n",
 		(syncPolarity & BIT(1)) ? "-" : "+");
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 /*
@@ -189,13 +189,13 @@ static void via_tmds_display_source(struct drm_device *dev, int index)
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	u8 displaySource = index;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	via_tmds_set_display_source(VGABASE, displaySource & 0x01);
 	DRM_INFO("TMDS (DVI) Display Source: IGA%d\n",
 			(displaySource & 0x01) + 1);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 /*
@@ -211,7 +211,7 @@ static void via_tmds_dpms(struct drm_encoder *encoder, int mode)
 					struct via_encoder, base);
 	struct drm_device *dev = encoder->dev;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	switch (mode) {
 	case DRM_MODE_DPMS_ON:
@@ -229,7 +229,7 @@ static void via_tmds_dpms(struct drm_encoder *encoder, int mode)
 		break;
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 /* Pass our mode to the connectors and the CRTC to give them a chance to
@@ -250,12 +250,12 @@ static void via_tmds_prepare(struct drm_encoder *encoder)
 					struct via_encoder, base);
 	struct drm_device *dev = encoder->dev;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	via_tmds_power(dev, false);
 	via_tmds_io_pad_setting(dev, enc->di_port, false);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_tmds_commit(struct drm_encoder *encoder)
@@ -264,12 +264,12 @@ static void via_tmds_commit(struct drm_encoder *encoder)
 					struct via_encoder, base);
 	struct drm_device *dev = encoder->dev;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	via_tmds_power(dev, true);
 	via_tmds_io_pad_setting(dev, enc->di_port, true);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 /*
@@ -283,13 +283,13 @@ static void via_tmds_mode_set(struct drm_encoder *encoder,
 	struct via_crtc *iga = container_of(encoder->crtc,
 						struct via_crtc, base);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	via_tmds_init_reg(dev);
 	via_tmds_sync_polarity(dev, adjusted_mode->flags);
 	via_tmds_display_source(dev, iga->index);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_tmds_disable(struct drm_encoder *encoder)
@@ -298,12 +298,12 @@ static void via_tmds_disable(struct drm_encoder *encoder)
 					struct via_encoder, base);
 	struct drm_device *dev = encoder->dev;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	via_tmds_power(dev, false);
 	via_tmds_io_pad_setting(dev, enc->di_port, false);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static const struct drm_encoder_helper_funcs
@@ -320,12 +320,14 @@ static enum drm_connector_status via_tmds_detect(
 					struct drm_connector *connector,
 					bool force)
 {
+	struct drm_device *dev = connector->dev;
+
 	struct via_connector *con = container_of(connector, struct via_connector, base);
 	enum drm_connector_status ret = connector_status_disconnected;
 	struct i2c_adapter *i2c_bus;
 	struct edid *edid = NULL;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (con->i2c_bus & VIA_I2C_BUS2) {
 		i2c_bus = via_find_ddc_bus(0x31);
@@ -347,7 +349,7 @@ static enum drm_connector_status via_tmds_detect(
 		}
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
@@ -372,7 +374,7 @@ static enum drm_mode_status via_tmds_mode_valid(
 	int min_clock, max_clock;
 	enum drm_mode_status status = MODE_OK;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	min_clock = 25000;
 	switch (pdev->device) {
@@ -409,19 +411,20 @@ static enum drm_mode_status via_tmds_mode_valid(
 	}
 
 exit:
-	DRM_DEBUG_KMS("status: %u\n", status);
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "status: %u\n", status);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return status;
 }
 
 static int via_tmds_get_modes(struct drm_connector *connector)
 {
+	struct drm_device *dev = connector->dev;
 	struct via_connector *con = container_of(connector, struct via_connector, base);
 	struct i2c_adapter *i2c_bus;
 	struct edid *edid = NULL;
 	int count = 0;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (con->i2c_bus & VIA_I2C_BUS2) {
 		i2c_bus = via_find_ddc_bus(0x31);
@@ -437,13 +440,13 @@ static int via_tmds_get_modes(struct drm_connector *connector)
 			drm_connector_update_edid_property(connector,
 								edid);
 			count = drm_add_edid_modes(connector, edid);
-			DRM_DEBUG_KMS("DVI EDID information was obtained.\n");
+			drm_dbg_kms(dev, "DVI EDID information was obtained.\n");
 		}
 
 		kfree(edid);
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return count;
 }
 
@@ -462,7 +465,7 @@ void via_tmds_probe(struct drm_device *dev)
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	u8 sr13, sr5a;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	/* Detect the presence of integrated TMDS transmitter. */
 	switch (pdev->device) {
@@ -476,7 +479,7 @@ void via_tmds_probe(struct drm_device *dev)
 		svga_wseq_mask(VGABASE, 0x5a, BIT(0), BIT(0));
 
 		sr13 = vga_rseq(VGABASE, 0x13);
-		DRM_DEBUG_KMS("sr13: 0x%02x\n", sr13);
+		drm_dbg_kms(dev, "sr13: 0x%02x\n", sr13);
 
 		vga_wseq(VGABASE, 0x5a, sr5a);
 
@@ -495,7 +498,7 @@ void via_tmds_probe(struct drm_device *dev)
 			dev_priv->int_tmds_di_port = VIA_DI_PORT_TMDS;
 			dev_priv->int_tmds_i2c_bus = VIA_I2C_BUS2;
 			dev_priv->mapped_i2c_bus |= VIA_I2C_BUS2;
-			DRM_DEBUG_KMS("Integrated TMDS (DVI) "
+			drm_dbg_kms(dev, "Integrated TMDS (DVI) "
 					"transmitter detected.\n");
 		} else if (((!(sr13 & BIT(7))) && (sr13 & BIT(6))) ||
 				((sr13 & BIT(7)) && (sr13 & BIT(6)))) {
@@ -503,7 +506,7 @@ void via_tmds_probe(struct drm_device *dev)
 			dev_priv->int_tmds_di_port = VIA_DI_PORT_TMDS;
 			dev_priv->int_tmds_i2c_bus = VIA_I2C_BUS2;
 			dev_priv->mapped_i2c_bus |= VIA_I2C_BUS2;
-			DRM_DEBUG_KMS("Integrated TMDS (DVI) "
+			drm_dbg_kms(dev, "Integrated TMDS (DVI) "
 					"transmitter detected via pin "
 					"strapping.\n");
 		} else {
@@ -520,16 +523,16 @@ void via_tmds_probe(struct drm_device *dev)
 		break;
 	}
 
-	DRM_DEBUG_KMS("int_tmds_presence: %x\n",
+	drm_dbg_kms(dev, "int_tmds_presence: %x\n",
 			dev_priv->int_tmds_presence);
-	DRM_DEBUG_KMS("int_tmds_di_port: 0x%08x\n",
+	drm_dbg_kms(dev, "int_tmds_di_port: 0x%08x\n",
 			dev_priv->int_tmds_di_port);
-	DRM_DEBUG_KMS("int_tmds_i2c_bus: 0x%08x\n",
+	drm_dbg_kms(dev, "int_tmds_i2c_bus: 0x%08x\n",
 			dev_priv->int_tmds_i2c_bus);
-	DRM_DEBUG_KMS("mapped_i2c_bus: 0x%08x\n",
+	drm_dbg_kms(dev, "mapped_i2c_bus: 0x%08x\n",
 			dev_priv->mapped_i2c_bus);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 void via_tmds_init(struct drm_device *dev)
@@ -538,7 +541,7 @@ void via_tmds_init(struct drm_device *dev)
 	struct via_connector *con;
 	struct via_encoder *enc;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (!dev_priv->int_tmds_presence) {
 		goto exit;
@@ -578,7 +581,7 @@ void via_tmds_init(struct drm_device *dev)
 
 	drm_connector_attach_encoder(&con->base, &enc->base);
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 /*
@@ -591,7 +594,7 @@ void via_ext_dvi_probe(struct drm_device *dev)
 	struct i2c_adapter *i2c_bus;
 	u8 sr12, sr13;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	dev_priv->ext_tmds_presence = false;
 	dev_priv->ext_tmds_i2c_bus = VIA_I2C_NONE;
@@ -631,8 +634,8 @@ void via_ext_dvi_probe(struct drm_device *dev)
 
 	sr12 = vga_rseq(VGABASE, 0x12);
 	sr13 = vga_rseq(VGABASE, 0x13);
-	DRM_DEBUG_KMS("SR12: 0x%02x\n", sr12);
-	DRM_DEBUG_KMS("SR13: 0x%02x\n", sr13);
+	drm_dbg_kms(dev, "SR12: 0x%02x\n", sr12);
+	drm_dbg_kms(dev, "SR13: 0x%02x\n", sr13);
 
 	if (dev_priv->ext_tmds_presence) {
 		switch (pdev->device) {
@@ -702,15 +705,15 @@ void via_ext_dvi_probe(struct drm_device *dev)
 		}
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 void via_ext_dvi_init(struct drm_device *dev)
 {
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	via_vt1632_init(dev);
 	via_sii164_init(dev);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
