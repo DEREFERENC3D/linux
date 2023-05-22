@@ -603,7 +603,7 @@ void via_ext_dvi_probe(struct drm_device *dev)
 			dev_priv->ext_tmds_i2c_bus = VIA_I2C_BUS2;
 			dev_priv->ext_tmds_transmitter = VIA_TMDS_VT1632;
 			dev_priv->mapped_i2c_bus |= VIA_I2C_BUS2;
-		} else if (via_sii164_probe(i2c_bus)) {
+		} else if (via_sii164_probe(dev, i2c_bus)) {
 			dev_priv->ext_tmds_presence = true;
 			dev_priv->ext_tmds_i2c_bus = VIA_I2C_BUS2;
 			dev_priv->ext_tmds_transmitter = VIA_TMDS_SII164;
@@ -619,7 +619,7 @@ void via_ext_dvi_probe(struct drm_device *dev)
 			dev_priv->ext_tmds_i2c_bus = VIA_I2C_BUS4;
 			dev_priv->ext_tmds_transmitter = VIA_TMDS_VT1632;
 			dev_priv->mapped_i2c_bus |= VIA_I2C_BUS4;
-		} else if (via_sii164_probe(i2c_bus)) {
+		} else if (via_sii164_probe(dev, i2c_bus)) {
 			dev_priv->ext_tmds_presence = true;
 			dev_priv->ext_tmds_i2c_bus = VIA_I2C_BUS4;
 			dev_priv->ext_tmds_transmitter = VIA_TMDS_SII164;

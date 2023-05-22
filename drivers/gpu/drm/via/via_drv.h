@@ -369,7 +369,8 @@ int via_crtc_init(struct via_drm_priv *dev_priv, uint32_t index);
 
 void via_dac_probe(struct drm_device *dev);
 bool via_vt1632_probe(struct i2c_adapter *i2c_bus);
-bool via_sii164_probe(struct i2c_adapter *i2c_bus);
+bool via_sii164_probe(struct drm_device *dev,
+			struct i2c_adapter *i2c_bus);
 void via_ext_dvi_probe(struct drm_device *dev);
 void via_tmds_probe(struct drm_device *dev);
 void via_lvds_probe(struct drm_device *dev);
