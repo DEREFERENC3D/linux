@@ -107,8 +107,6 @@ static int via_bo_move(struct ttm_buffer_object *bo, bool evict,
 {
 	int ret;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
-
 	if (!bo->resource) {
 		if (new_mem->mem_type != TTM_PL_SYSTEM) {
 			hop->mem_type = TTM_PL_SYSTEM;
@@ -128,7 +126,6 @@ static int via_bo_move(struct ttm_buffer_object *bo, bool evict,
 		swap(*new_mem, *bo->resource);
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 	return ret;
 }
 
