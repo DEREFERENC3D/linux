@@ -109,6 +109,17 @@ static int via_bo_move(struct ttm_buffer_object *bo, bool evict,
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
+	if (!bo->resource) {
+		if (new_mem->mem_type != TTM_PL_SYSTEM) {
+			hop->mem_type = TTM_PL_SYSTEM;
+			hop->flags = TTM_PL_FLAG_TEMPORARY;
+			return -EMULTIHOP;
+		}
+
+		ttm_bo_move_null(bo, new_mem);
+		return 0;
+	}
+
 	via_bo_move_notify(bo, evict, new_mem);
 	ret = ttm_bo_move_memcpy(bo, ctx, new_mem);
 	if (ret) {
