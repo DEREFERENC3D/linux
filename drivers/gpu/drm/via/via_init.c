@@ -750,7 +750,7 @@ int via_vram_detect(struct drm_device *dev)
 	u8 size;
 	int ret = 0;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	bus = pci_find_bus(0, 0);
 	if (bus == NULL) {
@@ -962,7 +962,7 @@ out_err:
 	if (fn3)
 		pci_dev_put(fn3);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
@@ -971,7 +971,7 @@ static void via_quirks_init(struct drm_device *dev)
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	/*
 	 * Checking for VIA Technologies NanoBook reference design.
@@ -1017,7 +1017,7 @@ static void via_quirks_init(struct drm_device *dev)
 		dev_priv->is_samsung_nc20 = false;
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static int via_vram_init(struct drm_device *dev)
@@ -1025,13 +1025,13 @@ static int via_vram_init(struct drm_device *dev)
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	int ret = 0;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	/* Add an MTRR for the video RAM. */
 	dev_priv->vram_mtrr = arch_phys_wc_add(dev_priv->vram_start,
 						dev_priv->vram_size);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
@@ -1039,7 +1039,7 @@ static void via_vram_fini(struct drm_device *dev)
 {
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (dev_priv->vram_mtrr) {
 		arch_phys_wc_del(dev_priv->vram_mtrr);
@@ -1048,7 +1048,7 @@ static void via_vram_fini(struct drm_device *dev)
 		dev_priv->vram_mtrr = 0;
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static int via_mmio_init(struct drm_device *dev)
@@ -1057,7 +1057,7 @@ static int via_mmio_init(struct drm_device *dev)
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	int ret = 0;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	/*
 	 * PCI BAR1 is the MMIO memory window for all
@@ -1075,7 +1075,7 @@ static int via_mmio_init(struct drm_device *dev)
 	}
 
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
@@ -1083,14 +1083,14 @@ static void via_mmio_fini(struct drm_device *dev)
 {
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (dev_priv->mmio) {
 		iounmap(dev_priv->mmio);
 		dev_priv->mmio = NULL;
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_graphics_unlock(struct drm_device *dev)
@@ -1098,7 +1098,7 @@ static void via_graphics_unlock(struct drm_device *dev)
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	uint8_t temp;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	/*
 	 * Enable VGA subsystem.
@@ -1119,7 +1119,7 @@ static void via_graphics_unlock(struct drm_device *dev)
 	 */
 	svga_wseq_mask(VGABASE, 0x1a, BIT(3), BIT(3));
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_chip_revision_info(struct drm_device *dev)
@@ -1128,7 +1128,7 @@ static void via_chip_revision_info(struct drm_device *dev)
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
 	u8 tmp;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	switch (pdev->device) {
 	/* CLE266 Chipset */
@@ -1170,14 +1170,14 @@ static void via_chip_revision_info(struct drm_device *dev)
 		break;
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static int via_device_init(struct drm_device *dev)
 {
 	int ret;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	via_quirks_init(dev);
 
@@ -1204,18 +1204,18 @@ static int via_device_init(struct drm_device *dev)
 
 	via_graphics_unlock(dev);
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
 static void via_device_fini(struct drm_device *dev)
 {
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	via_mmio_fini(dev);
 	via_vram_fini(dev);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static const struct drm_mode_config_funcs via_drm_mode_config_funcs = {
@@ -1226,7 +1226,7 @@ static const struct drm_mode_config_funcs via_drm_mode_config_funcs = {
 
 static void via_mode_config_init(struct drm_device *dev)
 {
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	drm_mode_config_init(dev);
 
@@ -1242,7 +1242,7 @@ static void via_mode_config_init(struct drm_device *dev)
 	dev->mode_config.cursor_width =
 	dev->mode_config.cursor_height = VIA_CURSOR_SIZE;
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 int via_modeset_init(struct drm_device *dev)
@@ -1318,7 +1318,7 @@ int via_drm_init(struct drm_device *dev)
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	int ret = 0;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	dev_priv->vram_mtrr = -ENXIO;
 
@@ -1348,7 +1348,7 @@ error_modeset:
 	via_mm_fini(dev_priv);
 	via_device_fini(dev);
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
@@ -1356,11 +1356,11 @@ void via_drm_fini(struct drm_device *dev)
 {
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	via_modeset_fini(dev);
 	via_mm_fini(dev_priv);
 	via_device_fini(dev);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
