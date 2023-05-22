@@ -44,14 +44,16 @@
  */
 static void via_dac_power(struct via_drm_priv *dev_priv, bool outputState)
 {
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	struct drm_device *dev = &dev_priv->dev;
+
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 
 	via_dac_set_power(VGABASE, outputState);
 	DRM_INFO("DAC (VGA) Power: %s\n",
 			outputState ? "On" : "Off");
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 /*
@@ -60,9 +62,10 @@ static void via_dac_power(struct via_drm_priv *dev_priv, bool outputState)
 static void via_dac_sync_polarity(struct via_drm_priv *dev_priv,
 					unsigned int flags)
 {
+	struct drm_device *dev = &dev_priv->dev;
 	u8 syncPolarity = 0x00;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (flags & DRM_MODE_FLAG_NHSYNC) {
 		syncPolarity |= BIT(0);
@@ -78,7 +81,7 @@ static void via_dac_sync_polarity(struct via_drm_priv *dev_priv,
 	DRM_INFO("DAC (VGA) Vertical Sync Polarity: %s\n",
 		(syncPolarity & BIT(1)) ? "-" : "+");
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 /*
@@ -87,15 +90,16 @@ static void via_dac_sync_polarity(struct via_drm_priv *dev_priv,
 static void via_dac_display_source(struct via_drm_priv *dev_priv,
 					int index)
 {
+	struct drm_device *dev = &dev_priv->dev;
 	u8 displaySource = index;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	via_dac_set_display_source(VGABASE, displaySource & 0x01);
 	DRM_INFO("DAC (VGA) Display Source: IGA%d\n",
 			(displaySource & 0x01) + 1);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 /*
@@ -113,7 +117,7 @@ static void via_dac_dpms(struct drm_encoder *encoder, int mode)
 	struct drm_device *dev = encoder->dev;
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	switch (mode) {
 	case DRM_MODE_DPMS_ON:
@@ -137,7 +141,7 @@ static void via_dac_dpms(struct drm_encoder *encoder, int mode)
 		break;
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 /* Pass our mode to the connectors and the CRTC to give them a chance to
@@ -163,12 +167,12 @@ static void via_dac_mode_set(struct drm_encoder *encoder,
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	struct via_crtc *iga = container_of(encoder->crtc, struct via_crtc, base);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	via_dac_sync_polarity(dev_priv, adjusted_mode->flags);
 	via_dac_display_source(dev_priv, iga->index);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_dac_prepare(struct drm_encoder *encoder)
@@ -176,14 +180,14 @@ static void via_dac_prepare(struct drm_encoder *encoder)
 	struct drm_device *dev = encoder->dev;
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (encoder->crtc) {
 		via_dac_set_dpms_control(VGABASE, VIA_DAC_DPMS_OFF);
 		via_dac_power(dev_priv, false);
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_dac_commit(struct drm_encoder *encoder)
@@ -191,14 +195,14 @@ static void via_dac_commit(struct drm_encoder *encoder)
 	struct drm_device *dev = encoder->dev;
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (encoder->crtc) {
 		via_dac_set_dpms_control(VGABASE, VIA_DAC_DPMS_ON);
 		via_dac_power(dev_priv, true);
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_dac_disable(struct drm_encoder *encoder)
@@ -206,12 +210,12 @@ static void via_dac_disable(struct drm_encoder *encoder)
 	struct drm_device *dev = encoder->dev;
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	via_dac_set_dpms_control(VGABASE, VIA_DAC_DPMS_OFF);
 	via_dac_power(dev_priv, false);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static const struct drm_encoder_helper_funcs via_dac_enc_helper_funcs = {
@@ -226,13 +230,14 @@ static const struct drm_encoder_helper_funcs via_dac_enc_helper_funcs = {
 static enum drm_connector_status
 via_dac_detect(struct drm_connector *connector, bool force)
 {
+	struct drm_device *dev = connector->dev;
 	struct via_connector *con = container_of(connector,
 					struct via_connector, base);
 	enum drm_connector_status ret = connector_status_disconnected;
 	struct i2c_adapter *i2c_bus;
 	struct edid *edid = NULL;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (con->i2c_bus & VIA_I2C_BUS1) {
 		i2c_bus = via_find_ddc_bus(0x26);
@@ -271,7 +276,7 @@ via_dac_detect(struct drm_connector *connector, bool force)
 	}
 
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
@@ -296,7 +301,7 @@ static enum drm_mode_status via_dac_mode_valid(
 	int min_clock, max_clock;
 	enum drm_mode_status status = MODE_OK;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	min_clock = 25000;
 	switch (pdev->device) {
@@ -352,20 +357,21 @@ static enum drm_mode_status via_dac_mode_valid(
 	}
 
 exit:
-	DRM_DEBUG_KMS("status: %u\n", status);
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "status: %u\n", status);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return status;
 }
 
 static int via_dac_get_modes(struct drm_connector *connector)
 {
+	struct drm_device *dev = connector->dev;
 	struct via_connector *con = container_of(connector,
 					struct via_connector, base);
 	int count = 0;
 	struct i2c_adapter *i2c_bus;
 	struct edid *edid = NULL;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (con->i2c_bus & VIA_I2C_BUS1) {
 		i2c_bus = via_find_ddc_bus(0x26);
@@ -408,7 +414,7 @@ static int via_dac_get_modes(struct drm_connector *connector)
 	}
 
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return count;
 }
 
@@ -424,7 +430,7 @@ void via_dac_probe(struct drm_device *dev)
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
 	u8 sr13, sr5a;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	switch (pdev->device) {
 	case PCI_DEVICE_ID_VIA_UNICHROME_PRO_II:
@@ -432,20 +438,20 @@ void via_dac_probe(struct drm_device *dev)
 	case PCI_DEVICE_ID_VIA_CHROME9_HCM:
 	case PCI_DEVICE_ID_VIA_CHROME9_HD:
 		sr5a = vga_rseq(VGABASE, 0x5a);
-		DRM_DEBUG_KMS("SR5A: 0x%02x\n", sr5a);
+		drm_dbg_kms(dev, "SR5A: 0x%02x\n", sr5a);
 
 		/* Setting SR5A[0] to 1.
 		 * This allows the reading out the alternative
 		 * pin strapping information from SR12 and SR13. */
 		svga_wseq_mask(VGABASE, 0x5a, BIT(0), BIT(0));
-		DRM_DEBUG_KMS("SR5A: 0x%02x\n", sr5a);
+		drm_dbg_kms(dev, "SR5A: 0x%02x\n", sr5a);
 
 		sr13 = vga_rseq(VGABASE, 0x13);
-		DRM_DEBUG_KMS("SR13: 0x%02x\n", sr13);
+		drm_dbg_kms(dev, "SR13: 0x%02x\n", sr13);
 
 		if (!(sr13 & BIT(2))) {
 			dev_priv->dac_presence = true;
-			DRM_DEBUG_KMS("Detected the presence of VGA.\n");
+			drm_dbg_kms(dev, "Detected the presence of VGA.\n");
 		} else {
 			dev_priv->dac_presence = false;
 		}
@@ -455,7 +461,7 @@ void via_dac_probe(struct drm_device *dev)
 		break;
 	default:
 		dev_priv->dac_presence = true;
-		DRM_DEBUG_KMS("Detected the presence of VGA.\n");
+		drm_dbg_kms(dev, "Detected the presence of VGA.\n");
 		break;
 	}
 
@@ -467,7 +473,7 @@ void via_dac_probe(struct drm_device *dev)
 
 	dev_priv->mapped_i2c_bus |= dev_priv->dac_i2c_bus;
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 void via_dac_init(struct drm_device *dev)
