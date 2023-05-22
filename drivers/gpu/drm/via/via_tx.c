@@ -33,7 +33,7 @@ void via_transmitter_io_pad_state(struct drm_device *dev,
 {
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	switch(di_port) {
 	case VIA_DI_PORT_DIP0:
@@ -86,7 +86,7 @@ void via_transmitter_io_pad_state(struct drm_device *dev,
 		break;
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 void via_output_enable(struct drm_device *dev,
@@ -94,7 +94,7 @@ void via_output_enable(struct drm_device *dev,
 {
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	switch(di_port) {
 	case VIA_DI_PORT_DIP0:
@@ -107,7 +107,7 @@ void via_output_enable(struct drm_device *dev,
 		break;
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 void via_clock_source(struct drm_device *dev,
@@ -115,7 +115,7 @@ void via_clock_source(struct drm_device *dev,
 {
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	switch(di_port) {
 	case VIA_DI_PORT_DIP0:
@@ -128,7 +128,7 @@ void via_clock_source(struct drm_device *dev,
 		break;
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 void via_transmitter_clock_drive_strength(struct drm_device *dev,
@@ -137,7 +137,7 @@ void via_transmitter_clock_drive_strength(struct drm_device *dev,
 {
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	switch(di_port) {
 	case VIA_DI_PORT_DVP0:
@@ -152,7 +152,7 @@ void via_transmitter_clock_drive_strength(struct drm_device *dev,
 		break;
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 void via_transmitter_data_drive_strength(struct drm_device *dev,
@@ -160,7 +160,7 @@ void via_transmitter_data_drive_strength(struct drm_device *dev,
 {
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	switch(di_port) {
 	case VIA_DI_PORT_DVP0:
@@ -175,7 +175,7 @@ void via_transmitter_data_drive_strength(struct drm_device *dev,
 		break;
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 void via_transmitter_display_source(struct drm_device *dev,
@@ -184,7 +184,7 @@ void via_transmitter_display_source(struct drm_device *dev,
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	u8 display_source = index & 0x01;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	switch(di_port) {
 	case VIA_DI_PORT_DIP0:
@@ -227,5 +227,5 @@ void via_transmitter_display_source(struct drm_device *dev,
 		break;
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
