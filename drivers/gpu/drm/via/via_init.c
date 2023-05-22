@@ -1345,8 +1345,7 @@ int via_drm_init(struct drm_device *dev)
 error_modeset:
 	via_modeset_fini(dev);
 	via_mm_fini(dev_priv);
-	via_mmio_fini(dev_priv);
-	via_vram_fini(dev_priv);
+	via_device_fini(dev_priv);
 exit:
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 	return ret;
@@ -1360,8 +1359,7 @@ void via_drm_fini(struct drm_device *dev)
 
 	via_modeset_fini(dev);
 	via_mm_fini(dev_priv);
-	via_mmio_fini(dev_priv);
-	via_vram_fini(dev_priv);
+	via_device_fini(dev_priv);
 
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
