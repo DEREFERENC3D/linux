@@ -70,7 +70,7 @@ static void via_iga_common_init(struct drm_device *dev)
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	/* Be careful with 3C5.15[5] - Wrap Around Disable.
 	 * It must be set to 1 for proper operation. */
@@ -102,7 +102,7 @@ static void via_iga_common_init(struct drm_device *dev)
 	 */
 	svga_wcrt_mask(VGABASE, 0x6B, 0x00, BIT(3));
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_iga1_set_color_depth(struct drm_device *dev,
@@ -111,7 +111,7 @@ static void via_iga1_set_color_depth(struct drm_device *dev,
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	u8 data;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	data = 0x00;
 
@@ -143,7 +143,7 @@ static void via_iga1_set_color_depth(struct drm_device *dev,
 	 */
 	svga_wseq_mask(VGABASE, 0x15, data, BIT(4) | BIT(3) | BIT(2));
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_iga2_set_color_depth(struct drm_device *dev,
@@ -152,7 +152,7 @@ static void via_iga2_set_color_depth(struct drm_device *dev,
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	u8 data;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	data = 0x00;
 
@@ -179,7 +179,7 @@ static void via_iga2_set_color_depth(struct drm_device *dev,
 	 */
 	svga_wcrt_mask(VGABASE, 0x67, data, BIT(7) | BIT(6));
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static int via_gamma_set(struct drm_crtc *crtc,
@@ -196,7 +196,7 @@ static int via_gamma_set(struct drm_crtc *crtc,
 	u8 val = 0;
 	int ret = 0;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if ((!crtc->enabled) || (!crtc->primary->fb)) {
 		ret = -EINVAL;
@@ -332,7 +332,7 @@ static int via_gamma_set(struct drm_crtc *crtc,
 	}
 
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
@@ -404,7 +404,7 @@ static int via_iga1_display_fifo_regs(struct drm_device *dev,
 	bool enable_extended_display_fifo = false;
 	int ret = 0;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	switch (pdev->device) {
 	case PCI_DEVICE_ID_VIA_CLE266_GFX:
@@ -787,7 +787,7 @@ static int via_iga1_display_fifo_regs(struct drm_device *dev,
 	load_value_to_registers(VGABASE, &iga->display_queue, reg_value);
 
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
@@ -806,7 +806,7 @@ static int via_iga2_display_fifo_regs(struct drm_device *dev,
 	bool enable_extended_display_fifo = false;
 	int ret = 0;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	switch (pdev->device) {
 	case PCI_DEVICE_ID_VIA_CLE266_GFX:
@@ -1101,7 +1101,7 @@ static int via_iga2_display_fifo_regs(struct drm_device *dev,
 	}
 
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
@@ -1593,7 +1593,7 @@ void via_mode_set_nofb(struct drm_crtc *crtc)
 	u8 reg_value = 0;
 	int ret;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	/* Load standard registers */
 	via_load_vpit_regs(dev_priv);
@@ -1790,7 +1790,7 @@ void via_mode_set_nofb(struct drm_crtc *crtc)
 		svga_wcrt_mask(VGABASE, 0x6A, BIT(7), BIT(7));
 	}
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_crtc_helper_atomic_enable(struct drm_crtc *crtc,
@@ -1801,7 +1801,7 @@ static void via_crtc_helper_atomic_enable(struct drm_crtc *crtc,
 	struct via_crtc *iga = container_of(crtc,
 						struct via_crtc, base);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (!iga->index) {
 		svga_wseq_mask(VGABASE, 0x01, 0x00, BIT(5));
@@ -1809,7 +1809,7 @@ static void via_crtc_helper_atomic_enable(struct drm_crtc *crtc,
 		svga_wcrt_mask(VGABASE, 0x6B, 0x00, BIT(2));
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_crtc_helper_atomic_disable(struct drm_crtc *crtc,
@@ -1820,7 +1820,7 @@ static void via_crtc_helper_atomic_disable(struct drm_crtc *crtc,
 	struct via_crtc *iga = container_of(crtc,
 						struct via_crtc, base);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (!iga->index) {
 		svga_wseq_mask(VGABASE, 0x01, BIT(5), BIT(5));
@@ -1828,7 +1828,7 @@ static void via_crtc_helper_atomic_disable(struct drm_crtc *crtc,
 		svga_wcrt_mask(VGABASE, 0x6B, BIT(2), BIT(2));
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static const struct drm_crtc_helper_funcs via_drm_crtc_helper_funcs = {
@@ -1849,7 +1849,7 @@ static int via_primary_atomic_check(struct drm_plane *plane,
 	uint32_t frame_buffer_size;
 	int ret = 0;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if ((!new_plane_state->crtc) || (!new_plane_state->visible)) {
 		goto exit;
@@ -1877,16 +1877,18 @@ static int via_primary_atomic_check(struct drm_plane *plane,
 					DRM_PLANE_NO_SCALING,
 					false, true);
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
 static void via_primary_atomic_disable(struct drm_plane *plane,
 					struct drm_atomic_state *state)
 {
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	struct drm_device *dev = plane->dev;
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
+
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return;
 }
 
@@ -1907,7 +1909,7 @@ void via_primary_atomic_update(struct drm_plane *plane,
 	struct ttm_buffer_object *ttm_bo;
 	struct via_bo *bo;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	gem = fb->obj[0];
 	ttm_bo = container_of(gem, struct ttm_buffer_object, base);
@@ -1963,18 +1965,19 @@ void via_primary_atomic_update(struct drm_plane *plane,
 		load_value_to_registers(VGABASE, &iga->offset, pitch >> 3);
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static int via_primary_prepare_fb(struct drm_plane *plane,
 				struct drm_plane_state *new_state)
 {
+	struct drm_device *dev = plane->dev;
 	struct drm_gem_object *gem;
 	struct ttm_buffer_object *ttm_bo;
 	struct via_bo *bo;
 	int ret = 0;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (!new_state->fb) {
 		goto exit;
@@ -1992,19 +1995,20 @@ static int via_primary_prepare_fb(struct drm_plane *plane,
 	ret = via_bo_pin(bo, TTM_PL_VRAM);
 	ttm_bo_unreserve(ttm_bo);
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
 static void via_primary_cleanup_fb(struct drm_plane *plane,
 				struct drm_plane_state *old_state)
 {
+	struct drm_device *dev = plane->dev;
 	struct drm_gem_object *gem;
 	struct ttm_buffer_object *ttm_bo;
 	struct via_bo *bo;
 	int ret;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (!old_state->fb) {
 		goto exit;
@@ -2022,7 +2026,7 @@ static void via_primary_cleanup_fb(struct drm_plane *plane,
 	via_bo_unpin(bo);
 	ttm_bo_unreserve(ttm_bo);
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static const struct drm_plane_helper_funcs
@@ -2207,11 +2211,12 @@ static void via_crtc_param_init(struct via_drm_priv *dev_priv,
 
 static int via_gamma_init(struct drm_crtc *crtc)
 {
+	struct drm_device *dev = crtc->dev;
 	u16 *gamma;
 	uint32_t i;
 	int ret;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	ret = drm_mode_crtc_set_gamma_size(crtc, 256);
 	if (ret) {
@@ -2227,7 +2232,7 @@ static int via_gamma_init(struct drm_crtc *crtc)
 	}
 
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
