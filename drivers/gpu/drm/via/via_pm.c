@@ -84,7 +84,7 @@ int via_dev_pm_ops_suspend(struct device *dev)
 
 	ret = drm_mode_config_helper_suspend(drm_dev);
 	if (ret) {
-		DRM_ERROR("Failed to prepare for suspend.\n");
+		drm_err(drm_dev, "Failed to prepare for suspend.\n");
 		goto exit;
 	}
 
@@ -107,7 +107,7 @@ int via_dev_pm_ops_resume(struct device *dev)
 	drm_dbg_kms(drm_dev, "Entered %s.\n", __func__);
 
 	if (pci_enable_device(pdev)) {
-		DRM_ERROR("Failed to initialize a PCI "
+		drm_err(drm_dev, "Failed to initialize a PCI "
 				"after resume.\n");
 		ret = -EIO;
 		goto exit;
@@ -178,7 +178,7 @@ int via_dev_pm_ops_resume(struct device *dev)
 
 	ret = drm_mode_config_helper_resume(drm_dev);
 	if (ret) {
-		DRM_ERROR("Failed to perform a modeset "
+		drm_err(drm_dev, "Failed to perform a modeset "
 				"after resume.\n");
 		goto exit;
 	}
