@@ -621,7 +621,7 @@ void via_hdmi_init(struct drm_device *dev, u32 di_port)
 
 	enc = kzalloc(sizeof(*enc) + 2 * sizeof(*hdmi), GFP_KERNEL);
 	if (!enc) {
-		DRM_ERROR("Failed to allocate connector and encoder\n");
+		drm_err(dev, "Failed to allocate connector and encoder\n");
 		return;
 	}
 	hdmi = &enc->cons[0];
