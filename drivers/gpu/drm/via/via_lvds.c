@@ -163,9 +163,11 @@ exit:
 	return ret;
 }
 
-static void via_lvds_cle266_soft_power_seq(struct via_drm_priv *dev_priv,
+static void via_lvds_cle266_soft_power_seq(struct drm_device *dev,
 						bool power_state)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
+
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
 	if (power_state) {
@@ -215,9 +217,11 @@ static void via_lvds_cle266_soft_power_seq(struct via_drm_priv *dev_priv,
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
 
-static void via_lvds_primary_soft_power_seq(struct via_drm_priv *dev_priv,
+static void via_lvds_primary_soft_power_seq(struct drm_device *dev,
 						bool power_state)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
+
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
 	/* Turn off FP hardware power sequence. */
@@ -282,9 +286,11 @@ static void via_lvds_primary_soft_power_seq(struct via_drm_priv *dev_priv,
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
 
-static void via_lvds_secondary_soft_power_seq(struct via_drm_priv *dev_priv,
+static void via_lvds_secondary_soft_power_seq(struct drm_device *dev,
 						bool power_state)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
+
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
 	/* Turn off FP hardware power sequence. */
@@ -349,9 +355,11 @@ static void via_lvds_secondary_soft_power_seq(struct via_drm_priv *dev_priv,
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
 
-static void via_lvds_primary_hard_power_seq(struct via_drm_priv *dev_priv,
+static void via_lvds_primary_hard_power_seq(struct drm_device *dev,
 						bool power_state)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
+
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
 	/* Use hardware FP power sequence control. */
@@ -380,15 +388,17 @@ static void via_lvds_primary_hard_power_seq(struct via_drm_priv *dev_priv,
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
 
-static void via_lvds_power(struct via_drm_priv *dev_priv,
+static void via_lvds_power(struct drm_device *dev,
 				unsigned short device,
 				u32 di_port, bool power_state)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
+
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
 	switch (device) {
 	case PCI_DEVICE_ID_VIA_CLE266_GFX:
-		via_lvds_cle266_soft_power_seq(dev_priv, power_state);
+		via_lvds_cle266_soft_power_seq(dev, power_state);
 		break;
 	case PCI_DEVICE_ID_VIA_KM400_GFX:
 	case PCI_DEVICE_ID_VIA_P4M800_PRO_GFX:
@@ -397,24 +407,24 @@ static void via_lvds_power(struct via_drm_priv *dev_priv,
 	case PCI_DEVICE_ID_VIA_P4M890_GFX:
 	case PCI_DEVICE_ID_VIA_CHROME9:
 	case PCI_DEVICE_ID_VIA_CHROME9_HC:
-		via_lvds_primary_hard_power_seq(dev_priv, power_state);
+		via_lvds_primary_hard_power_seq(dev, power_state);
 		break;
 	case PCI_DEVICE_ID_VIA_UNICHROME_PRO_II:
 	case PCI_DEVICE_ID_VIA_CHROME9_HC3:
 		if (di_port & VIA_DI_PORT_LVDS1) {
-			via_lvds_primary_soft_power_seq(dev_priv, power_state);
+			via_lvds_primary_soft_power_seq(dev, power_state);
 			via_lvds1_set_power(VGABASE, power_state);
 		}
 
 		if (di_port & VIA_DI_PORT_LVDS2) {
-			via_lvds_secondary_soft_power_seq(dev_priv, power_state);
+			via_lvds_secondary_soft_power_seq(dev, power_state);
 			via_lvds2_set_power(VGABASE, power_state);
 		}
 
 		break;
 	case PCI_DEVICE_ID_VIA_CHROME9_HCM:
 	case PCI_DEVICE_ID_VIA_CHROME9_HD:
-		via_lvds_primary_hard_power_seq(dev_priv, power_state);
+		via_lvds_primary_hard_power_seq(dev, power_state);
 		via_lvds1_set_power(VGABASE, power_state);
 		break;
 	default:
@@ -430,9 +440,11 @@ static void via_lvds_power(struct via_drm_priv *dev_priv,
 /*
  * Sets flat panel I/O pad state.
  */
-static void via_lvds_io_pad_setting(struct via_drm_priv *dev_priv,
+static void via_lvds_io_pad_setting(struct drm_device *dev,
 					u32 di_port, bool io_pad_on)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
+
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
 	switch(di_port) {
@@ -473,9 +485,10 @@ static void via_lvds_io_pad_setting(struct via_drm_priv *dev_priv,
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
 
-static void via_lvds_format(struct via_drm_priv *dev_priv,
+static void via_lvds_format(struct drm_device *dev,
 				u32 di_port, u8 format)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	u8 temp = format & 0x01;
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
@@ -499,9 +512,10 @@ static void via_lvds_format(struct via_drm_priv *dev_priv,
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
 
-static void via_lvds_output_format(struct via_drm_priv *dev_priv,
+static void via_lvds_output_format(struct drm_device *dev,
 					u32 di_port, u8 output_format)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	u8 temp = output_format & 0x01;
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
@@ -525,9 +539,11 @@ static void via_lvds_output_format(struct via_drm_priv *dev_priv,
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
 
-static void via_lvds_dithering(struct via_drm_priv *dev_priv,
+static void via_lvds_dithering(struct drm_device *dev,
 				u32 di_port, bool dithering)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
+
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
 	switch(di_port) {
@@ -552,9 +568,10 @@ static void via_lvds_dithering(struct via_drm_priv *dev_priv,
 /*
  * Sets flat panel display source.
  */
-static void via_lvds_display_source(struct via_drm_priv *dev_priv,
+static void via_lvds_display_source(struct drm_device *dev,
 					u32 di_port, int index)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	u8 display_source = index & 0x01;
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
@@ -606,22 +623,21 @@ static void via_lvds_dpms(struct drm_encoder *encoder, int mode)
 					struct via_encoder, base);
 	struct drm_device *dev = encoder->dev;
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
-	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
 	switch (mode) {
 	case DRM_MODE_DPMS_ON:
-		via_lvds_power(dev_priv, pdev->device, enc->di_port,
+		via_lvds_power(dev, pdev->device, enc->di_port,
 				true);
-		via_lvds_io_pad_setting(dev_priv, enc->di_port, true);
+		via_lvds_io_pad_setting(dev, enc->di_port, true);
 		break;
 	case DRM_MODE_DPMS_SUSPEND:
 	case DRM_MODE_DPMS_STANDBY:
 	case DRM_MODE_DPMS_OFF:
-		via_lvds_power(dev_priv, pdev->device, enc->di_port,
+		via_lvds_power(dev, pdev->device, enc->di_port,
 				false);
-		via_lvds_io_pad_setting(dev_priv, enc->di_port, false);
+		via_lvds_io_pad_setting(dev, enc->di_port, false);
 		break;
 	default:
 		break;
@@ -636,12 +652,11 @@ static void via_lvds_prepare(struct drm_encoder *encoder)
 					struct via_encoder, base);
 	struct drm_device *dev = encoder->dev;
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
-	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
-	via_lvds_power(dev_priv, pdev->device, enc->di_port, false);
-	via_lvds_io_pad_setting(dev_priv, enc->di_port, false);
+	via_lvds_power(dev, pdev->device, enc->di_port, false);
+	via_lvds_io_pad_setting(dev, enc->di_port, false);
 
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
@@ -652,12 +667,11 @@ static void via_lvds_commit(struct drm_encoder *encoder)
 					struct via_encoder, base);
 	struct drm_device *dev = encoder->dev;
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
-	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
-	via_lvds_power(dev_priv, pdev->device, enc->di_port, true);
-	via_lvds_io_pad_setting(dev_priv, enc->di_port, true);
+	via_lvds_power(dev, pdev->device, enc->di_port, true);
+	via_lvds_io_pad_setting(dev, enc->di_port, true);
 
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
@@ -689,19 +703,19 @@ via_lvds_mode_set(struct drm_encoder *encoder, struct drm_display_mode *mode,
 	case PCI_DEVICE_ID_VIA_CHROME9_HCM:
 	case PCI_DEVICE_ID_VIA_CHROME9_HD:
 		/* OPENLDI Mode */
-		via_lvds_format(dev_priv, enc->di_port, 0x01);
+		via_lvds_format(dev, enc->di_port, 0x01);
 
 		/* Sequential Mode */
-		via_lvds_output_format(dev_priv, enc->di_port, 0x01);
+		via_lvds_output_format(dev, enc->di_port, 0x01);
 
 		/* Turn on dithering. */
-		via_lvds_dithering(dev_priv, enc->di_port, true);
+		via_lvds_dithering(dev, enc->di_port, true);
 		break;
 	default:
 		break;
 	}
 
-	via_lvds_display_source(dev_priv, enc->di_port, iga->index);
+	via_lvds_display_source(dev, enc->di_port, iga->index);
 
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
@@ -712,12 +726,11 @@ static void via_lvds_disable(struct drm_encoder *encoder)
 					struct via_encoder, base);
 	struct drm_device *dev = encoder->dev;
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
-	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
-	via_lvds_power(dev_priv, pdev->device, enc->di_port, false);
-	via_lvds_io_pad_setting(dev_priv, enc->di_port, false);
+	via_lvds_power(dev, pdev->device, enc->di_port, false);
+	via_lvds_io_pad_setting(dev, enc->di_port, false);
 
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
