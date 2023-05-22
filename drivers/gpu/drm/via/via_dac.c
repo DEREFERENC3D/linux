@@ -59,10 +59,6 @@ static void via_dac_sync_polarity(struct via_drm_priv *dev_priv,
 	}
 
 	via_dac_set_sync_polarity(VGABASE, syncPolarity);
-	DRM_INFO("DAC (VGA) Horizontal Sync Polarity: %s\n",
-		(syncPolarity & BIT(0)) ? "-" : "+");
-	DRM_INFO("DAC (VGA) Vertical Sync Polarity: %s\n",
-		(syncPolarity & BIT(1)) ? "-" : "+");
 
 	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
