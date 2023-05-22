@@ -147,7 +147,7 @@ static bool via_fp_probe_edid(struct drm_device *dev,
 	int i2c_ret;
 	bool ret = false;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	i2c_ret = i2c_transfer(i2c_bus, msgs, 2);
 	if (i2c_ret != 2) {
@@ -160,7 +160,7 @@ static bool via_fp_probe_edid(struct drm_device *dev,
 
 	ret = true;
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
@@ -169,7 +169,7 @@ static void via_lvds_cle266_soft_power_seq(struct drm_device *dev,
 {
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (power_state) {
 		/* Wait for 25 ms. */
@@ -215,7 +215,7 @@ static void via_lvds_cle266_soft_power_seq(struct drm_device *dev,
 		via_lvds_set_primary_soft_vdd(VGABASE, false);
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_lvds_primary_soft_power_seq(struct drm_device *dev,
@@ -223,7 +223,7 @@ static void via_lvds_primary_soft_power_seq(struct drm_device *dev,
 {
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	/* Turn off FP hardware power sequence. */
 	via_lvds_set_primary_hard_power(VGABASE, false);
@@ -284,7 +284,7 @@ static void via_lvds_primary_soft_power_seq(struct drm_device *dev,
 		via_lvds_set_primary_direct_display_period(VGABASE, false);
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_lvds_secondary_soft_power_seq(struct drm_device *dev,
@@ -292,7 +292,7 @@ static void via_lvds_secondary_soft_power_seq(struct drm_device *dev,
 {
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	/* Turn off FP hardware power sequence. */
 	via_lvds_set_secondary_hard_power(VGABASE, false);
@@ -353,7 +353,7 @@ static void via_lvds_secondary_soft_power_seq(struct drm_device *dev,
 		via_lvds_set_secondary_direct_display_period(VGABASE, false);
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_lvds_primary_hard_power_seq(struct drm_device *dev,
@@ -361,7 +361,7 @@ static void via_lvds_primary_hard_power_seq(struct drm_device *dev,
 {
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	/* Use hardware FP power sequence control. */
 	via_lvds_set_primary_power_seq_type(VGABASE, true);
@@ -386,7 +386,7 @@ static void via_lvds_primary_hard_power_seq(struct drm_device *dev,
 		via_lvds_set_primary_direct_display_period(VGABASE, false);
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_lvds_power(struct drm_device *dev,
@@ -395,7 +395,7 @@ static void via_lvds_power(struct drm_device *dev,
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	switch (pdev->device) {
 	case PCI_DEVICE_ID_VIA_CLE266_GFX:
@@ -429,13 +429,13 @@ static void via_lvds_power(struct drm_device *dev,
 		via_lvds1_set_power(VGABASE, power_state);
 		break;
 	default:
-		DRM_DEBUG_KMS("VIA Technologies Chrome IGP "
+		drm_dbg_kms(dev, "VIA Technologies Chrome IGP "
 				"FP Power: Unrecognized "
 				"PCI Device ID.\n");
 		break;
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 /*
@@ -446,7 +446,7 @@ static void via_lvds_io_pad_setting(struct drm_device *dev,
 {
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	switch(di_port) {
 	case VIA_DI_PORT_DVP0:
@@ -481,9 +481,9 @@ static void via_lvds_io_pad_setting(struct drm_device *dev,
 		break;
 	}
 
-	DRM_DEBUG_KMS("FP I/O Pad: %s\n", io_pad_on ? "On": "Off");
+	drm_dbg_kms(dev, "FP I/O Pad: %s\n", io_pad_on ? "On": "Off");
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_lvds_format(struct drm_device *dev,
@@ -492,7 +492,7 @@ static void via_lvds_format(struct drm_device *dev,
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	u8 temp = format & 0x01;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	switch(di_port) {
 	case VIA_DI_PORT_LVDS1:
@@ -510,7 +510,7 @@ static void via_lvds_format(struct drm_device *dev,
 		break;
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_lvds_output_format(struct drm_device *dev,
@@ -519,7 +519,7 @@ static void via_lvds_output_format(struct drm_device *dev,
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	u8 temp = output_format & 0x01;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	switch(di_port) {
 	case VIA_DI_PORT_LVDS1:
@@ -537,7 +537,7 @@ static void via_lvds_output_format(struct drm_device *dev,
 		break;
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_lvds_dithering(struct drm_device *dev,
@@ -545,7 +545,7 @@ static void via_lvds_dithering(struct drm_device *dev,
 {
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	switch(di_port) {
 	case VIA_DI_PORT_LVDS1:
@@ -563,7 +563,7 @@ static void via_lvds_dithering(struct drm_device *dev,
 		break;
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 /*
@@ -575,7 +575,7 @@ static void via_lvds_display_source(struct drm_device *dev,
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	u8 display_source = index & 0x01;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	switch(di_port) {
 	case VIA_DI_PORT_DVP0:
@@ -612,10 +612,10 @@ static void via_lvds_display_source(struct drm_device *dev,
 		break;
 	}
 
-	DRM_DEBUG_KMS("FP Display Source: IGA%d\n",
+	drm_dbg_kms(dev, "FP Display Source: IGA%d\n",
 			display_source + 1);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_lvds_dpms(struct drm_encoder *encoder, int mode)
@@ -624,7 +624,7 @@ static void via_lvds_dpms(struct drm_encoder *encoder, int mode)
 					struct via_encoder, base);
 	struct drm_device *dev = encoder->dev;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	switch (mode) {
 	case DRM_MODE_DPMS_ON:
@@ -641,7 +641,7 @@ static void via_lvds_dpms(struct drm_encoder *encoder, int mode)
 		break;
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_lvds_prepare(struct drm_encoder *encoder)
@@ -650,12 +650,12 @@ static void via_lvds_prepare(struct drm_encoder *encoder)
 					struct via_encoder, base);
 	struct drm_device *dev = encoder->dev;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	via_lvds_power(dev, enc->di_port, false);
 	via_lvds_io_pad_setting(dev, enc->di_port, false);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_lvds_commit(struct drm_encoder *encoder)
@@ -664,12 +664,12 @@ static void via_lvds_commit(struct drm_encoder *encoder)
 					struct via_encoder, base);
 	struct drm_device *dev = encoder->dev;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	via_lvds_power(dev, enc->di_port, true);
 	via_lvds_io_pad_setting(dev, enc->di_port, true);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void
@@ -682,7 +682,7 @@ via_lvds_mode_set(struct drm_encoder *encoder, struct drm_display_mode *mode,
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	/* Temporary implementation.*/
 	switch (pdev->device) {
@@ -713,7 +713,7 @@ via_lvds_mode_set(struct drm_encoder *encoder, struct drm_display_mode *mode,
 
 	via_lvds_display_source(dev, enc->di_port, iga->index);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_lvds_disable(struct drm_encoder *encoder)
@@ -722,12 +722,12 @@ static void via_lvds_disable(struct drm_encoder *encoder)
 					struct via_encoder, base);
 	struct drm_device *dev = encoder->dev;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	via_lvds_power(dev, enc->di_port, false);
 	via_lvds_io_pad_setting(dev, enc->di_port, false);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 const struct drm_encoder_helper_funcs via_lvds_helper_funcs = {
@@ -757,7 +757,7 @@ via_lvds_detect(struct drm_connector *connector, bool force)
 	u8 mask;
 	uint32_t i, i2c_bus_bit;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (machine_is_olpc()) {
 		ret = connector_status_connected;
@@ -792,8 +792,8 @@ via_lvds_detect(struct drm_connector *connector, bool force)
 			if (edid->input & DRM_EDID_INPUT_DIGITAL) {
 				ret = connector_status_connected;
 				kfree(edid);
-				DRM_DEBUG_KMS("FP detected.\n");
-				DRM_DEBUG_KMS("i2c_bus_bit: %x\n", i2c_bus_bit);
+				drm_dbg_kms(dev, "FP detected.\n");
+				drm_dbg_kms(dev, "i2c_bus_bit: %x\n", i2c_bus_bit);
 				goto exit;
 			} else {
 				kfree(edid);
@@ -814,7 +814,7 @@ via_lvds_detect(struct drm_connector *connector, bool force)
 	}
 
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
@@ -844,7 +844,7 @@ via_lvds_get_modes(struct drm_connector *connector)
 	int count = 0;
 	uint32_t i, i2c_bus_bit;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	/* OLPC is very special */
 	if (machine_is_olpc()) {
@@ -894,8 +894,8 @@ via_lvds_get_modes(struct drm_connector *connector)
 				drm_connector_update_edid_property(connector, edid);
 				count = drm_add_edid_modes(connector, edid);
 				kfree(edid);
-				DRM_DEBUG_KMS("FP EDID information was obtained.\n");
-				DRM_DEBUG_KMS("i2c_bus_bit: %x\n", i2c_bus_bit);
+				drm_dbg_kms(dev, "FP EDID information was obtained.\n");
+				drm_dbg_kms(dev, "i2c_bus_bit: %x\n", i2c_bus_bit);
 				break;
 			} else {
 				kfree(edid);
@@ -924,7 +924,7 @@ via_lvds_get_modes(struct drm_connector *connector)
 	}
 
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return count;
 }
 
@@ -945,15 +945,15 @@ void via_lvds_probe(struct drm_device *dev)
 	u8 sr12, sr13, sr5a;
 	u8 cr3b;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	sr12 = vga_rseq(VGABASE, 0x12);
 	sr13 = vga_rseq(VGABASE, 0x13);
 	cr3b = vga_rcrt(VGABASE, 0x3b);
 
-	DRM_DEBUG_KMS("sr12: 0x%02x\n", sr12);
-	DRM_DEBUG_KMS("sr13: 0x%02x\n", sr13);
-	DRM_DEBUG_KMS("cr3b: 0x%02x\n", cr3b);
+	drm_dbg_kms(dev, "sr12: 0x%02x\n", sr12);
+	drm_dbg_kms(dev, "sr13: 0x%02x\n", sr13);
+	drm_dbg_kms(dev, "cr3b: 0x%02x\n", cr3b);
 
 	/* Detect the presence of FPs. */
 	switch (pdev->device) {
@@ -1027,7 +1027,7 @@ void via_lvds_probe(struct drm_device *dev)
 		/* Save SR5A. */
 		sr5a = vga_rseq(VGABASE, 0x5a);
 
-		DRM_DEBUG_KMS("sr5a: 0x%02x\n", sr5a);
+		drm_dbg_kms(dev, "sr5a: 0x%02x\n", sr5a);
 
 		/* Set SR5A[0] to 1.
 		 * This allows the read out of the alternative
@@ -1151,22 +1151,22 @@ void via_lvds_probe(struct drm_device *dev)
 	drm_connector_unregister(&connector);
 	drm_connector_cleanup(&connector);
 
-	DRM_DEBUG_KMS("int_fp1_presence: %x\n",
+	drm_dbg_kms(dev, "int_fp1_presence: %x\n",
 			dev_priv->int_fp1_presence);
-	DRM_DEBUG_KMS("int_fp1_di_port: 0x%08x\n",
+	drm_dbg_kms(dev, "int_fp1_di_port: 0x%08x\n",
 			dev_priv->int_fp1_di_port);
-	DRM_DEBUG_KMS("int_fp1_i2c_bus: 0x%08x\n",
+	drm_dbg_kms(dev, "int_fp1_i2c_bus: 0x%08x\n",
 			dev_priv->int_fp1_i2c_bus);
-	DRM_DEBUG_KMS("int_fp2_presence: %x\n",
+	drm_dbg_kms(dev, "int_fp2_presence: %x\n",
 			dev_priv->int_fp2_presence);
-	DRM_DEBUG_KMS("int_fp2_di_port: 0x%08x\n",
+	drm_dbg_kms(dev, "int_fp2_di_port: 0x%08x\n",
 			dev_priv->int_fp2_di_port);
-	DRM_DEBUG_KMS("int_fp2_i2c_bus: 0x%08x\n",
+	drm_dbg_kms(dev, "int_fp2_i2c_bus: 0x%08x\n",
 			dev_priv->int_fp2_i2c_bus);
-	DRM_DEBUG_KMS("mapped_i2c_bus: 0x%08x\n",
+	drm_dbg_kms(dev, "mapped_i2c_bus: 0x%08x\n",
 			dev_priv->mapped_i2c_bus);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 void via_lvds_init(struct drm_device *dev)
@@ -1175,7 +1175,7 @@ void via_lvds_init(struct drm_device *dev)
 	struct via_connector *con;
 	struct via_encoder *enc;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if ((!(dev_priv->int_fp1_presence)) &&
 		(!(dev_priv->int_fp2_presence))) {
@@ -1228,6 +1228,6 @@ void via_lvds_init(struct drm_device *dev)
 	/* Init TD timing register (power sequence) */
 	via_init_td_timing_regs(dev);
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return;
 }
