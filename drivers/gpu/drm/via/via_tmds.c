@@ -52,7 +52,7 @@ static void via_tmds_power(struct drm_device *dev, bool power_state)
 		via_lvds1_set_soft_display_period(VGABASE, false);
 	}
 
-	DRM_INFO("DVI Power: %s\n",
+	drm_dbg_driver(dev, "DVI Power: %s\n",
 			power_state ? "On" : "Off");
 
 	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
@@ -173,9 +173,9 @@ static void via_tmds_sync_polarity(struct drm_device *dev,
 	}
 
 	via_tmds_set_sync_polarity(VGABASE, syncPolarity);
-	DRM_INFO("TMDS (DVI) Horizontal Sync Polarity: %s\n",
+	drm_dbg_driver(dev, "TMDS (DVI) Horizontal Sync Polarity: %s\n",
 		(syncPolarity & BIT(0)) ? "-" : "+");
-	DRM_INFO("TMDS (DVI) Vertical Sync Polarity: %s\n",
+	drm_dbg_driver(dev, "TMDS (DVI) Vertical Sync Polarity: %s\n",
 		(syncPolarity & BIT(1)) ? "-" : "+");
 
 	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
@@ -192,7 +192,7 @@ static void via_tmds_display_source(struct drm_device *dev, int index)
 	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	via_tmds_set_display_source(VGABASE, displaySource & 0x01);
-	DRM_INFO("TMDS (DVI) Display Source: IGA%d\n",
+	drm_dbg_driver(dev, "TMDS (DVI) Display Source: IGA%d\n",
 			(displaySource & 0x01) + 1);
 
 	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
