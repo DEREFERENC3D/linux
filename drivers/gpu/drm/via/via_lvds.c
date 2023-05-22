@@ -389,14 +389,14 @@ static void via_lvds_primary_hard_power_seq(struct drm_device *dev,
 }
 
 static void via_lvds_power(struct drm_device *dev,
-				unsigned short device,
 				u32 di_port, bool power_state)
 {
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
-	switch (device) {
+	switch (pdev->device) {
 	case PCI_DEVICE_ID_VIA_CLE266_GFX:
 		via_lvds_cle266_soft_power_seq(dev, power_state);
 		break;
@@ -622,21 +622,18 @@ static void via_lvds_dpms(struct drm_encoder *encoder, int mode)
 	struct via_encoder *enc = container_of(encoder,
 					struct via_encoder, base);
 	struct drm_device *dev = encoder->dev;
-	struct pci_dev *pdev = to_pci_dev(dev->dev);
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
 	switch (mode) {
 	case DRM_MODE_DPMS_ON:
-		via_lvds_power(dev, pdev->device, enc->di_port,
-				true);
+		via_lvds_power(dev, enc->di_port, true);
 		via_lvds_io_pad_setting(dev, enc->di_port, true);
 		break;
 	case DRM_MODE_DPMS_SUSPEND:
 	case DRM_MODE_DPMS_STANDBY:
 	case DRM_MODE_DPMS_OFF:
-		via_lvds_power(dev, pdev->device, enc->di_port,
-				false);
+		via_lvds_power(dev, enc->di_port, false);
 		via_lvds_io_pad_setting(dev, enc->di_port, false);
 		break;
 	default:
@@ -651,11 +648,10 @@ static void via_lvds_prepare(struct drm_encoder *encoder)
 	struct via_encoder *enc = container_of(encoder,
 					struct via_encoder, base);
 	struct drm_device *dev = encoder->dev;
-	struct pci_dev *pdev = to_pci_dev(dev->dev);
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
-	via_lvds_power(dev, pdev->device, enc->di_port, false);
+	via_lvds_power(dev, enc->di_port, false);
 	via_lvds_io_pad_setting(dev, enc->di_port, false);
 
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
@@ -666,11 +662,10 @@ static void via_lvds_commit(struct drm_encoder *encoder)
 	struct via_encoder *enc = container_of(encoder,
 					struct via_encoder, base);
 	struct drm_device *dev = encoder->dev;
-	struct pci_dev *pdev = to_pci_dev(dev->dev);
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
-	via_lvds_power(dev, pdev->device, enc->di_port, true);
+	via_lvds_power(dev, enc->di_port, true);
 	via_lvds_io_pad_setting(dev, enc->di_port, true);
 
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
@@ -725,11 +720,10 @@ static void via_lvds_disable(struct drm_encoder *encoder)
 	struct via_encoder *enc = container_of(encoder,
 					struct via_encoder, base);
 	struct drm_device *dev = encoder->dev;
-	struct pci_dev *pdev = to_pci_dev(dev->dev);
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
-	via_lvds_power(dev, pdev->device, enc->di_port, false);
+	via_lvds_power(dev, enc->di_port, false);
 	via_lvds_io_pad_setting(dev, enc->di_port, false);
 
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
