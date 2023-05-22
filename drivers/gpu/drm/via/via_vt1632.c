@@ -51,17 +51,17 @@ static void via_vt1632_power(struct drm_device *dev,
 	u8 buf;
 	u8 power_bit;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	via_i2c_readbytes(i2c_bus, 0x08, 0x08, &buf, 1);
 	power_bit = power_state ? VIA_VT1632_PDB : 0x00;
 	buf &= ~power_bit;
 	buf |= power_bit;
 	via_i2c_writebytes(i2c_bus, 0x08, 0x08, &buf, 1);
-	DRM_DEBUG_KMS("VT1632 (DVI) Power: %s\n",
+	drm_dbg_kms(dev, "VT1632 (DVI) Power: %s\n",
 			power_state ? "On" : "Off");
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 
@@ -71,17 +71,17 @@ static bool via_vt1632_sense(struct drm_device *dev,
 	u8 buf;
 	bool rx_detected = false;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	via_i2c_readbytes(i2c_bus, 0x08, 0x09, &buf, 1);
 	if (buf & BIT(2)) {
 		rx_detected = true;
 	}
 
-	DRM_DEBUG_KMS("VT1632 (DVI) Connector Sense: %s\n",
+	drm_dbg_kms(dev, "VT1632 (DVI) Connector Sense: %s\n",
 			rx_detected ? "Connected" : "Not Connected");
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return rx_detected;
 }
 
@@ -91,15 +91,15 @@ static void via_vt1632_display_registers(struct drm_device *dev,
 	uint8_t i;
 	u8 buf;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
-	DRM_DEBUG_KMS("VT1632(A) Registers:\n");
+	drm_dbg_kms(dev, "VT1632(A) Registers:\n");
 	for (i = 0; i < 0x10; i++) {
 		via_i2c_readbytes(i2c_bus, 0x08, i, &buf, 1);
-		DRM_DEBUG_KMS("0x%02x: 0x%02x\n", i, buf);
+		drm_dbg_kms(dev, "0x%02x: 0x%02x\n", i, buf);
 	}
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_vt1632_init_registers(struct drm_device *dev,
@@ -107,7 +107,7 @@ static void via_vt1632_init_registers(struct drm_device *dev,
 {
 	u8 buf;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	/*
 	 * For Wyse Cx0 thin client VX855 chipset DVP1 (Digital Video
@@ -147,7 +147,7 @@ static void via_vt1632_init_registers(struct drm_device *dev,
 	buf = 0x00;
 	via_i2c_writebytes(i2c_bus, 0x08, 0x0c, &buf, 1);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 
@@ -163,7 +163,7 @@ static void via_vt1632_dpms(struct drm_encoder *encoder, int mode)
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	struct i2c_adapter *i2c_bus;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (enc->i2c_bus & VIA_I2C_BUS1) {
 		i2c_bus = via_find_ddc_bus(0x26);
@@ -198,18 +198,20 @@ static void via_vt1632_dpms(struct drm_encoder *encoder, int mode)
 	}
 
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static bool via_vt1632_mode_fixup(struct drm_encoder *encoder,
 				const struct drm_display_mode *mode,
 				struct drm_display_mode *adjusted_mode)
 {
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	struct drm_device *dev = encoder->dev;
+
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	drm_mode_set_crtcinfo(adjusted_mode, 0);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return true;
 }
 
@@ -225,7 +227,7 @@ static void via_vt1632_mode_set(struct drm_encoder *encoder,
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	struct i2c_adapter *i2c_bus;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (enc->i2c_bus & VIA_I2C_BUS1) {
 		i2c_bus = via_find_ddc_bus(0x26);
@@ -256,7 +258,7 @@ static void via_vt1632_mode_set(struct drm_encoder *encoder,
 	via_transmitter_display_source(dev_priv, enc->di_port, iga->index);
 exit:
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_vt1632_prepare(struct drm_encoder *encoder)
@@ -268,7 +270,7 @@ static void via_vt1632_prepare(struct drm_encoder *encoder)
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	struct i2c_adapter *i2c_bus;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (enc->i2c_bus & VIA_I2C_BUS1) {
 		i2c_bus = via_find_ddc_bus(0x26);
@@ -292,7 +294,7 @@ static void via_vt1632_prepare(struct drm_encoder *encoder)
 	}
 
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_vt1632_commit(struct drm_encoder *encoder)
@@ -304,7 +306,7 @@ static void via_vt1632_commit(struct drm_encoder *encoder)
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	struct i2c_adapter *i2c_bus;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (enc->i2c_bus & VIA_I2C_BUS1) {
 		i2c_bus = via_find_ddc_bus(0x26);
@@ -328,7 +330,7 @@ static void via_vt1632_commit(struct drm_encoder *encoder)
 	}
 
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_vt1632_disable(struct drm_encoder *encoder)
@@ -339,7 +341,7 @@ static void via_vt1632_disable(struct drm_encoder *encoder)
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	struct i2c_adapter *i2c_bus;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (enc->i2c_bus & VIA_I2C_BUS1) {
 		i2c_bus = via_find_ddc_bus(0x26);
@@ -359,7 +361,7 @@ static void via_vt1632_disable(struct drm_encoder *encoder)
 	via_vt1632_power(dev, i2c_bus, false);
 	via_transmitter_io_pad_state(dev_priv, enc->di_port, false);
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 
@@ -384,7 +386,7 @@ static enum drm_connector_status via_vt1632_detect(
 	struct i2c_adapter *i2c_bus;
 	enum drm_connector_status ret = connector_status_disconnected;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (con->i2c_bus & VIA_I2C_BUS1) {
 		i2c_bus = via_find_ddc_bus(0x26);
@@ -403,11 +405,11 @@ static enum drm_connector_status via_vt1632_detect(
 
 	if (via_vt1632_sense(dev, i2c_bus)) {
 		ret = connector_status_connected;
-		DRM_DEBUG_KMS("DVI detected.\n");
+		drm_dbg_kms(dev, "DVI detected.\n");
 	}
 
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
@@ -427,6 +429,7 @@ static const struct drm_connector_funcs via_vt1632_drm_connector_funcs = {
 int via_vt1632_mode_valid(struct drm_connector *connector,
 					struct drm_display_mode *mode)
 {
+	struct drm_device *dev = connector->dev;
 	struct via_connector *con = container_of(connector,
 					struct via_connector, base);
 	struct i2c_adapter *i2c_bus;
@@ -434,7 +437,7 @@ int via_vt1632_mode_valid(struct drm_connector *connector,
 	uint32_t low_freq_limit, high_freq_limit;
 	int ret;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (con->i2c_bus & VIA_I2C_BUS1) {
 		i2c_bus = via_find_ddc_bus(0x26);
@@ -456,8 +459,8 @@ int via_vt1632_mode_valid(struct drm_connector *connector,
 	low_freq_limit = buf * 1000;
 	via_i2c_readbytes(i2c_bus, 0x08, 0x07, &buf, 1);
 	high_freq_limit = (buf + 65) * 1000;
-	DRM_DEBUG_KMS("Low Frequency Limit: %u KHz\n", low_freq_limit);
-	DRM_DEBUG_KMS("High Frequency Limit: %u KHz\n", high_freq_limit);
+	drm_dbg_kms(dev, "Low Frequency Limit: %u KHz\n", low_freq_limit);
+	drm_dbg_kms(dev, "High Frequency Limit: %u KHz\n", high_freq_limit);
 
 	if (mode->clock < low_freq_limit) {
 		ret = MODE_CLOCK_LOW;
@@ -471,19 +474,20 @@ int via_vt1632_mode_valid(struct drm_connector *connector,
 
 	ret = MODE_OK;
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
 static int via_vt1632_get_modes(struct drm_connector *connector)
 {
+	struct drm_device *dev = connector->dev;
 	struct via_connector *con = container_of(connector,
 					struct via_connector, base);
 	int count = 0;
 	struct i2c_adapter *i2c_bus;
 	struct edid *edid = NULL;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (con->i2c_bus & VIA_I2C_BUS1) {
 		i2c_bus = via_find_ddc_bus(0x26);
@@ -505,14 +509,14 @@ static int via_vt1632_get_modes(struct drm_connector *connector)
 		if (edid->input & DRM_EDID_INPUT_DIGITAL) {
 			drm_connector_update_edid_property(connector, edid);
 			count = drm_add_edid_modes(connector, edid);
-			DRM_DEBUG_KMS("DVI EDID information was obtained.\n");
+			drm_dbg_kms(dev, "DVI EDID information was obtained.\n");
 		}
 
 		kfree(edid);
 	}
 
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return count;
 }
 
@@ -529,21 +533,21 @@ bool via_vt1632_probe(struct drm_device *dev,
 	u16 vendor_id, device_id, revision;
 	bool device_detected = false;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	via_i2c_readbytes(i2c_bus, 0x08, 0x00, &buf, 1);
 	vendor_id = buf;
 	via_i2c_readbytes(i2c_bus, 0x08, 0x01, &buf, 1);
 	vendor_id |= (buf << 8);
-	DRM_DEBUG_KMS("Vendor ID: %x\n", vendor_id);
+	drm_dbg_kms(dev, "Vendor ID: %x\n", vendor_id);
 	via_i2c_readbytes(i2c_bus, 0x08, 0x02, &buf, 1);
 	device_id = buf;
 	via_i2c_readbytes(i2c_bus, 0x08, 0x03, &buf, 1);
 	device_id |= (buf << 8);
-	DRM_DEBUG_KMS("Device ID: %x\n", device_id);
+	drm_dbg_kms(dev, "Device ID: %x\n", device_id);
 	via_i2c_readbytes(i2c_bus, 0x08, 0x04, &buf, 1);
 	revision = buf;
-	DRM_DEBUG_KMS("Revision: %x\n", revision);
+	drm_dbg_kms(dev, "Revision: %x\n", revision);
 
 	if ((vendor_id != 0x1106) || (device_id != 0x3192)) {
 		goto exit;
@@ -551,7 +555,7 @@ bool via_vt1632_probe(struct drm_device *dev,
 
 	device_detected = true;
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return device_detected;
 }
 
@@ -561,7 +565,7 @@ void via_vt1632_init(struct drm_device *dev)
 	struct via_encoder *enc;
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (!dev_priv->ext_tmds_presence) {
 		goto exit;
@@ -605,5 +609,5 @@ void via_vt1632_init(struct drm_device *dev)
 	INIT_LIST_HEAD(&con->props);
 	drm_connector_attach_encoder(&con->base, &enc->base);
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
