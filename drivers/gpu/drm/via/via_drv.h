@@ -347,7 +347,8 @@ void via_transmitter_data_drive_strength(struct via_drm_priv *dev_priv,
 					u32 di_port, u8 drive_strength);
 void via_transmitter_display_source(struct via_drm_priv *dev_priv,
 					u32 di_port, int index);
-void via_encoder_cleanup(struct drm_encoder *encoder);
+
+void via_encoder_destroy(struct drm_encoder *encoder);
 
 void via_connector_destroy(struct drm_connector *connector);
 

@@ -195,7 +195,7 @@ static void via_tmds_display_source(struct via_drm_priv *dev_priv,
  * Routines for controlling stuff on the TMDS port
  */
 static const struct drm_encoder_funcs via_tmds_enc_funcs = {
-	.destroy = via_encoder_cleanup,
+	.destroy = via_encoder_destroy,
 };
 
 static void via_tmds_dpms(struct drm_encoder *encoder, int mode)

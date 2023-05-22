@@ -731,7 +731,7 @@ const struct drm_encoder_helper_funcs via_lvds_helper_funcs = {
 };
 
 const struct drm_encoder_funcs via_lvds_enc_funcs = {
-	.destroy = via_encoder_cleanup,
+	.destroy = via_encoder_destroy,
 };
 
 /* Detect FP presence. */

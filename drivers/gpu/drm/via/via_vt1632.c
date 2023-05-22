@@ -147,7 +147,7 @@ static void via_vt1632_init_registers(struct i2c_adapter *i2c_bus)
 
 
 static const struct drm_encoder_funcs via_vt1632_drm_encoder_funcs = {
-	.destroy = via_encoder_cleanup,
+	.destroy = via_encoder_destroy,
 };
 
 static void via_vt1632_dpms(struct drm_encoder *encoder, int mode)

@@ -50,7 +50,7 @@ module_param_named(audio, via_hdmi_audio, int, 0444);
  * Routines for controlling stuff on the HDMI port
  */
 static const struct drm_encoder_funcs via_hdmi_enc_funcs = {
-	.destroy = via_encoder_cleanup,
+	.destroy = via_encoder_destroy,
 };
 
 static void via_hdmi_enc_dpms(struct drm_encoder *encoder, int mode)

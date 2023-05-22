@@ -222,7 +222,7 @@ void via_transmitter_display_source(struct via_drm_priv *dev_priv,
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
 
-void via_encoder_cleanup(struct drm_encoder *encoder)
+void via_encoder_destroy(struct drm_encoder *encoder)
 {
 	struct via_encoder *enc = container_of(encoder, struct via_encoder, base);
 
