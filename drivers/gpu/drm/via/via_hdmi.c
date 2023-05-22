@@ -263,7 +263,7 @@ static void via_hdmi_enc_mode_set(struct drm_encoder *encoder,
 	}
 
 	if (!connector) {
-		DRM_INFO("HDMI encoder is not used by any connector\n");
+		drm_dbg_driver(dev, "HDMI encoder is not used by any connector\n");
 		return;
 	}
 
