@@ -1184,7 +1184,7 @@ void via_lvds_init(struct drm_device *dev)
 
 	enc = kzalloc(sizeof(*enc) + sizeof(*con), GFP_KERNEL);
 	if (!enc) {
-		DRM_ERROR("Failed to allocate FP.\n");
+		drm_err(dev, "Failed to allocate FP.\n");
 		goto exit;
 	}
 
