@@ -763,14 +763,14 @@ int via_vram_detect(struct drm_device *dev)
 
 	if (!bridge) {
 		ret = -EINVAL;
-		DRM_ERROR("No host bridge found...\n");
+		drm_err(dev, "No host bridge found...\n");
 		goto out_err;
 	}
 
 	if (!fn3 && pdev->device != PCI_DEVICE_ID_VIA_CLE266_GFX
 		&& pdev->device != PCI_DEVICE_ID_VIA_KM400_GFX) {
 		ret = -EINVAL;
-		DRM_ERROR("No function 3 on host bridge...\n");
+		drm_err(dev, "No function 3 on host bridge...\n");
 		goto out_err;
 	}
 
@@ -891,7 +891,7 @@ int via_vram_detect(struct drm_device *dev)
 		break;
 
 	default:
-		DRM_ERROR("Unknown north bridge device: 0x%04x\n",
+		drm_err(dev, "Unknown north bridge device: 0x%04x\n",
 				bridge->device);
 		goto out_err;
 	}
@@ -1183,7 +1183,7 @@ static int via_device_init(struct drm_device *dev)
 
 	ret = via_vram_detect(dev);
 	if (ret) {
-		DRM_ERROR("Failed to detect video RAM.\n");
+		drm_err(dev, "Failed to detect video RAM.\n");
 		goto exit;
 	}
 
@@ -1192,13 +1192,13 @@ static int via_device_init(struct drm_device *dev)
 	 */
 	ret = via_vram_init(dev);
 	if (ret) {
-		DRM_ERROR("Failed to initialize video RAM.\n");
+		drm_err(dev, "Failed to initialize video RAM.\n");
 		goto exit;
 	}
 
 	ret = via_mmio_init(dev);
 	if (ret) {
-		DRM_ERROR("Failed to initialize MMIO.\n");
+		drm_err(dev, "Failed to initialize MMIO.\n");
 		goto exit;
 	}
 
@@ -1261,7 +1261,7 @@ int via_modeset_init(struct drm_device *dev)
 	via_i2c_reg_init(dev_priv);
 	ret = via_i2c_init(dev);
 	if (ret) {
-		DRM_ERROR("Failed to initialize I2C bus!\n");
+		drm_err(dev, "Failed to initialize I2C bus!\n");
 		goto exit;
 	}
 
@@ -1324,13 +1324,13 @@ int via_drm_init(struct drm_device *dev)
 
 	ret = via_device_init(dev);
 	if (ret) {
-		DRM_ERROR("Failed to initialize Chrome IGP.\n");
+		drm_err(dev, "Failed to initialize Chrome IGP.\n");
 		goto exit;
 	}
 
 	ret = via_mm_init(dev_priv);
 	if (ret) {
-		DRM_ERROR("Failed to initialize TTM.\n");
+		drm_err(dev, "Failed to initialize TTM.\n");
 		goto exit;
 	}
 
@@ -1338,7 +1338,7 @@ int via_drm_init(struct drm_device *dev)
 
 	ret = via_modeset_init(dev);
 	if (ret) {
-		DRM_ERROR("Failed to initialize mode setting.\n");
+		drm_err(dev, "Failed to initialize mode setting.\n");
 		goto error_modeset;
 	}
 
