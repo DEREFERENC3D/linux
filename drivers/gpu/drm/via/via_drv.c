@@ -309,8 +309,6 @@ static int __init via_init(void)
 {
 	int ret = 0;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
-
 	if ((via_modeset == -1) &&
 		(drm_firmware_drivers_only())) {
 		via_modeset = 0;
@@ -324,21 +322,16 @@ static int __init via_init(void)
 	ret = pci_register_driver(&via_pci_driver);
 
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 	return ret;
 }
 
 static void __exit via_exit(void)
 {
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
-
 	if (!via_modeset) {
-		goto exit;
+		return;
 	}
 
 	pci_unregister_driver(&via_pci_driver);
-exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
 
 module_init(via_init);
