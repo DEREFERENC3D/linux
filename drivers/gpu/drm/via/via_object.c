@@ -43,15 +43,15 @@
 
 static void via_gem_free(struct drm_gem_object *obj)
 {
-	struct ttm_buffer_object *ttm_bo;
+	struct ttm_buffer_object *ttm_bo = container_of(obj,
+				struct ttm_buffer_object, base);
+	struct drm_device *dev = ttm_bo->base.dev;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
-
-	ttm_bo = container_of(obj, struct ttm_buffer_object, base);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	ttm_bo_put(ttm_bo);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 static const struct vm_operations_struct via_ttm_bo_vm_ops = {
@@ -72,9 +72,11 @@ static const struct drm_gem_object_funcs via_gem_object_funcs = {
 void via_ttm_domain_to_placement(struct via_bo *bo,
 					uint32_t ttm_domain)
 {
+	struct ttm_buffer_object *ttm_bo = &bo->ttm_bo;
+	struct drm_device *dev = ttm_bo->base.dev;
 	unsigned i = 0;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	bo->placement.placement = bo->placements;
 	bo->placement.busy_placement = bo->placements;
@@ -106,32 +108,32 @@ void via_ttm_domain_to_placement(struct via_bo *bo,
 	bo->placement.num_placement = i;
 	bo->placement.num_busy_placement = i;
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 void via_ttm_bo_destroy(struct ttm_buffer_object *tbo)
 {
 	struct via_bo *bo;
+	struct drm_device *dev = tbo->base.dev;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	bo = to_ttm_bo(tbo);
 
 	drm_gem_object_release(&tbo->base);
 	kfree(bo);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 int via_bo_pin(struct via_bo *bo, uint32_t ttm_domain)
 {
-	struct ttm_buffer_object *ttm_bo;
+	struct ttm_buffer_object *ttm_bo = &bo->ttm_bo;
+	struct drm_device *dev = ttm_bo->base.dev;
 	struct ttm_operation_ctx ctx = {false, false};
 	int ret = 0;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
-
-	ttm_bo = &bo->ttm_bo;
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (ttm_bo->pin_count) {
 		goto pin;
@@ -147,21 +149,20 @@ pin:
 	ttm_bo_pin(ttm_bo);
 exit:
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
 void via_bo_unpin(struct via_bo *bo)
 {
-	struct ttm_buffer_object *ttm_bo;
+	struct ttm_buffer_object *ttm_bo = &bo->ttm_bo;
+	struct drm_device *dev = ttm_bo->base.dev;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
-
-	ttm_bo = &bo->ttm_bo;
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	ttm_bo_unpin(ttm_bo);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 int via_bo_create(struct drm_device *dev,
@@ -177,7 +178,7 @@ int via_bo_create(struct drm_device *dev,
 	struct via_bo *bo;
 	int ret;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	bo = kzalloc(sizeof(*bo), GFP_KERNEL);
 	if (!bo) {
@@ -240,18 +241,17 @@ int via_bo_create(struct drm_device *dev,
 error:
 	kfree(bo);
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
 void via_bo_destroy(struct via_bo *bo, bool kmap)
 {
-	struct ttm_buffer_object *ttm_bo;
+	struct ttm_buffer_object *ttm_bo = &bo->ttm_bo;
+	struct drm_device *dev = ttm_bo->base.dev;
 	int ret;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
-
-	ttm_bo = &bo->ttm_bo;
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	if (kmap) {
 		ttm_bo_kunmap(&bo->kmap);
@@ -270,7 +270,7 @@ void via_bo_destroy(struct via_bo *bo, bool kmap)
 
 	ttm_bo_put(ttm_bo);
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
 int via_mm_init(struct drm_device *dev)
@@ -278,7 +278,7 @@ int via_mm_init(struct drm_device *dev)
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	int ret;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	/*
 	 * Initialize bdev ttm_bo_device struct.
@@ -307,7 +307,7 @@ int via_mm_init(struct drm_device *dev)
 	}
 
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
@@ -315,11 +315,11 @@ void via_mm_fini(struct drm_device *dev)
 {
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	ttm_range_man_fini(&dev_priv->bdev, TTM_PL_VRAM);
 
 	ttm_device_fini(&dev_priv->bdev);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
