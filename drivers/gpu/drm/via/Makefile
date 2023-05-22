@@ -21,6 +21,7 @@ via-y := via_connector.o \
 		via_sii164.o \
 		via_tmds.o \
 		via_ttm.o \
+		via_tx.o \
 		via_vt1632.o
 
 obj-$(CONFIG_DRM_VIA)	+= via.o
