@@ -40,23 +40,6 @@
 
 
 /*
- * Enables or disables DAC (VGA) output.
- */
-static void via_dac_power(struct via_drm_priv *dev_priv, bool outputState)
-{
-	struct drm_device *dev = &dev_priv->dev;
-
-	drm_dbg_kms(dev, "Entered %s.\n", __func__);
-
-
-	via_dac_set_power(VGABASE, outputState);
-	DRM_INFO("DAC (VGA) Power: %s\n",
-			outputState ? "On" : "Off");
-
-	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
-}
-
-/*
  * Set DAC (VGA) sync polarity.
  */
 static void via_dac_sync_polarity(struct via_drm_priv *dev_priv,
@@ -122,19 +105,19 @@ static void via_dac_dpms(struct drm_encoder *encoder, int mode)
 	switch (mode) {
 	case DRM_MODE_DPMS_ON:
 		via_dac_set_dpms_control(VGABASE, VIA_DAC_DPMS_ON);
-		via_dac_power(dev_priv, true);
+		via_dac_set_power(VGABASE, true);
 		break;
 	case DRM_MODE_DPMS_STANDBY:
 		via_dac_set_dpms_control(VGABASE, VIA_DAC_DPMS_STANDBY);
-		via_dac_power(dev_priv, true);
+		via_dac_set_power(VGABASE, true);
 		break;
 	case DRM_MODE_DPMS_SUSPEND:
 		via_dac_set_dpms_control(VGABASE, VIA_DAC_DPMS_SUSPEND);
-		via_dac_power(dev_priv, true);
+		via_dac_set_power(VGABASE, true);
 		break;
 	case DRM_MODE_DPMS_OFF:
 		via_dac_set_dpms_control(VGABASE, VIA_DAC_DPMS_OFF);
-		via_dac_power(dev_priv, false);
+		via_dac_set_power(VGABASE, false);
 		break;
 	default:
 		drm_err(dev, "Bad DPMS mode.");
@@ -184,7 +167,7 @@ static void via_dac_prepare(struct drm_encoder *encoder)
 
 	if (encoder->crtc) {
 		via_dac_set_dpms_control(VGABASE, VIA_DAC_DPMS_OFF);
-		via_dac_power(dev_priv, false);
+		via_dac_set_power(VGABASE, false);
 	}
 
 	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
@@ -199,7 +182,7 @@ static void via_dac_commit(struct drm_encoder *encoder)
 
 	if (encoder->crtc) {
 		via_dac_set_dpms_control(VGABASE, VIA_DAC_DPMS_ON);
-		via_dac_power(dev_priv, true);
+		via_dac_set_power(VGABASE, true);
 	}
 
 	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
@@ -213,7 +196,7 @@ static void via_dac_disable(struct drm_encoder *encoder)
 	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	via_dac_set_dpms_control(VGABASE, VIA_DAC_DPMS_OFF);
-	via_dac_power(dev_priv, false);
+	via_dac_set_power(VGABASE, false);
 
 	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
