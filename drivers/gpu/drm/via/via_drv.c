@@ -235,7 +235,7 @@ static int via_pci_probe(struct pci_dev *pdev,
 	struct via_drm_priv *dev_priv;
 	int ret;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	dev_info(&pdev->dev, "Entered %s.\n", __func__);
 
 	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev,
 								&via_driver);
@@ -276,7 +276,7 @@ static int via_pci_probe(struct pci_dev *pdev,
 error_disable_pci:
 	pci_disable_device(pdev);
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	dev_info(&pdev->dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
@@ -284,12 +284,12 @@ static void via_pci_remove(struct pci_dev *pdev)
 {
 	struct drm_device *dev = pci_get_drvdata(pdev);
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	dev_info(&pdev->dev, "Entered %s.\n", __func__);
 
 	via_drm_fini(dev);
 	drm_dev_unregister(dev);
 
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	dev_info(&pdev->dev, "Exiting %s.\n", __func__);
 }
 
 static const struct dev_pm_ops via_dev_pm_ops = {
