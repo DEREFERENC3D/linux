@@ -140,7 +140,6 @@ static void via_sii164_dpms(struct drm_encoder *encoder, int mode)
 	struct via_encoder *enc = container_of(encoder,
 					struct via_encoder, base);
 	struct drm_device *dev = encoder->dev;
-	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	struct i2c_adapter *i2c_bus;
 
 	drm_dbg_kms(dev, "Entered %s.\n", __func__);
@@ -164,13 +163,13 @@ static void via_sii164_dpms(struct drm_encoder *encoder, int mode)
 	switch (mode) {
 	case DRM_MODE_DPMS_ON:
 		via_sii164_power(dev, i2c_bus, true);
-		via_transmitter_io_pad_state(dev_priv, enc->di_port, true);
+		via_transmitter_io_pad_state(dev, enc->di_port, true);
 		break;
 	case DRM_MODE_DPMS_STANDBY:
 	case DRM_MODE_DPMS_SUSPEND:
 	case DRM_MODE_DPMS_OFF:
 		via_sii164_power(dev, i2c_bus, false);
-		via_transmitter_io_pad_state(dev_priv, enc->di_port, false);
+		via_transmitter_io_pad_state(dev, enc->di_port, false);
 		break;
 	default:
 		drm_err(dev, "Bad DPMS mode.");
@@ -204,7 +203,6 @@ static void via_sii164_mode_set(struct drm_encoder *encoder,
 					struct via_encoder, base);
 	struct drm_device *dev = encoder->dev;
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
-	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	struct i2c_adapter *i2c_bus;
 
 	drm_dbg_kms(dev, "Entered %s.\n", __func__);
@@ -224,18 +222,18 @@ static void via_sii164_mode_set(struct drm_encoder *encoder,
 		goto exit;
 	}
 
-	via_transmitter_clock_drive_strength(dev_priv, enc->di_port, 0x03);
-	via_transmitter_data_drive_strength(dev_priv, enc->di_port, 0x03);
-	via_transmitter_io_pad_state(dev_priv, enc->di_port, true);
+	via_transmitter_clock_drive_strength(dev, enc->di_port, 0x03);
+	via_transmitter_data_drive_strength(dev, enc->di_port, 0x03);
+	via_transmitter_io_pad_state(dev, enc->di_port, true);
 	if (pdev->device == PCI_DEVICE_ID_VIA_CLE266_GFX) {
-		via_clock_source(dev_priv, enc->di_port, true);
+		via_clock_source(dev, enc->di_port, true);
 	}
 
 	via_sii164_display_registers(dev, i2c_bus);
 	via_sii164_init_registers(dev, i2c_bus);
 	via_sii164_display_registers(dev, i2c_bus);
 
-	via_transmitter_display_source(dev_priv, enc->di_port, iga->index);
+	via_transmitter_display_source(dev, enc->di_port, iga->index);
 exit:
 
 	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
@@ -247,7 +245,6 @@ static void via_sii164_prepare(struct drm_encoder *encoder)
 					struct via_encoder, base);
 	struct drm_device *dev = encoder->dev;
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
-	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	struct i2c_adapter *i2c_bus;
 
 	drm_dbg_kms(dev, "Entered %s.\n", __func__);
@@ -268,9 +265,9 @@ static void via_sii164_prepare(struct drm_encoder *encoder)
 	}
 
 	via_sii164_power(dev, i2c_bus, false);
-	via_transmitter_io_pad_state(dev_priv, enc->di_port, false);
+	via_transmitter_io_pad_state(dev, enc->di_port, false);
 	if (pdev->device == PCI_DEVICE_ID_VIA_CLE266_GFX) {
-		via_output_enable(dev_priv, enc->di_port, false);
+		via_output_enable(dev, enc->di_port, false);
 	}
 
 exit:
@@ -283,7 +280,6 @@ static void via_sii164_commit(struct drm_encoder *encoder)
 					struct via_encoder, base);
 	struct drm_device *dev = encoder->dev;
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
-	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	struct i2c_adapter *i2c_bus;
 
 	drm_dbg_kms(dev, "Entered %s.\n", __func__);
@@ -304,9 +300,9 @@ static void via_sii164_commit(struct drm_encoder *encoder)
 	}
 
 	via_sii164_power(dev, i2c_bus, true);
-	via_transmitter_io_pad_state(dev_priv, enc->di_port, true);
+	via_transmitter_io_pad_state(dev, enc->di_port, true);
 	if (pdev->device == PCI_DEVICE_ID_VIA_CLE266_GFX) {
-		via_output_enable(dev_priv, enc->di_port, true);
+		via_output_enable(dev, enc->di_port, true);
 	}
 
 exit:
@@ -318,7 +314,6 @@ static void via_sii164_disable(struct drm_encoder *encoder)
 	struct via_encoder *enc = container_of(encoder,
 					struct via_encoder, base);
 	struct drm_device *dev = encoder->dev;
-	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	struct i2c_adapter *i2c_bus;
 
 	drm_dbg_kms(dev, "Entered %s.\n", __func__);
@@ -339,7 +334,7 @@ static void via_sii164_disable(struct drm_encoder *encoder)
 	}
 
 	via_sii164_power(dev, i2c_bus, false);
-	via_transmitter_io_pad_state(dev_priv, enc->di_port, false);
+	via_transmitter_io_pad_state(dev, enc->di_port, false);
 exit:
 	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }

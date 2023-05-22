@@ -324,17 +324,20 @@ void via_bo_destroy(struct via_bo *bo, bool kmap);
 int via_mm_init(struct drm_device *dev);
 void via_mm_fini(struct drm_device *dev);
 
-void via_transmitter_io_pad_state(struct via_drm_priv *dev_priv,
-					uint32_t di_port, bool io_pad_on);
-void via_output_enable(struct via_drm_priv *dev_priv,
+void via_transmitter_io_pad_state(struct drm_device *dev,
+					uint32_t di_port,
+					bool io_pad_on);
+void via_output_enable(struct drm_device *dev,
 			uint32_t di_port, bool output_enable);
-void via_clock_source(struct via_drm_priv *dev_priv, uint32_t di_port,
-			bool clock_source);
-void via_transmitter_clock_drive_strength(struct via_drm_priv *dev_priv,
-					u32 di_port, u8 drive_strength);
-void via_transmitter_data_drive_strength(struct via_drm_priv *dev_priv,
-					u32 di_port, u8 drive_strength);
-void via_transmitter_display_source(struct via_drm_priv *dev_priv,
+void via_clock_source(struct drm_device *dev,
+			uint32_t di_port, bool clock_source);
+void via_transmitter_clock_drive_strength(struct drm_device *dev,
+						u32 di_port,
+						u8 drive_strength);
+void via_transmitter_data_drive_strength(struct drm_device *dev,
+						u32 di_port,
+						u8 drive_strength);
+void via_transmitter_display_source(struct drm_device *dev,
 					u32 di_port, int index);
 
 void via_encoder_destroy(struct drm_encoder *encoder);
