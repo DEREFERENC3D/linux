@@ -273,9 +273,9 @@ exit:
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
 
-int via_mm_init(struct via_drm_priv *dev_priv)
+int via_mm_init(struct drm_device *dev)
 {
-	struct drm_device *dev = &dev_priv->dev;
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	int ret;
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
@@ -311,8 +311,10 @@ exit:
 	return ret;
 }
 
-void via_mm_fini(struct via_drm_priv *dev_priv)
+void via_mm_fini(struct drm_device *dev)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
+
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
 	ttm_range_man_fini(&dev_priv->bdev, TTM_PL_VRAM);

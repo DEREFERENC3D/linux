@@ -321,8 +321,8 @@ int via_bo_create(struct drm_device *dev, struct ttm_device *bdev,
 			uint32_t ttm_domain, bool kmap,
 			struct via_bo **bo_ptr);
 void via_bo_destroy(struct via_bo *bo, bool kmap);
-int via_mm_init(struct via_drm_priv *dev_priv);
-void via_mm_fini(struct via_drm_priv *dev_priv);
+int via_mm_init(struct drm_device *dev);
+void via_mm_fini(struct drm_device *dev);
 
 void via_transmitter_io_pad_state(struct via_drm_priv *dev_priv,
 					uint32_t di_port, bool io_pad_on);

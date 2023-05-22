@@ -1315,7 +1315,6 @@ void via_modeset_fini(struct drm_device *dev)
 
 int via_drm_init(struct drm_device *dev)
 {
-	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	int ret = 0;
 
 	drm_dbg_kms(dev, "Entered %s.\n", __func__);
@@ -1326,7 +1325,7 @@ int via_drm_init(struct drm_device *dev)
 		goto exit;
 	}
 
-	ret = via_mm_init(dev_priv);
+	ret = via_mm_init(dev);
 	if (ret) {
 		drm_err(dev, "Failed to initialize TTM.\n");
 		goto exit;
@@ -1343,7 +1342,7 @@ int via_drm_init(struct drm_device *dev)
 	goto exit;
 error_modeset:
 	via_modeset_fini(dev);
-	via_mm_fini(dev_priv);
+	via_mm_fini(dev);
 	via_device_fini(dev);
 exit:
 	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
@@ -1352,12 +1351,10 @@ exit:
 
 void via_drm_fini(struct drm_device *dev)
 {
-	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
-
 	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	via_modeset_fini(dev);
-	via_mm_fini(dev_priv);
+	via_mm_fini(dev);
 	via_device_fini(dev);
 
 	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
