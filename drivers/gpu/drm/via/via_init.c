@@ -1320,8 +1320,6 @@ int via_drm_init(struct drm_device *dev)
 
 	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
-	dev_priv->vram_mtrr = -ENXIO;
-
 	ret = via_device_init(dev);
 	if (ret) {
 		drm_err(dev, "Failed to initialize Chrome IGP.\n");
