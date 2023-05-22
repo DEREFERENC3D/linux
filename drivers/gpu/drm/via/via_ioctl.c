@@ -43,7 +43,7 @@ int via_gem_alloc_ioctl(struct drm_device *dev, void *data,
 	uint32_t handle;
 	int ret;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	ret = via_bo_create(dev, &dev_priv->bdev, args->size,
 				ttm_bo_type_device, args->domain, false, &bo);
@@ -65,7 +65,7 @@ int via_gem_alloc_ioctl(struct drm_device *dev, void *data,
 	args->handle	= handle;
 	args->offset	= ttm_bo->resource->start << PAGE_SHIFT;
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
@@ -77,7 +77,7 @@ int via_gem_mmap_ioctl(struct drm_device *dev, void *data,
 	struct ttm_buffer_object *ttm_bo;
 	int ret = 0;
 
-	DRM_DEBUG_KMS("Entered %s.\n", __func__);
+	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	gem = drm_gem_object_lookup(file_priv, args->handle);
 	if (!gem) {
@@ -89,6 +89,6 @@ int via_gem_mmap_ioctl(struct drm_device *dev, void *data,
 
 	args->offset = drm_vma_node_offset_addr(&ttm_bo->base.vma_node);
 exit:
-	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
+	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
