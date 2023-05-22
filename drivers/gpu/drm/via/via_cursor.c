@@ -317,6 +317,7 @@ static int via_cursor_atomic_check(struct drm_plane *plane,
 	struct drm_plane_state *new_plane_state =
 			drm_atomic_get_new_plane_state(state, plane);
 	struct drm_crtc_state *new_crtc_state;
+	struct drm_device *dev = plane->dev;
 	struct drm_framebuffer *fb = new_plane_state->fb;
 	int ret = 0;
 
@@ -325,7 +326,7 @@ static int via_cursor_atomic_check(struct drm_plane *plane,
 	}
 
 	if (fb->width != fb->height) {
-		DRM_ERROR("Hardware cursor is expected to have "
+		drm_err(dev, "Hardware cursor is expected to have "
 				"square dimensions.\n");
 		ret = -EINVAL;
 		goto exit;
