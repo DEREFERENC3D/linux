@@ -41,9 +41,10 @@
 #include "via_drv.h"
 
 
-static int cle266_mem_type(struct via_drm_priv *dev_priv,
+static int cle266_mem_type(struct drm_device *dev,
 				struct pci_dev *bridge)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	u8 type, fsb, freq;
 	int ret;
 
@@ -142,9 +143,10 @@ static int cle266_mem_type(struct via_drm_priv *dev_priv,
 	return ret;
 }
 
-static int km400_mem_type(struct via_drm_priv *dev_priv,
+static int km400_mem_type(struct drm_device *dev,
 				struct pci_dev *bridge)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	u8 fsb, freq, rev;
 	int ret;
 
@@ -302,10 +304,11 @@ static int km400_mem_type(struct via_drm_priv *dev_priv,
 	return ret;
 }
 
-static int p4m800_mem_type(struct via_drm_priv *dev_priv,
+static int p4m800_mem_type(struct drm_device *dev,
 				struct pci_bus *bus,
 				struct pci_dev *fn3)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	struct pci_dev *fn4 = pci_get_slot(bus, PCI_DEVFN(0, 4));
 	int ret, freq = 0;
 	u8 type, fsb;
@@ -370,8 +373,9 @@ static int p4m800_mem_type(struct via_drm_priv *dev_priv,
 	return ret;
 }
 
-static int km8xx_mem_type(struct via_drm_priv *dev_priv)
+static int km8xx_mem_type(struct drm_device *dev)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	struct pci_dev *dram, *misc = NULL;
 	int ret = -ENXIO;
 	u8 type, tmp;
@@ -503,10 +507,11 @@ static int km8xx_mem_type(struct via_drm_priv *dev_priv)
 	return ret;
 }
 
-static int cn400_mem_type(struct via_drm_priv *dev_priv,
+static int cn400_mem_type(struct drm_device *dev,
 				struct pci_bus *bus,
 				struct pci_dev *fn3)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	struct pci_dev *fn2 = pci_get_slot(bus, PCI_DEVFN(0, 2));
 	int ret, freq = 0;
 	u8 type, fsb;
@@ -567,9 +572,10 @@ static int cn400_mem_type(struct via_drm_priv *dev_priv,
 	return ret;
 }
 
-static int cn700_mem_type(struct via_drm_priv *dev_priv,
+static int cn700_mem_type(struct drm_device *dev,
 				struct pci_dev *fn3)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	int ret;
 	u8 tmp;
 
@@ -601,9 +607,10 @@ static int cn700_mem_type(struct via_drm_priv *dev_priv,
 	return ret;
 }
 
-static int cx700_mem_type(struct via_drm_priv *dev_priv,
+static int cx700_mem_type(struct drm_device *dev,
 				struct pci_dev *fn3)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	u8 type, clock;
 	int ret;
 
@@ -660,9 +667,10 @@ static int cx700_mem_type(struct via_drm_priv *dev_priv,
 	return ret;
 }
 
-static int vx900_mem_type(struct via_drm_priv *dev_priv,
+static int vx900_mem_type(struct drm_device *dev,
 				struct pci_dev *fn3)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	int ret;
 	u8 clock, type, volt;
 
@@ -731,14 +739,14 @@ static int vx900_mem_type(struct via_drm_priv *dev_priv,
 	return ret;
 }
 
-int via_vram_detect(struct via_drm_priv *dev_priv)
+int via_vram_detect(struct drm_device *dev)
 {
-	struct drm_device *dev = &dev_priv->dev;
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
 	struct pci_dev *bridge = NULL;
 	struct pci_dev *fn3 = NULL;
 	char *name = "unknown";
 	struct pci_bus *bus;
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	u8 size;
 	int ret = 0;
 
@@ -776,7 +784,7 @@ int via_vram_detect(struct via_drm_priv *dev_priv)
 
 	/* CLE266 */
 	case PCI_DEVICE_ID_VIA_862X_0:
-		ret = cle266_mem_type(dev_priv, bridge);
+		ret = cle266_mem_type(dev, bridge);
 		if (ret)
 			goto out_err;
 
@@ -788,7 +796,7 @@ int via_vram_detect(struct via_drm_priv *dev_priv)
 
 	/* KM400 / KN400 / KM400A / KN400A */
 	case PCI_DEVICE_ID_VIA_8378_0:
-		ret = km400_mem_type(dev_priv, bridge);
+		ret = km400_mem_type(dev, bridge);
 
 		ret = pci_read_config_byte(bridge, 0xE1, &size);
 		if (ret)
@@ -798,7 +806,7 @@ int via_vram_detect(struct via_drm_priv *dev_priv)
 
 	/* P4M800 */
 	case PCI_DEVICE_ID_VIA_3296_0:
-		ret = p4m800_mem_type(dev_priv, bus, fn3);
+		ret = p4m800_mem_type(dev, bus, fn3);
 
 		ret = pci_read_config_byte(fn3, 0xA1, &size);
 		if (ret)
@@ -818,7 +826,7 @@ int via_vram_detect(struct via_drm_priv *dev_priv)
 		if (bridge->device == PCI_DEVICE_ID_VIA_VT3336)
 			dev_priv->vram_size <<= 2;
 
-		ret = km8xx_mem_type(dev_priv);
+		ret = km8xx_mem_type(dev);
 		if (ret)
 			goto out_err;
 		break;
@@ -830,7 +838,7 @@ int via_vram_detect(struct via_drm_priv *dev_priv)
 			goto out_err;
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
 
-		ret = cn400_mem_type(dev_priv, bus, fn3);
+		ret = cn400_mem_type(dev, bus, fn3);
 		if (ret)
 			goto out_err;
 		break;
@@ -847,7 +855,7 @@ int via_vram_detect(struct via_drm_priv *dev_priv)
 		if (bridge->device != PCI_DEVICE_ID_VIA_P4M800CE)
 			dev_priv->vram_size <<= 2;
 
-		ret = cn700_mem_type(dev_priv, fn3);
+		ret = cn700_mem_type(dev, fn3);
 		if (ret)
 			goto out_err;
 		break;
@@ -865,7 +873,7 @@ int via_vram_detect(struct via_drm_priv *dev_priv)
 			goto out_err;
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 22;
 
-		ret = cx700_mem_type(dev_priv, fn3);
+		ret = cx700_mem_type(dev, fn3);
 		if (ret)
 			goto out_err;
 		break;
@@ -877,7 +885,7 @@ int via_vram_detect(struct via_drm_priv *dev_priv)
 			goto out_err;
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 22;
 
-		ret = vx900_mem_type(dev_priv, fn3);
+		ret = vx900_mem_type(dev, fn3);
 		if (ret)
 			goto out_err;
 		break;
@@ -958,10 +966,10 @@ out_err:
 	return ret;
 }
 
-static void via_quirks_init(struct via_drm_priv *dev_priv)
+static void via_quirks_init(struct drm_device *dev)
 {
-	struct drm_device *dev = &dev_priv->dev;
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
@@ -1012,8 +1020,9 @@ static void via_quirks_init(struct via_drm_priv *dev_priv)
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
 
-int via_vram_init(struct via_drm_priv *dev_priv)
+static int via_vram_init(struct drm_device *dev)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	int ret = 0;
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
@@ -1026,8 +1035,10 @@ int via_vram_init(struct via_drm_priv *dev_priv)
 	return ret;
 }
 
-void via_vram_fini(struct via_drm_priv *dev_priv)
+static void via_vram_fini(struct drm_device *dev)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
+
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
 	if (dev_priv->vram_mtrr) {
@@ -1040,10 +1051,10 @@ void via_vram_fini(struct via_drm_priv *dev_priv)
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
 
-int via_mmio_init(struct via_drm_priv *dev_priv)
+static int via_mmio_init(struct drm_device *dev)
 {
-	struct drm_device *dev = &dev_priv->dev;
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	int ret = 0;
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
@@ -1068,8 +1079,10 @@ exit:
 	return ret;
 }
 
-void via_mmio_fini(struct via_drm_priv *dev_priv)
+static void via_mmio_fini(struct drm_device *dev)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
+
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
 	if (dev_priv->mmio) {
@@ -1080,8 +1093,9 @@ void via_mmio_fini(struct via_drm_priv *dev_priv)
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
 
-void via_graphics_unlock(struct via_drm_priv *dev_priv)
+static void via_graphics_unlock(struct drm_device *dev)
 {
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	uint8_t temp;
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
@@ -1108,9 +1122,9 @@ void via_graphics_unlock(struct via_drm_priv *dev_priv)
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
 
-static void via_chip_revision_info(struct via_drm_priv *dev_priv)
+static void via_chip_revision_info(struct drm_device *dev)
 {
-	struct drm_device *dev = &dev_priv->dev;
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
 	u8 tmp;
 
@@ -1159,15 +1173,15 @@ static void via_chip_revision_info(struct via_drm_priv *dev_priv)
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
 
-int via_device_init(struct via_drm_priv *dev_priv)
+static int via_device_init(struct drm_device *dev)
 {
 	int ret;
 
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
-	via_quirks_init(dev_priv);
+	via_quirks_init(dev);
 
-	ret = via_vram_detect(dev_priv);
+	ret = via_vram_detect(dev);
 	if (ret) {
 		DRM_ERROR("Failed to detect video RAM.\n");
 		goto exit;
@@ -1176,30 +1190,30 @@ int via_device_init(struct via_drm_priv *dev_priv)
 	/*
 	 * Map VRAM.
 	 */
-	ret = via_vram_init(dev_priv);
+	ret = via_vram_init(dev);
 	if (ret) {
 		DRM_ERROR("Failed to initialize video RAM.\n");
 		goto exit;
 	}
 
-	ret = via_mmio_init(dev_priv);
+	ret = via_mmio_init(dev);
 	if (ret) {
 		DRM_ERROR("Failed to initialize MMIO.\n");
 		goto exit;
 	}
 
-	via_graphics_unlock(dev_priv);
+	via_graphics_unlock(dev);
 exit:
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 	return ret;
 }
 
-void via_device_fini(struct via_drm_priv *dev_priv)
+static void via_device_fini(struct drm_device *dev)
 {
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
-	via_mmio_fini(dev_priv);
-	via_vram_fini(dev_priv);
+	via_mmio_fini(dev);
+	via_vram_fini(dev);
 
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }
@@ -1210,10 +1224,8 @@ static const struct drm_mode_config_funcs via_drm_mode_config_funcs = {
 	.atomic_commit		= drm_atomic_helper_commit,
 };
 
-void via_mode_config_init(struct via_drm_priv *dev_priv)
+static void via_mode_config_init(struct drm_device *dev)
 {
-	struct drm_device *dev = &dev_priv->dev;
-
 	DRM_DEBUG_KMS("Entered %s.\n", __func__);
 
 	drm_mode_config_init(dev);
@@ -1240,7 +1252,7 @@ int via_modeset_init(struct drm_device *dev)
 	uint32_t i;
 	int ret = 0;
 
-	via_mode_config_init(dev_priv);
+	via_mode_config_init(dev);
 
 	/* Initialize the number of display connectors. */
 	dev_priv->number_fp = 0;
@@ -1310,7 +1322,7 @@ int via_drm_init(struct drm_device *dev)
 
 	dev_priv->vram_mtrr = -ENXIO;
 
-	ret = via_device_init(dev_priv);
+	ret = via_device_init(dev);
 	if (ret) {
 		DRM_ERROR("Failed to initialize Chrome IGP.\n");
 		goto exit;
@@ -1322,7 +1334,7 @@ int via_drm_init(struct drm_device *dev)
 		goto exit;
 	}
 
-	via_chip_revision_info(dev_priv);
+	via_chip_revision_info(dev);
 
 	ret = via_modeset_init(dev);
 	if (ret) {
@@ -1334,7 +1346,7 @@ int via_drm_init(struct drm_device *dev)
 error_modeset:
 	via_modeset_fini(dev);
 	via_mm_fini(dev_priv);
-	via_device_fini(dev_priv);
+	via_device_fini(dev);
 exit:
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 	return ret;
@@ -1348,7 +1360,7 @@ void via_drm_fini(struct drm_device *dev)
 
 	via_modeset_fini(dev);
 	via_mm_fini(dev_priv);
-	via_device_fini(dev_priv);
+	via_device_fini(dev);
 
 	DRM_DEBUG_KMS("Exiting %s.\n", __func__);
 }

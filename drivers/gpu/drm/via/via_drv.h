@@ -306,17 +306,6 @@ extern int via_driver_num_ioctls;
 
 extern struct ttm_device_funcs via_bo_driver;
 
-int via_vram_detect(struct via_drm_priv *dev_priv);
-int via_vram_init(struct via_drm_priv *dev_priv);
-void via_vram_fini(struct via_drm_priv *dev_priv);
-int via_mmio_init(struct via_drm_priv *dev_priv);
-void via_mmio_fini(struct via_drm_priv *dev_priv);
-void via_graphics_unlock(struct via_drm_priv *dev_priv);
-int via_device_init(struct via_drm_priv *dev_priv);
-void via_device_fini(struct via_drm_priv *dev_priv);
-void via_mode_config_init(struct via_drm_priv *dev_priv);
-int via_modeset_init(struct drm_device *dev);
-void via_modeset_fini(struct drm_device *dev);
 int via_drm_init(struct drm_device *dev);
 void via_drm_fini(struct drm_device *dev);
 
