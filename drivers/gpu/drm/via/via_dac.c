@@ -68,24 +68,6 @@ static void via_dac_sync_polarity(struct via_drm_priv *dev_priv,
 }
 
 /*
- * Sets DAC (VGA) display source.
- */
-static void via_dac_display_source(struct via_drm_priv *dev_priv,
-					int index)
-{
-	struct drm_device *dev = &dev_priv->dev;
-	u8 displaySource = index;
-
-	drm_dbg_kms(dev, "Entered %s.\n", __func__);
-
-	via_dac_set_display_source(VGABASE, displaySource & 0x01);
-	DRM_INFO("DAC (VGA) Display Source: IGA%d\n",
-			(displaySource & 0x01) + 1);
-
-	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
-}
-
-/*
  * Routines for controlling stuff on the DAC port
  */
 static const struct drm_encoder_funcs via_dac_enc_funcs = {
@@ -153,7 +135,7 @@ static void via_dac_mode_set(struct drm_encoder *encoder,
 	drm_dbg_kms(dev, "Entered %s.\n", __func__);
 
 	via_dac_sync_polarity(dev_priv, adjusted_mode->flags);
-	via_dac_display_source(dev_priv, iga->index);
+	via_dac_set_display_source(VGABASE, iga->index);
 
 	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
