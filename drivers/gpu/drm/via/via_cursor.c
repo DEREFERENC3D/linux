@@ -365,6 +365,18 @@ static void via_cursor_atomic_update(struct drm_plane *plane,
 	via_show_cursor(crtc);
 }
 
+static void via_cursor_atomic_enable(struct drm_plane *plane,
+					struct drm_atomic_state *state)
+{
+	struct drm_plane_state *new_state =
+			drm_atomic_get_new_plane_state(state, plane);
+	struct drm_crtc *crtc = new_state->crtc;
+
+	if (crtc) {
+		via_show_cursor(crtc);
+	}
+}
+
 void via_cursor_atomic_disable(struct drm_plane *plane,
 					struct drm_atomic_state *state)
 {
@@ -382,6 +394,7 @@ const struct drm_plane_helper_funcs via_cursor_drm_plane_helper_funcs = {
 	.cleanup_fb	= via_cursor_cleanup_fb,
 	.atomic_check	= via_cursor_atomic_check,
 	.atomic_update	= via_cursor_atomic_update,
+	.atomic_enable	= via_cursor_atomic_enable,
 	.atomic_disable	= via_cursor_atomic_disable,
 };
 
