@@ -157,7 +157,7 @@ static void via_iga2_set_color_depth(struct drm_device *dev,
 	data = 0x00;
 
 	/* Set the color depth for IGA2. */
-	switch (depth) {
+	switch (cpp) {
 	case 1:
 		break;
 	case 2:
