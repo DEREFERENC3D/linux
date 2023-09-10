@@ -408,7 +408,7 @@ const struct drm_plane_funcs via_cursor_drm_plane_funcs = {
 };
 
 const uint32_t via_cursor_formats[] = {
-	DRM_FORMAT_XRGB8888,
+	DRM_FORMAT_ARGB8888,
 };
 
 const unsigned int via_cursor_formats_size =
