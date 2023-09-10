@@ -188,8 +188,6 @@ static struct drm_driver via_driver = {
 	.postclose = via_driver_postclose,
 	.lastclose = via_driver_lastclose,
 
-	.gem_prime_mmap = drm_gem_prime_mmap,
-
 	.dumb_create = via_driver_dumb_create,
 	.dumb_map_offset = via_driver_dumb_map_offset,
 
