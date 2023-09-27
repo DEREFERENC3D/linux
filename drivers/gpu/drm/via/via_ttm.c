@@ -44,9 +44,9 @@ static void via_bo_move_notify(struct ttm_buffer_object *bo, bool evict,
 {
 	struct drm_device *dev = bo->base.dev;
 
-	drm_dbg_kms(dev, "Entered %s.\n", __func__);
+	drm_dbg_driver(dev, "Entered %s.\n", __func__);
 
-	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
+	drm_dbg_driver(dev, "Exiting %s.\n", __func__);
 	return;
 }
 
@@ -83,7 +83,7 @@ static void via_bo_evict_flags(struct ttm_buffer_object *bo,
 	struct drm_device *dev = bo->base.dev;
 	struct via_bo *driver_bo = to_ttm_bo(bo);
 
-	drm_dbg_kms(dev, "Entered %s.\n", __func__);
+	drm_dbg_driver(dev, "Entered %s.\n", __func__);
 
 	if (bo->destroy == &via_ttm_bo_destroy) {
 		goto exit;
@@ -100,7 +100,7 @@ static void via_bo_evict_flags(struct ttm_buffer_object *bo,
 
 	*placement = driver_bo->placement;
 exit:
-	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
+	drm_dbg_driver(dev, "Exiting %s.\n", __func__);
 }
 
 static int via_bo_move(struct ttm_buffer_object *bo, bool evict,
@@ -136,11 +136,11 @@ static void via_bo_delete_mem_notify(struct ttm_buffer_object *bo)
 {
 	struct drm_device *dev = bo->base.dev;
 
-	drm_dbg_kms(dev, "Entered %s.\n", __func__);
+	drm_dbg_driver(dev, "Entered %s.\n", __func__);
 
 	via_bo_move_notify(bo, false, NULL);
 
-	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
+	drm_dbg_driver(dev, "Exiting %s.\n", __func__);
 	return;
 }
 
@@ -152,7 +152,7 @@ static int via_bo_io_mem_reserve(struct ttm_device *bdev,
 	struct drm_device *dev = &dev_priv->dev;
 	int ret = 0;
 
-	drm_dbg_kms(dev, "Entered %s.\n", __func__);
+	drm_dbg_driver(dev, "Entered %s.\n", __func__);
 
 	switch (mem->mem_type) {
 	case TTM_PL_SYSTEM:
@@ -167,7 +167,7 @@ static int via_bo_io_mem_reserve(struct ttm_device *bdev,
 		break;
 	}
 
-	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
+	drm_dbg_driver(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 

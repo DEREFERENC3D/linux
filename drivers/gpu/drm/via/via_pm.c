@@ -40,7 +40,7 @@ int via_dev_pm_ops_suspend(struct device *dev)
 	struct via_drm_priv *dev_priv = to_via_drm_priv(drm_dev);
 	int ret = 0;
 
-	drm_dbg_kms(drm_dev, "Entered %s.\n", __func__);
+	drm_dbg_driver(drm_dev, "Entered %s.\n", __func__);
 
 	console_lock();
 
@@ -91,7 +91,7 @@ int via_dev_pm_ops_suspend(struct device *dev)
 	pci_save_state(pdev);
 	pci_disable_device(pdev);
 exit:
-	drm_dbg_kms(drm_dev, "Exiting %s.\n", __func__);
+	drm_dbg_driver(drm_dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
@@ -104,7 +104,7 @@ int via_dev_pm_ops_resume(struct device *dev)
 	u8 val;
 	int ret = 0;
 
-	drm_dbg_kms(drm_dev, "Entered %s.\n", __func__);
+	drm_dbg_driver(drm_dev, "Entered %s.\n", __func__);
 
 	if (pci_enable_device(pdev)) {
 		drm_err(drm_dev, "Failed to initialize a PCI "
@@ -184,6 +184,6 @@ int via_dev_pm_ops_resume(struct device *dev)
 	}
 
 exit:
-	drm_dbg_kms(drm_dev, "Exiting %s.\n", __func__);
+	drm_dbg_driver(drm_dev, "Exiting %s.\n", __func__);
 	return ret;
 }

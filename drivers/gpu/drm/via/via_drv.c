@@ -61,27 +61,27 @@ static int via_driver_open(struct drm_device *dev,
 {
 	int ret = 0;
 
-	drm_dbg_kms(dev, "Entered %s.\n", __func__);
+	drm_dbg_driver(dev, "Entered %s.\n", __func__);
 
-	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
+	drm_dbg_driver(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
 static void via_driver_postclose(struct drm_device *dev,
 					struct drm_file *file_priv)
 {
-	drm_dbg_kms(dev, "Entered %s.\n", __func__);
+	drm_dbg_driver(dev, "Entered %s.\n", __func__);
 
-	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
+	drm_dbg_driver(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_driver_lastclose(struct drm_device *dev)
 {
-	drm_dbg_kms(dev, "Entered %s.\n", __func__);
+	drm_dbg_driver(dev, "Entered %s.\n", __func__);
 
 	drm_fb_helper_lastclose(dev);
 
-	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
+	drm_dbg_driver(dev, "Exiting %s.\n", __func__);
 }
 
 static int via_driver_dumb_create(struct drm_file *file_priv,
@@ -95,7 +95,7 @@ static int via_driver_dumb_create(struct drm_file *file_priv,
 	uint64_t size;
 	int ret;
 
-	drm_dbg_kms(dev, "Entered %s.\n", __func__);
+	drm_dbg_driver(dev, "Entered %s.\n", __func__);
 
 	/*
 	 * Calculate the parameters for the dumb buffer.
@@ -122,7 +122,7 @@ static int via_driver_dumb_create(struct drm_file *file_priv,
 	args->pitch = pitch;
 	args->size = size;
 exit:
-	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
+	drm_dbg_driver(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
@@ -136,7 +136,7 @@ static int via_driver_dumb_map_offset(struct drm_file *file_priv,
 	struct via_bo *bo;
 	int ret = 0;
 
-	drm_dbg_kms(dev, "Entered %s.\n", __func__);
+	drm_dbg_driver(dev, "Entered %s.\n", __func__);
 
 	gem = drm_gem_object_lookup(file_priv, handle);
 	if (!gem) {
@@ -150,7 +150,7 @@ static int via_driver_dumb_map_offset(struct drm_file *file_priv,
 
 	drm_gem_object_put(gem);
 exit:
-	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
+	drm_dbg_driver(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
 
