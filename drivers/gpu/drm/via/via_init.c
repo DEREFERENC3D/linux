@@ -742,10 +742,10 @@ static int vx900_mem_type(struct drm_device *dev,
 int via_vram_detect(struct drm_device *dev)
 {
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
-	struct pci_dev *bridge = NULL;
-	struct pci_dev *fn3 = NULL;
-	char *name = "unknown";
 	struct pci_bus *bus;
+	struct pci_dev *hb_fn0 = NULL;
+	struct pci_dev *hb_fn3 = NULL;
+	char *name = "unknown";
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	u8 size;
 	int ret = 0;
@@ -753,25 +753,27 @@ int via_vram_detect(struct drm_device *dev)
 	drm_dbg_driver(dev, "Entered %s.\n", __func__);
 
 	bus = pci_find_bus(0, 0);
-	if (bus == NULL) {
+	if (!bus) {
 		ret = -EINVAL;
-		goto out_err;
+		drm_err(dev, "PCI bus not found!\n");
+		goto exit;
 	}
 
-	bridge = pci_get_slot(bus, PCI_DEVFN(0, 0));
-	fn3 = pci_get_slot(bus, PCI_DEVFN(0, 3));
-
-	if (!bridge) {
+	hb_fn0 = pci_get_slot(bus, PCI_DEVFN(0, 0));
+	if (!hb_fn0) {
 		ret = -EINVAL;
-		drm_err(dev, "No host bridge found...\n");
-		goto out_err;
+		drm_err(dev, "Host Bridge Function 0 not found!\n");
+		goto exit;
 	}
 
-	if (!fn3 && pdev->device != PCI_DEVICE_ID_VIA_CLE266_GFX
-		&& pdev->device != PCI_DEVICE_ID_VIA_KM400_GFX) {
-		ret = -EINVAL;
-		drm_err(dev, "No function 3 on host bridge...\n");
-		goto out_err;
+	if ((pdev->device != PCI_DEVICE_ID_VIA_CLE266_GFX) ||
+		(pdev->device != PCI_DEVICE_ID_VIA_KM400_GFX)) {
+		hb_fn3 = pci_get_slot(bus, PCI_DEVFN(0, 3));
+		if (!hb_fn3) {
+			ret = -EINVAL;
+			drm_err(dev, "Host Bridge Function 3 not found!\n");
+			goto error_hb_fn0;
+		}
 	}
 
 	if (pdev->device == PCI_DEVICE_ID_VIA_CHROME9_HD) {
@@ -780,37 +782,37 @@ int via_vram_detect(struct drm_device *dev)
 		dev_priv->vram_start = pci_resource_start(pdev, 0);
 	}
 
-	switch (bridge->device) {
+	switch (hb_fn0->device) {
 
 	/* CLE266 */
 	case PCI_DEVICE_ID_VIA_862X_0:
-		ret = cle266_mem_type(dev, bridge);
+		ret = cle266_mem_type(dev, hb_fn0);
 		if (ret)
-			goto out_err;
+			goto error_hb_fn0;
 
-		ret = pci_read_config_byte(bridge, 0xE1, &size);
+		ret = pci_read_config_byte(hb_fn0, 0xE1, &size);
 		if (ret)
-			goto out_err;
+			goto error_hb_fn0;
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
 		break;
 
 	/* KM400 / KN400 / KM400A / KN400A */
 	case PCI_DEVICE_ID_VIA_8378_0:
-		ret = km400_mem_type(dev, bridge);
+		ret = km400_mem_type(dev, hb_fn0);
 
-		ret = pci_read_config_byte(bridge, 0xE1, &size);
+		ret = pci_read_config_byte(hb_fn0, 0xE1, &size);
 		if (ret)
-			goto out_err;
+			goto error_hb_fn0;
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
 		break;
 
 	/* P4M800 */
 	case PCI_DEVICE_ID_VIA_3296_0:
-		ret = p4m800_mem_type(dev, bus, fn3);
+		ret = p4m800_mem_type(dev, bus, hb_fn3);
 
-		ret = pci_read_config_byte(fn3, 0xA1, &size);
+		ret = pci_read_config_byte(hb_fn3, 0xA1, &size);
 		if (ret)
-			goto out_err;
+			goto error_hb_fn3;
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
 		break;
 
@@ -818,46 +820,46 @@ int via_vram_detect(struct drm_device *dev)
 	case PCI_DEVICE_ID_VIA_8380_0:
 	/* K8M890 */
 	case PCI_DEVICE_ID_VIA_VT3336:
-		ret = pci_read_config_byte(fn3, 0xA1, &size);
+		ret = pci_read_config_byte(hb_fn3, 0xA1, &size);
 		if (ret)
-			goto out_err;
+			goto error_hb_fn3;
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
 
-		if (bridge->device == PCI_DEVICE_ID_VIA_VT3336)
+		if (hb_fn0->device == PCI_DEVICE_ID_VIA_VT3336)
 			dev_priv->vram_size <<= 2;
 
 		ret = km8xx_mem_type(dev);
 		if (ret)
-			goto out_err;
+			goto error_hb_fn3;
 		break;
 
 	/* CN400 / PM800 / PM880 */
 	case PCI_DEVICE_ID_VIA_PX8X0_0:
-		ret = pci_read_config_byte(fn3, 0xA1, &size);
+		ret = pci_read_config_byte(hb_fn3, 0xA1, &size);
 		if (ret)
-			goto out_err;
+			goto error_hb_fn3;
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
 
-		ret = cn400_mem_type(dev, bus, fn3);
+		ret = cn400_mem_type(dev, bus, hb_fn3);
 		if (ret)
-			goto out_err;
+			goto error_hb_fn3;
 		break;
 
 	/* P4M800CE / P4M800 Pro / VN800 / CN700 */
 	case PCI_DEVICE_ID_VIA_P4M800CE:
 	/* P4M900 / VN896 / CN896 */
 	case PCI_DEVICE_ID_VIA_VT3364:
-		ret = pci_read_config_byte(fn3, 0xA1, &size);
+		ret = pci_read_config_byte(hb_fn3, 0xA1, &size);
 		if (ret)
-			goto out_err;
+			goto error_hb_fn3;
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
 
-		if (bridge->device != PCI_DEVICE_ID_VIA_P4M800CE)
+		if (hb_fn0->device != PCI_DEVICE_ID_VIA_P4M800CE)
 			dev_priv->vram_size <<= 2;
 
-		ret = cn700_mem_type(dev, fn3);
+		ret = cn700_mem_type(dev, hb_fn3);
 		if (ret)
-			goto out_err;
+			goto error_hb_fn3;
 		break;
 
 	/* CX700 / VX700 */
@@ -868,32 +870,32 @@ int via_vram_detect(struct drm_device *dev)
 	case PCI_DEVICE_ID_VIA_VX800_HB:
 	/* VX855 / VX875 */
 	case PCI_DEVICE_ID_VIA_VX855_HB:
-		ret = pci_read_config_byte(fn3, 0xA1, &size);
+		ret = pci_read_config_byte(hb_fn3, 0xA1, &size);
 		if (ret)
-			goto out_err;
+			goto error_hb_fn3;
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 22;
 
-		ret = cx700_mem_type(dev, fn3);
+		ret = cx700_mem_type(dev, hb_fn3);
 		if (ret)
-			goto out_err;
+			goto error_hb_fn3;
 		break;
 
 	/* VX900 */
 	case PCI_DEVICE_ID_VIA_VX900_HB:
-		ret = pci_read_config_byte(fn3, 0xA1, &size);
+		ret = pci_read_config_byte(hb_fn3, 0xA1, &size);
 		if (ret)
-			goto out_err;
+			goto error_hb_fn3;
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 22;
 
-		ret = vx900_mem_type(dev, fn3);
+		ret = vx900_mem_type(dev, hb_fn3);
 		if (ret)
-			goto out_err;
+			goto error_hb_fn3;
 		break;
 
 	default:
-		drm_err(dev, "Unknown north bridge device: 0x%04x\n",
-				bridge->device);
-		goto out_err;
+		drm_err(dev, "Unknown Host Bidge device: 0x%04x\n",
+				hb_fn0->device);
+		goto error_hb_fn3;
 	}
 
 	switch (dev_priv->vram_type) {
@@ -956,12 +958,13 @@ int via_vram_detect(struct drm_device *dev)
 	}
 
 	drm_dbg_driver(dev, "Found %s video RAM.\n", name);
-out_err:
-	if (bridge)
-		pci_dev_put(bridge);
-	if (fn3)
-		pci_dev_put(fn3);
-
+error_hb_fn3:
+	if (hb_fn3)
+		pci_dev_put(hb_fn3);
+error_hb_fn0:
+	if (hb_fn0)
+		pci_dev_put(hb_fn0);
+exit:
 	drm_dbg_driver(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
