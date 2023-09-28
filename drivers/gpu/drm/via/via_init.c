@@ -739,7 +739,61 @@ static int vx900_mem_type(struct drm_device *dev,
 	return ret;
 }
 
-int via_vram_detect(struct drm_device *dev)
+static void via_quirks_init(struct drm_device *dev)
+{
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
+
+	drm_dbg_driver(dev, "Entered %s.\n", __func__);
+
+	/*
+	 * Checking for VIA Technologies NanoBook reference design.
+	 * Examples include Everex CloudBook and Sylvania g netbook.
+	 * It is also called FIC CE260 or CE261 by its ODM (Original
+	 * Design Manufacturer) name.
+	 * This device has its strapping resistors set to a wrong
+	 * setting to handle DVI. As a result, the code needs to know
+	 * this in order to support DVI properly.
+	 */
+	if ((pdev->device == PCI_DEVICE_ID_VIA_UNICHROME_PRO_II) &&
+		(pdev->subsystem_vendor == 0x1509) &&
+		(pdev->subsystem_device == 0x2d30)) {
+		dev_priv->is_via_nanobook = true;
+	} else {
+		dev_priv->is_via_nanobook = false;
+	}
+
+	/*
+	 * Check for Quanta IL1 netbook. This is necessary
+	 * due to its flat panel connected to DVP1 (Digital
+	 * Video Port 1) rather than its LVDS channel.
+	 */
+	if ((pdev->device == PCI_DEVICE_ID_VIA_CHROME9_HC3) &&
+		(pdev->subsystem_vendor == 0x152d) &&
+		(pdev->subsystem_device == 0x0771)) {
+		dev_priv->is_quanta_il1 = true;
+	} else {
+		dev_priv->is_quanta_il1 = false;
+	}
+
+	/*
+	 * Samsung NC20 netbook has its FP connected to LVDS2
+	 * rather than the more logical LVDS1, hence, a special
+	 * flag register is needed for properly controlling its
+	 * FP.
+	 */
+	if ((pdev->device == PCI_DEVICE_ID_VIA_CHROME9_HC3) &&
+		(pdev->subsystem_vendor == 0x144d) &&
+		(pdev->subsystem_device == 0xc04e)) {
+		dev_priv->is_samsung_nc20 = true;
+	} else {
+		dev_priv->is_samsung_nc20 = false;
+	}
+
+	drm_dbg_driver(dev, "Exiting %s.\n", __func__);
+}
+
+static int via_vram_init(struct drm_device *dev)
 {
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
 	struct pci_bus *bus;
@@ -958,6 +1012,11 @@ int via_vram_detect(struct drm_device *dev)
 	}
 
 	drm_dbg_driver(dev, "Found %s video RAM.\n", name);
+
+	/* Add an MTRR for the video RAM. */
+	dev_priv->vram_mtrr = arch_phys_wc_add(dev_priv->vram_start,
+						dev_priv->vram_size);
+	goto exit;
 error_hb_fn3:
 	if (hb_fn3)
 		pci_dev_put(hb_fn3);
@@ -965,75 +1024,6 @@ error_hb_fn0:
 	if (hb_fn0)
 		pci_dev_put(hb_fn0);
 exit:
-	drm_dbg_driver(dev, "Exiting %s.\n", __func__);
-	return ret;
-}
-
-static void via_quirks_init(struct drm_device *dev)
-{
-	struct pci_dev *pdev = to_pci_dev(dev->dev);
-	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
-
-	drm_dbg_driver(dev, "Entered %s.\n", __func__);
-
-	/*
-	 * Checking for VIA Technologies NanoBook reference design.
-	 * Examples include Everex CloudBook and Sylvania g netbook.
-	 * It is also called FIC CE260 or CE261 by its ODM (Original
-	 * Design Manufacturer) name.
-	 * This device has its strapping resistors set to a wrong
-	 * setting to handle DVI. As a result, the code needs to know
-	 * this in order to support DVI properly.
-	 */
-	if ((pdev->device == PCI_DEVICE_ID_VIA_UNICHROME_PRO_II) &&
-		(pdev->subsystem_vendor == 0x1509) &&
-		(pdev->subsystem_device == 0x2d30)) {
-		dev_priv->is_via_nanobook = true;
-	} else {
-		dev_priv->is_via_nanobook = false;
-	}
-
-	/*
-	 * Check for Quanta IL1 netbook. This is necessary
-	 * due to its flat panel connected to DVP1 (Digital
-	 * Video Port 1) rather than its LVDS channel.
-	 */
-	if ((pdev->device == PCI_DEVICE_ID_VIA_CHROME9_HC3) &&
-		(pdev->subsystem_vendor == 0x152d) &&
-		(pdev->subsystem_device == 0x0771)) {
-		dev_priv->is_quanta_il1 = true;
-	} else {
-		dev_priv->is_quanta_il1 = false;
-	}
-
-	/*
-	 * Samsung NC20 netbook has its FP connected to LVDS2
-	 * rather than the more logical LVDS1, hence, a special
-	 * flag register is needed for properly controlling its
-	 * FP.
-	 */
-	if ((pdev->device == PCI_DEVICE_ID_VIA_CHROME9_HC3) &&
-		(pdev->subsystem_vendor == 0x144d) &&
-		(pdev->subsystem_device == 0xc04e)) {
-		dev_priv->is_samsung_nc20 = true;
-	} else {
-		dev_priv->is_samsung_nc20 = false;
-	}
-
-	drm_dbg_driver(dev, "Exiting %s.\n", __func__);
-}
-
-static int via_vram_init(struct drm_device *dev)
-{
-	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
-	int ret = 0;
-
-	drm_dbg_driver(dev, "Entered %s.\n", __func__);
-
-	/* Add an MTRR for the video RAM. */
-	dev_priv->vram_mtrr = arch_phys_wc_add(dev_priv->vram_start,
-						dev_priv->vram_size);
-
 	drm_dbg_driver(dev, "Exiting %s.\n", __func__);
 	return ret;
 }
@@ -1183,12 +1173,6 @@ static int via_device_init(struct drm_device *dev)
 	drm_dbg_driver(dev, "Entered %s.\n", __func__);
 
 	via_quirks_init(dev);
-
-	ret = via_vram_detect(dev);
-	if (ret) {
-		drm_err(dev, "Failed to detect video RAM.\n");
-		goto exit;
-	}
 
 	/*
 	 * Map VRAM.
