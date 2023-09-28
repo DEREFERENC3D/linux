@@ -808,14 +808,14 @@ static int via_vram_init(struct drm_device *dev)
 
 	bus = pci_find_bus(0, 0);
 	if (!bus) {
-		ret = -EINVAL;
+		ret = -ENODEV;
 		drm_err(dev, "PCI bus not found!\n");
 		goto exit;
 	}
 
 	hb_fn0 = pci_get_slot(bus, PCI_DEVFN(0, 0));
 	if (!hb_fn0) {
-		ret = -EINVAL;
+		ret = -ENODEV;
 		drm_err(dev, "Host Bridge Function 0 not found!\n");
 		goto exit;
 	}
@@ -824,7 +824,7 @@ static int via_vram_init(struct drm_device *dev)
 		(pdev->device != PCI_DEVICE_ID_VIA_KM400_GFX)) {
 		hb_fn3 = pci_get_slot(bus, PCI_DEVFN(0, 3));
 		if (!hb_fn3) {
-			ret = -EINVAL;
+			ret = -ENODEV;
 			drm_err(dev, "Host Bridge Function 3 not found!\n");
 			goto error_hb_fn0;
 		}
@@ -947,6 +947,7 @@ static int via_vram_init(struct drm_device *dev)
 		break;
 
 	default:
+		ret = -ENODEV;
 		drm_err(dev, "Unknown Host Bidge device: 0x%04x\n",
 				hb_fn0->device);
 		goto error_hb_fn3;
