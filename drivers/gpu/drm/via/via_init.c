@@ -1187,10 +1187,13 @@ static int via_device_init(struct drm_device *dev)
 	ret = via_mmio_init(dev);
 	if (ret) {
 		drm_err(dev, "Failed to initialize MMIO.\n");
-		goto exit;
+		goto error_mmio_init;
 	}
 
 	via_graphics_unlock(dev);
+	goto exit;
+error_mmio_init:
+	via_vram_fini(dev);
 exit:
 	drm_dbg_driver(dev, "Exiting %s.\n", __func__);
 	return ret;
