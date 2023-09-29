@@ -1215,9 +1215,16 @@ static const struct drm_mode_config_funcs via_drm_mode_config_funcs = {
 	.atomic_commit		= drm_atomic_helper_commit,
 };
 
-static void via_mode_config_init(struct drm_device *dev)
+int via_modeset_init(struct drm_device *dev)
 {
-	drm_dbg_driver(dev, "Entered %s.\n", __func__);
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
+	uint32_t i;
+	int ret = 0;
+
+	/* Initialize the number of display connectors. */
+	dev_priv->number_fp = 0;
+	dev_priv->number_dvi = 0;
 
 	drm_mode_config_init(dev);
 
@@ -1232,22 +1239,6 @@ static void via_mode_config_init(struct drm_device *dev)
 
 	dev->mode_config.cursor_width =
 	dev->mode_config.cursor_height = VIA_CURSOR_SIZE;
-
-	drm_dbg_driver(dev, "Exiting %s.\n", __func__);
-}
-
-int via_modeset_init(struct drm_device *dev)
-{
-	struct pci_dev *pdev = to_pci_dev(dev->dev);
-	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
-	uint32_t i;
-	int ret = 0;
-
-	via_mode_config_init(dev);
-
-	/* Initialize the number of display connectors. */
-	dev_priv->number_fp = 0;
-	dev_priv->number_dvi = 0;
 
 	via_i2c_reg_init(dev_priv);
 	ret = via_i2c_init(dev);
