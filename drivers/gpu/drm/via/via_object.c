@@ -303,9 +303,12 @@ int via_mm_init(struct drm_device *dev)
 				dev_priv->vram_size >> PAGE_SHIFT);
 	if (ret) {
 		drm_err(dev, "Failed initializing TTM VRAM memory manager.\n");
-		goto exit;
+		goto error_ttm_range_man;
 	}
 
+	goto exit;
+error_ttm_range_man:
+	ttm_device_fini(&dev_priv->bdev);
 exit:
 	drm_dbg_driver(dev, "Exiting %s.\n", __func__);
 	return ret;
