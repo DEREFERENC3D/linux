@@ -1310,28 +1310,28 @@ int via_drm_init(struct drm_device *dev)
 
 	ret = via_device_init(dev);
 	if (ret) {
-		drm_err(dev, "Failed to initialize Chrome IGP.\n");
+		drm_err(dev, "Failed to initialize Chrome IGP!\n");
 		goto exit;
 	}
 
 	ret = via_mm_init(dev);
 	if (ret) {
-		drm_err(dev, "Failed to initialize TTM.\n");
-		goto exit;
+		drm_err(dev, "Failed to initialize TTM!\n");
+		goto error_mm_init;
 	}
 
 	via_chip_revision_info(dev);
 
 	ret = via_modeset_init(dev);
 	if (ret) {
-		drm_err(dev, "Failed to initialize mode setting.\n");
-		goto error_modeset;
+		drm_err(dev, "Failed to initialize mode setting!\n");
+		goto error_modeset_init;
 	}
 
 	goto exit;
-error_modeset:
-	via_modeset_fini(dev);
+error_modeset_init:
 	via_mm_fini(dev);
+error_mm_init:
 	via_device_fini(dev);
 exit:
 	drm_dbg_driver(dev, "Exiting %s.\n", __func__);
