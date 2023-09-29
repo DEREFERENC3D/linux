@@ -1255,7 +1255,8 @@ int via_modeset_init(struct drm_device *dev)
 	for (i = 0; i < VIA_MAX_CRTC; i++) {
 		ret = via_crtc_init(dev_priv, i);
 		if (ret) {
-			goto exit;
+			drm_err(dev, "Failed to initialize CRTC %u!\n", i + 1);
+			goto error_crtc_init;
 		}
 	}
 
@@ -1285,6 +1286,9 @@ int via_modeset_init(struct drm_device *dev)
 	drm_mode_config_reset(dev);
 
 	drm_kms_helper_poll_init(dev);
+	goto exit;
+error_crtc_init:
+	via_i2c_exit();
 exit:
 	return ret;
 }
