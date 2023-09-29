@@ -1226,8 +1226,6 @@ int via_modeset_init(struct drm_device *dev)
 	dev_priv->number_fp = 0;
 	dev_priv->number_dvi = 0;
 
-	drm_mode_config_init(dev);
-
 	dev->mode_config.min_width = 0;
 	dev->mode_config.min_height = 0;
 	dev->mode_config.max_width = 2044;
@@ -1239,6 +1237,13 @@ int via_modeset_init(struct drm_device *dev)
 
 	dev->mode_config.cursor_width =
 	dev->mode_config.cursor_height = VIA_CURSOR_SIZE;
+
+	ret = drmm_mode_config_init(dev);
+	if (ret) {
+		drm_err(dev, "Failed to initialize mode setting "
+				"configuration!\n");
+		goto exit;
+	}
 
 	via_i2c_reg_init(dev_priv);
 	ret = via_i2c_init(dev);
@@ -1289,8 +1294,6 @@ void via_modeset_fini(struct drm_device *dev)
 	drm_kms_helper_poll_fini(dev);
 
 	drm_helper_force_disable_all(dev);
-
-	drm_mode_config_cleanup(dev);
 
 	via_i2c_exit();
 }
