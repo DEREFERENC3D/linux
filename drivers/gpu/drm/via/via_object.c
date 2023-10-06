@@ -182,7 +182,7 @@ int via_bo_create(struct drm_device *dev,
 
 	bo = kzalloc(sizeof(*bo), GFP_KERNEL);
 	if (!bo) {
-		drm_err(dev, "Cannot allocate a TTM buffer object.\n");
+		drm_err(dev, "Cannot allocate a TTM buffer object!\n");
 		ret = -ENOMEM;
 		goto exit;
 	}
@@ -198,7 +198,7 @@ int via_bo_create(struct drm_device *dev,
 
 	ret = drm_gem_object_init(dev, &ttm_bo->base, size);
 	if (ret) {
-		drm_err(dev, "Cannot initialize a GEM object.\n");
+		drm_err(dev, "Cannot initialize a GEM object!\n");
 		goto error;
 	}
 
@@ -210,7 +210,7 @@ int via_bo_create(struct drm_device *dev,
 				PAGE_SIZE >> PAGE_SHIFT, false,
 				NULL, NULL, via_ttm_bo_destroy);
 	if (ret) {
-		drm_err(dev, "Cannot initialize a TTM object.\n");
+		drm_err(dev, "Cannot initialize a TTM object!\n");
 		goto exit;
 	}
 
@@ -291,7 +291,7 @@ int via_mm_init(struct drm_device *dev)
 				false,
 				true);
 	if (ret) {
-		drm_err(dev, "Failed initializing buffer object driver.\n");
+		drm_err(dev, "Failed initializing buffer object driver!\n");
 		goto exit;
 	}
 
@@ -301,7 +301,7 @@ int via_mm_init(struct drm_device *dev)
 	ret = ttm_range_man_init(&dev_priv->bdev, TTM_PL_VRAM, false,
 					dev_priv->vram_size >> PAGE_SHIFT);
 	if (ret) {
-		drm_err(dev, "Failed initializing TTM VRAM memory manager.\n");
+		drm_err(dev, "Failed initializing TTM VRAM memory manager!\n");
 		goto error_ttm_range_man;
 	}
 
