@@ -302,8 +302,6 @@ struct via_drm_priv {
 #define VGABASE (VIA_BASE+VIA_MMIO_VGABASE)
 
 
-extern int via_driver_num_ioctls;
-
 extern struct ttm_device_funcs via_bo_driver;
 
 int via_drm_init(struct drm_device *dev);
