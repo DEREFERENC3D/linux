@@ -302,14 +302,61 @@ struct via_drm_priv {
 #define VGABASE (VIA_BASE+VIA_MMIO_VGABASE)
 
 
-extern struct ttm_device_funcs via_bo_driver;
+/* via_connector.c */
+void via_connector_destroy(struct drm_connector *connector);
 
+/* via_crtc.c */
+void via_load_crtc_pixel_timing(struct drm_crtc *crtc,
+				struct drm_display_mode *mode);
+int via_crtc_init(struct via_drm_priv *dev_priv, uint32_t index);
+void via_dac_probe(struct drm_device *dev);
+bool via_vt1632_probe(struct drm_device *dev,
+			struct i2c_adapter *i2c_bus);
+bool via_sii164_probe(struct drm_device *dev,
+			struct i2c_adapter *i2c_bus);
+void via_ext_dvi_probe(struct drm_device *dev);
+void via_tmds_probe(struct drm_device *dev);
+void via_lvds_probe(struct drm_device *dev);
+void via_hdmi_init(struct drm_device *dev, u32 di_port);
+void via_dac_init(struct drm_device *dev);
+void via_vt1632_init(struct drm_device *dev);
+void via_sii164_init(struct drm_device *dev);
+void via_ext_dvi_init(struct drm_device *dev);
+void via_tmds_init(struct drm_device *dev);
+void via_lvds_init(struct drm_device *dev);
+
+/* via_cursor.c */
+extern const struct drm_plane_helper_funcs via_cursor_drm_plane_helper_funcs;
+extern const struct drm_plane_funcs via_cursor_drm_plane_funcs;
+extern const uint32_t via_cursor_formats[];
+extern const unsigned int via_cursor_formats_size;
+
+/* via_encoder.c */
+void via_encoder_destroy(struct drm_encoder *encoder);
+
+/* via_i2c.c */
+struct i2c_adapter *via_find_ddc_bus(int port);
+void via_i2c_readbytes(struct i2c_adapter *adapter,
+			u8 slave_addr, char offset,
+			u8 *buffer, unsigned int size);
+void via_i2c_writebytes(struct i2c_adapter *adapter,
+			u8 slave_addr, char offset,
+			u8 *data, unsigned int size);
+void via_i2c_reg_init(struct via_drm_priv *dev_priv);
+int via_i2c_init(struct drm_device *dev);
+void via_i2c_exit(void);
+
+/* via_init.c */
 int via_drm_init(struct drm_device *dev);
 void via_drm_fini(struct drm_device *dev);
 
-int via_dev_pm_ops_suspend(struct device *dev);
-int via_dev_pm_ops_resume(struct device *dev);
+/* via_ioctl.c */
+int via_gem_alloc_ioctl(struct drm_device *dev, void *data,
+				struct drm_file *file_priv);
+int via_gem_mmap_ioctl(struct drm_device *dev, void *data,
+			struct drm_file *file_priv);
 
+/* via_object.c */
 void via_ttm_domain_to_placement(struct via_bo *bo, uint32_t ttm_domain);
 void via_ttm_bo_destroy(struct ttm_buffer_object *tbo);
 int via_bo_pin(struct via_bo *bo, uint32_t ttm_domain);
@@ -322,6 +369,18 @@ void via_bo_destroy(struct via_bo *bo, bool kmap);
 int via_mm_init(struct drm_device *dev);
 void via_mm_fini(struct drm_device *dev);
 
+/* via_pll.c */
+u32 via_get_clk_value(struct drm_device *dev, u32 clk);
+void via_set_vclock(struct drm_crtc *crtc, u32 clk);
+
+/* via_pm.c */
+int via_dev_pm_ops_suspend(struct device *dev);
+int via_dev_pm_ops_resume(struct device *dev);
+
+/* via_ttm.c */
+extern struct ttm_device_funcs via_bo_driver;
+
+/* via_tx.c */
 void via_transmitter_io_pad_state(struct drm_device *dev,
 					uint32_t di_port,
 					bool io_pad_on);
@@ -337,57 +396,5 @@ void via_transmitter_data_drive_strength(struct drm_device *dev,
 						u8 drive_strength);
 void via_transmitter_display_source(struct drm_device *dev,
 					u32 di_port, int index);
-
-void via_encoder_destroy(struct drm_encoder *encoder);
-
-void via_connector_destroy(struct drm_connector *connector);
-
-extern const struct drm_plane_helper_funcs via_cursor_drm_plane_helper_funcs;
-extern const struct drm_plane_funcs via_cursor_drm_plane_funcs;
-extern const uint32_t via_cursor_formats[];
-extern const unsigned int via_cursor_formats_size;
-
-/* i2c */
-struct i2c_adapter *via_find_ddc_bus(int port);
-void via_i2c_readbytes(struct i2c_adapter *adapter,
-			u8 slave_addr, char offset,
-			u8 *buffer, unsigned int size);
-void via_i2c_writebytes(struct i2c_adapter *adapter,
-			u8 slave_addr, char offset,
-			u8 *data, unsigned int size);
-void via_i2c_reg_init(struct via_drm_priv *dev_priv);
-int via_i2c_init(struct drm_device *dev);
-void via_i2c_exit(void);
-
-/* clock */
-u32 via_get_clk_value(struct drm_device *dev, u32 clk);
-void via_set_vclock(struct drm_crtc *crtc, u32 clk);
-
-/* crtc */
-void via_load_crtc_pixel_timing(struct drm_crtc *crtc,
-				struct drm_display_mode *mode);
-int via_crtc_init(struct via_drm_priv *dev_priv, uint32_t index);
-
-void via_dac_probe(struct drm_device *dev);
-bool via_vt1632_probe(struct drm_device *dev,
-			struct i2c_adapter *i2c_bus);
-bool via_sii164_probe(struct drm_device *dev,
-			struct i2c_adapter *i2c_bus);
-void via_ext_dvi_probe(struct drm_device *dev);
-void via_tmds_probe(struct drm_device *dev);
-void via_lvds_probe(struct drm_device *dev);
-
-void via_hdmi_init(struct drm_device *dev, u32 di_port);
-void via_dac_init(struct drm_device *dev);
-void via_vt1632_init(struct drm_device *dev);
-void via_sii164_init(struct drm_device *dev);
-void via_ext_dvi_init(struct drm_device *dev);
-void via_tmds_init(struct drm_device *dev);
-void via_lvds_init(struct drm_device *dev);
-
-int via_gem_alloc_ioctl(struct drm_device *dev, void *data,
-				struct drm_file *file_priv);
-int via_gem_mmap_ioctl(struct drm_device *dev, void *data,
-			struct drm_file *file_priv);
 
 #endif /* _VIA_DRV_H */
