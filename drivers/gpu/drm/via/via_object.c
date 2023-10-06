@@ -298,9 +298,8 @@ int via_mm_init(struct drm_device *dev)
 	/*
 	 * Initialize TTM range manager for VRAM management.
 	 */
-	ret = ttm_range_man_init(&dev_priv->bdev, TTM_PL_VRAM,
-				false,
-				dev_priv->vram_size >> PAGE_SHIFT);
+	ret = ttm_range_man_init(&dev_priv->bdev, TTM_PL_VRAM, false,
+					dev_priv->vram_size >> PAGE_SHIFT);
 	if (ret) {
 		drm_err(dev, "Failed initializing TTM VRAM memory manager.\n");
 		goto error_ttm_range_man;
