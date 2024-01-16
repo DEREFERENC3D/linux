@@ -948,7 +948,7 @@ static int via_vram_init(struct drm_device *dev)
 
 	default:
 		ret = -ENODEV;
-		drm_err(dev, "Unknown Host Bidge device: 0x%04x\n",
+		drm_err(dev, "Unknown Host Bridge device: 0x%04x\n",
 				hb_fn0->device);
 		goto error_hb_fn3;
 	}
