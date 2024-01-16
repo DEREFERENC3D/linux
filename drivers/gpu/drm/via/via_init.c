@@ -998,6 +998,10 @@ static int via_vram_init(struct drm_device *dev)
 	case PCI_DEVICE_ID_VIA_8380_0:
 	/* K8M890 / K8N890 */
 	case PCI_DEVICE_ID_VIA_VT3336:
+		ret = km8xx_mem_type(dev);
+		if (ret)
+			goto error_hb_fn3;
+
 		ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
 		if (ret)
 			goto error_hb_fn3;
@@ -1005,22 +1009,18 @@ static int via_vram_init(struct drm_device *dev)
 
 		if (hb_fn0->device == PCI_DEVICE_ID_VIA_VT3336)
 			dev_priv->vram_size <<= 2;
-
-		ret = km8xx_mem_type(dev);
-		if (ret)
-			goto error_hb_fn3;
 		break;
 
 	/* CN400 / PM800 / PN800 / PM880 / PN880 */
 	case PCI_DEVICE_ID_VIA_PX8X0_0:
+		ret = cn400_mem_type(dev);
+		if (ret)
+			goto error_hb_fn3;
+
 		ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
 		if (ret)
 			goto error_hb_fn3;
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
-
-		ret = cn400_mem_type(dev);
-		if (ret)
-			goto error_hb_fn3;
 		break;
 
 	/* P4M800CE / P4M800 Pro / VN800 / CN700 */
@@ -1035,6 +1035,10 @@ static int via_vram_init(struct drm_device *dev)
 	case PCI_DEVICE_ID_VIA_VX800_HB:
 	/* VX855 / VX875 */
 	case PCI_DEVICE_ID_VIA_VX855_HB:
+		ret = cn700_mem_type(dev);
+		if (ret)
+			goto error_hb_fn3;
+
 		ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
 		if (ret)
 			goto error_hb_fn3;
@@ -1042,22 +1046,18 @@ static int via_vram_init(struct drm_device *dev)
 
 		if (hb_fn0->device != PCI_DEVICE_ID_VIA_P4M800CE)
 			dev_priv->vram_size <<= 2;
-
-		ret = cn700_mem_type(dev);
-		if (ret)
-			goto error_hb_fn3;
 		break;
 
 	/* VX900(H) */
 	case PCI_DEVICE_ID_VIA_VX900_HB:
+		ret = vx900_mem_type(dev);
+		if (ret)
+			goto error_hb_fn3;
+
 		ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
 		if (ret)
 			goto error_hb_fn3;
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 22;
-
-		ret = vx900_mem_type(dev);
-		if (ret)
-			goto error_hb_fn3;
 		break;
 
 	default:
