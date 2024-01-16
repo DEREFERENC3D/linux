@@ -594,51 +594,72 @@ exit:
 	return ret;
 }
 
-static int cn400_mem_type(struct drm_device *dev,
-				struct pci_bus *bus,
-				struct pci_dev *fn3)
+static int cn400_mem_type(struct drm_device *dev)
 {
+	struct pci_dev *gfx_dev = to_pci_dev(dev->dev);
+	struct pci_dev *bridge_fn2_dev, *bridge_fn3_dev;
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
-	struct pci_dev *fn2 = pci_get_slot(bus, PCI_DEVFN(0, 2));
-	int ret, freq = 0;
-	u8 type, fsb;
+	int freq = 0;
+	u8 fsb, type;
+	int ret;
 
-	ret = pci_read_config_byte(fn2, 0x54, &fsb);
-	if (ret) {
-		pci_dev_put(fn2);
-		return ret;
+	bridge_fn2_dev =
+		pci_get_domain_bus_and_slot(pci_domain_nr(gfx_dev->bus), 0,
+						PCI_DEVFN(0, 2));
+	if (!bridge_fn2_dev) {
+		ret = -ENODEV;
+		drm_err(dev, "Host Bridge Function 2 not found! errno: %d\n",
+			ret);
+		goto exit;
 	}
 
-	switch (fsb >> 5) {
-	case 0:
-		freq = 3; /* 100 MHz */
+	bridge_fn3_dev =
+		pci_get_domain_bus_and_slot(pci_domain_nr(gfx_dev->bus), 0,
+						PCI_DEVFN(0, 3));
+	if (!bridge_fn3_dev) {
+		ret = -ENODEV;
+		drm_err(dev, "Host Bridge Function 3 not found! errno: %d\n",
+			ret);
+		goto exit;
+	}
+
+	ret = pci_read_config_byte(bridge_fn2_dev, 0x54, &fsb);
+	if (ret) {
+		goto error_pci_cfg_read;
+	}
+
+	fsb >>= 5;
+	switch (fsb) {
+	case 0x00:
+		freq = 0x03; /* 100 MHz */
 		break;
-	case 1:
-		freq = 4; /* 133 MHz */
+	case 0x01:
+		freq = 0x04; /* 133 MHz */
 		break;
-	case 3:
-		freq = 5; /* 166 MHz */
+	case 0x03:
+		freq = 0x05; /* 166 MHz */
 		break;
-	case 2:
-		freq = 6; /* 200 MHz */
+	case 0x02:
+		freq = 0x06; /* 200 MHz */
 		break;
-	case 4:
-		freq = 7; /* 233 MHz */
+	case 0x04:
+		freq = 0x07; /* 233 MHz */
 		break;
 	default:
 		break;
 	}
-	pci_dev_put(fn2);
 
-	ret = pci_read_config_byte(fn3, 0x68, &type);
-	if (ret)
-		return ret;
+	ret = pci_read_config_byte(bridge_fn3_dev, 0x68, &type);
+	if (ret) {
+		goto error_pci_cfg_read;
+	}
+
 	type &= 0x0f;
-
-	if (type & 0x01)
+	if (type & 0x01) {
 		freq += 1 + (type >> 2);
-	else
+	} else {
 		freq -= 1 + (type >> 2);
+	}
 
 	switch (freq) {
 	case 0x03:
@@ -656,6 +677,11 @@ static int cn400_mem_type(struct drm_device *dev,
 	default:
 		break;
 	}
+
+	goto exit;
+error_pci_cfg_read:
+	drm_err(dev, "PCI configuration space read error! errno: %d\n", ret);
+exit:
 	return ret;
 }
 
@@ -978,14 +1004,14 @@ static int via_vram_init(struct drm_device *dev)
 			goto error_hb_fn3;
 		break;
 
-	/* CN400 / PM800 / PM880 */
+	/* CN400 / PM800 / PN800 / PM880 / PN880 */
 	case PCI_DEVICE_ID_VIA_PX8X0_0:
 		ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
 		if (ret)
 			goto error_hb_fn3;
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
 
-		ret = cn400_mem_type(dev, bus, hb_fn3);
+		ret = cn400_mem_type(dev);
 		if (ret)
 			goto error_hb_fn3;
 		break;
