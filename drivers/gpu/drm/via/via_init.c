@@ -933,6 +933,8 @@ static int via_vram_init(struct drm_device *dev)
 	/* P4M800 */
 	case PCI_DEVICE_ID_VIA_3296_0:
 		ret = p4m800_mem_type(dev);
+		if (ret)
+			goto error_hb_fn3;
 
 		ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
 		if (ret)
