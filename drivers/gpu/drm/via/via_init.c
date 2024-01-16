@@ -99,7 +99,7 @@ static int cle266_mem_type(struct drm_device *dev,
 	ret = pci_read_config_byte(bridge, 0x60, &fsb);
 	if (ret)
 		return ret;
-	ret = pci_read_config_byte(bridge, 0xE3, &type);
+	ret = pci_read_config_byte(bridge, 0xe3, &type);
 	if (ret)
 		return ret;
 
@@ -150,7 +150,7 @@ static int km400_mem_type(struct drm_device *dev,
 	u8 fsb, freq, rev;
 	int ret;
 
-	ret = pci_read_config_byte(bridge, 0xF6, &rev);
+	ret = pci_read_config_byte(bridge, 0xf6, &rev);
 	if (ret)
 		return ret;
 	ret = pci_read_config_byte(bridge, 0x54, &fsb);
@@ -314,7 +314,7 @@ static int p4m800_mem_type(struct drm_device *dev,
 	u8 type, fsb;
 
 	/* VIA Scratch region */
-	ret = pci_read_config_byte(fn4, 0xF3, &fsb);
+	ret = pci_read_config_byte(fn4, 0xf3, &fsb);
 	if (ret) {
 		pci_dev_put(fn4);
 		return ret;
@@ -386,7 +386,7 @@ static int km8xx_mem_type(struct drm_device *dev)
 		misc = pci_get_device(PCI_VENDOR_ID_AMD,
 				PCI_DEVICE_ID_AMD_K8_NB_MISC, NULL);
 
-		ret = pci_read_config_byte(misc, 0xFD, &type);
+		ret = pci_read_config_byte(misc, 0xfd, &type);
 		if (type) {
 			pci_read_config_byte(dram, 0x94, &type);
 			switch (type & 0x03) {
@@ -617,7 +617,7 @@ static int cx700_mem_type(struct drm_device *dev,
 	ret = pci_read_config_byte(fn3, 0x90, &clock);
 	if (ret)
 		return ret;
-	ret = pci_read_config_byte(fn3, 0x6C, &type);
+	ret = pci_read_config_byte(fn3, 0x6c, &type);
 	if (ret)
 		return ret;
 	type &= 0x40;
@@ -677,18 +677,18 @@ static int vx900_mem_type(struct drm_device *dev,
 	ret = pci_read_config_byte(fn3, 0x90, &clock);
 	if (ret)
 		return ret;
-	ret = pci_read_config_byte(fn3, 0x6C, &type);
+	ret = pci_read_config_byte(fn3, 0x6c, &type);
 	if (ret)
 		return ret;
 	volt = type;
-	type &= 0xC0;
+	type &= 0xc0;
 	type >>= 6;
 	volt &= 0x20;
 	volt >>= 5;
 
 	switch (type) {
 	case 1:
-		switch (clock & 0x0F) {
+		switch (clock & 0x0f) {
 		case 0:
 			if (volt)
 				dev_priv->vram_type = VIA_MEM_DDR2_800;
@@ -712,7 +712,7 @@ static int vx900_mem_type(struct drm_device *dev,
 		}
 		break;
 	case 2:
-		switch (clock & 0x0F) {
+		switch (clock & 0x0f) {
 		case 0:
 			if (volt)
 				dev_priv->vram_type = VIA_MEM_DDR3_800;
@@ -844,7 +844,7 @@ static int via_vram_init(struct drm_device *dev)
 		if (ret)
 			goto error_hb_fn0;
 
-		ret = pci_read_config_byte(hb_fn0, 0xE1, &size);
+		ret = pci_read_config_byte(hb_fn0, 0xe1, &size);
 		if (ret)
 			goto error_hb_fn0;
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
@@ -854,7 +854,7 @@ static int via_vram_init(struct drm_device *dev)
 	case PCI_DEVICE_ID_VIA_8378_0:
 		ret = km400_mem_type(dev, hb_fn0);
 
-		ret = pci_read_config_byte(hb_fn0, 0xE1, &size);
+		ret = pci_read_config_byte(hb_fn0, 0xe1, &size);
 		if (ret)
 			goto error_hb_fn0;
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
@@ -864,7 +864,7 @@ static int via_vram_init(struct drm_device *dev)
 	case PCI_DEVICE_ID_VIA_3296_0:
 		ret = p4m800_mem_type(dev, bus, hb_fn3);
 
-		ret = pci_read_config_byte(hb_fn3, 0xA1, &size);
+		ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
 		if (ret)
 			goto error_hb_fn3;
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
@@ -874,7 +874,7 @@ static int via_vram_init(struct drm_device *dev)
 	case PCI_DEVICE_ID_VIA_8380_0:
 	/* K8M890 */
 	case PCI_DEVICE_ID_VIA_VT3336:
-		ret = pci_read_config_byte(hb_fn3, 0xA1, &size);
+		ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
 		if (ret)
 			goto error_hb_fn3;
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
@@ -889,7 +889,7 @@ static int via_vram_init(struct drm_device *dev)
 
 	/* CN400 / PM800 / PM880 */
 	case PCI_DEVICE_ID_VIA_PX8X0_0:
-		ret = pci_read_config_byte(hb_fn3, 0xA1, &size);
+		ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
 		if (ret)
 			goto error_hb_fn3;
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
@@ -903,7 +903,7 @@ static int via_vram_init(struct drm_device *dev)
 	case PCI_DEVICE_ID_VIA_P4M800CE:
 	/* P4M900 / VN896 / CN896 */
 	case PCI_DEVICE_ID_VIA_VT3364:
-		ret = pci_read_config_byte(hb_fn3, 0xA1, &size);
+		ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
 		if (ret)
 			goto error_hb_fn3;
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
@@ -924,7 +924,7 @@ static int via_vram_init(struct drm_device *dev)
 	case PCI_DEVICE_ID_VIA_VX800_HB:
 	/* VX855 / VX875 */
 	case PCI_DEVICE_ID_VIA_VX855_HB:
-		ret = pci_read_config_byte(hb_fn3, 0xA1, &size);
+		ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
 		if (ret)
 			goto error_hb_fn3;
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 22;
@@ -936,7 +936,7 @@ static int via_vram_init(struct drm_device *dev)
 
 	/* VX900 */
 	case PCI_DEVICE_ID_VIA_VX900_HB:
-		ret = pci_read_config_byte(hb_fn3, 0xA1, &size);
+		ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
 		if (ret)
 			goto error_hb_fn3;
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 22;
@@ -1097,8 +1097,8 @@ static void via_graphics_unlock(struct drm_device *dev)
 	/*
 	 * Enable VGA subsystem.
 	 */
-	temp = vga_io_r(0x03C3);
-	vga_io_w(0x03C3, temp | 0x01);
+	temp = vga_io_r(0x03c3);
+	vga_io_w(0x03c3, temp | 0x01);
 	svga_wmisc_mask(VGABASE, BIT(0), BIT(0));
 
 	/*
@@ -1128,16 +1128,16 @@ static void via_chip_revision_info(struct drm_device *dev)
 	/* CLE266 Chipset */
 	case PCI_DEVICE_ID_VIA_CLE266_GFX:
 		/* CR4F only defined in CLE266.CX chipset. */
-		tmp = vga_rcrt(VGABASE, 0x4F);
-		vga_wcrt(VGABASE, 0x4F, 0x55);
-		if (vga_rcrt(VGABASE, 0x4F) != 0x55) {
+		tmp = vga_rcrt(VGABASE, 0x4f);
+		vga_wcrt(VGABASE, 0x4f, 0x55);
+		if (vga_rcrt(VGABASE, 0x4f) != 0x55) {
 			dev_priv->revision = CLE266_REVISION_AX;
 		} else {
 			dev_priv->revision = CLE266_REVISION_CX;
 		}
 
 		/* Restore original CR4F value. */
-		vga_wcrt(VGABASE, 0x4F, tmp);
+		vga_wcrt(VGABASE, 0x4f, tmp);
 		break;
 	/* CX700 / VX700 Chipset */
 	case PCI_DEVICE_ID_VIA_UNICHROME_PRO_II:
@@ -1158,7 +1158,7 @@ static void via_chip_revision_info(struct drm_device *dev)
 	case PCI_DEVICE_ID_VIA_CHROME9_HCM:
 	/* VX900 Chipset */
 	case PCI_DEVICE_ID_VIA_CHROME9_HD:
-		dev_priv->revision = vga_rseq(VGABASE, 0x3B);
+		dev_priv->revision = vga_rseq(VGABASE, 0x3b);
 		break;
 	default:
 		break;
