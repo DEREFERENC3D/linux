@@ -1010,8 +1010,8 @@ static int via_vram_init(struct drm_device *dev)
 			}
 
 			dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
-			if (bridge_fn0_dev->device ==
-						PCI_DEVICE_ID_VIA_VT3336) {
+			if (bridge_fn0_dev->device !=
+						PCI_DEVICE_ID_VIA_8380_0) {
 				dev_priv->vram_size <<= 2;
 			}
 
