@@ -1074,6 +1074,10 @@ static int via_vram_init(struct drm_device *dev)
 
 	/* P4M800CE / P4M800 Pro / VN800 / CN700 */
 	case PCI_DEVICE_ID_VIA_P4M800CE:
+	/* P4M890 / VN890 / CN800 */
+	case PCI_DEVICE_ID_VIA_P4M890:
+	/* CX700(M / M2) / VX700(M / M2) */
+	case PCI_DEVICE_ID_VIA_VT3324:
 		ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
 		if (ret)
 			goto error_hb_fn3;
@@ -1087,10 +1091,6 @@ static int via_vram_init(struct drm_device *dev)
 			goto error_hb_fn3;
 		break;
 
-	/* CX700 / VX700 */
-	case PCI_DEVICE_ID_VIA_VT3324:
-	/* P4M890 / VN890 */
-	case PCI_DEVICE_ID_VIA_P4M890:
 	/* P4M900 / VN896 / CN896 */
 	case PCI_DEVICE_ID_VIA_VT3364:
 	/* VX800 / VX820 */
