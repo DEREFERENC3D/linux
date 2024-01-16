@@ -399,9 +399,6 @@ static int p4m800_mem_type(struct drm_device *dev)
 	case 0x02:
 		freq = 0x06; /* 200 MHz */
 		break;
-	case 0x04:
-		freq = 0x07; /* 233 MHz */
-		break;
 	default:
 		break;
 	}
