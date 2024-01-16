@@ -443,20 +443,28 @@ exit:
 
 static int km8xx_mem_type(struct drm_device *dev)
 {
-	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	struct pci_dev *dram, *misc = NULL;
-	int ret = -ENXIO;
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	u8 type, tmp;
+	int ret = -ENXIO;
 
 	dram = pci_get_device(PCI_VENDOR_ID_AMD,
-			PCI_DEVICE_ID_AMD_K8_NB_MEMCTL, NULL);
+				PCI_DEVICE_ID_AMD_K8_NB_MEMCTL, NULL);
 	if (dram) {
 		misc = pci_get_device(PCI_VENDOR_ID_AMD,
-				PCI_DEVICE_ID_AMD_K8_NB_MISC, NULL);
+					PCI_DEVICE_ID_AMD_K8_NB_MISC, NULL);
 
 		ret = pci_read_config_byte(misc, 0xfd, &type);
+		if (ret) {
+			goto error_pci_cfg_read;
+		}
+
 		if (type) {
 			pci_read_config_byte(dram, 0x94, &type);
+			if (ret) {
+				goto error_pci_cfg_read;
+			}
+
 			switch (type & 0x03) {
 			case 0x00:
 				dev_priv->vram_type = VIA_MEM_DDR2_400;
@@ -475,8 +483,10 @@ static int km8xx_mem_type(struct drm_device *dev)
 			}
 		} else {
 			ret = pci_read_config_byte(dram, 0x96, &type);
-			if (ret)
-				return ret;
+			if (ret) {
+				goto error_pci_cfg_read;
+			}
+
 			type >>= 4;
 			type &= 0x07;
 
@@ -501,14 +511,17 @@ static int km8xx_mem_type(struct drm_device *dev)
 
 	/* AMD 10h DRAM Controller */
 	dram = pci_get_device(PCI_VENDOR_ID_AMD,
-			PCI_DEVICE_ID_AMD_10H_NB_DRAM, NULL);
+				PCI_DEVICE_ID_AMD_10H_NB_DRAM, NULL);
 	if (dram) {
 		ret = pci_read_config_byte(misc, 0x94, &tmp);
-		if (ret)
-			return ret;
+		if (ret) {
+			goto error_pci_cfg_read;
+		}
+
 		ret = pci_read_config_byte(misc, 0x95, &type);
-		if (ret)
-			return ret;
+		if (ret) {
+			goto error_pci_cfg_read;
+		}
 
 		if (type & 0x01) {	/* DDR3 */
 			switch (tmp & 0x07) {
@@ -555,8 +568,9 @@ static int km8xx_mem_type(struct drm_device *dev)
 				PCI_DEVICE_ID_AMD_11H_NB_DRAM, NULL);
 	if (dram) {
 		ret = pci_read_config_byte(misc, 0x94, &type);
-		if (ret)
-			return ret;
+		if (ret) {
+			goto error_pci_cfg_read;
+		}
 
 		switch (tmp & 0x07) {
 		case 0x01:
@@ -572,6 +586,11 @@ static int km8xx_mem_type(struct drm_device *dev)
 			break;
 		}
 	}
+
+	goto exit;
+error_pci_cfg_read:
+	drm_err(dev, "PCI configuration space read error! errno: %d\n", ret);
+exit:
 	return ret;
 }
 
@@ -942,9 +961,9 @@ static int via_vram_init(struct drm_device *dev)
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
 		break;
 
-	/* K8M800 / K8N800 */
+	/* K8M800(A) / K8N800(A) */
 	case PCI_DEVICE_ID_VIA_8380_0:
-	/* K8M890 */
+	/* K8M890 / K8N890 */
 	case PCI_DEVICE_ID_VIA_VT3336:
 		ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
 		if (ret)
