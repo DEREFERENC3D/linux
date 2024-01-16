@@ -902,6 +902,8 @@ static int via_vram_init(struct drm_device *dev)
 	/* KM400(A) / KN400(A) */
 	case PCI_DEVICE_ID_VIA_8378_0:
 		ret = km400_mem_type(dev);
+		if (ret)
+			goto error_hb_fn0;
 
 		ret = pci_read_config_byte(hb_fn0, 0xe1, &size);
 		if (ret)
