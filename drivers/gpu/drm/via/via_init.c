@@ -740,80 +740,6 @@ static int cn700_mem_type(struct drm_device *dev)
 		case 0x04:
 			dev_priv->vram_type = VIA_MEM_DDR2_533;
 			break;
-		default:
-			break;
-		}
-
-		break;
-	default:
-		break;
-	}
-
-	goto exit;
-error_pci_cfg_read:
-	drm_err(dev, "PCI configuration space read error! errno: %d\n", ret);
-exit:
-	return ret;
-}
-
-static int p4m900_mem_type(struct drm_device *dev)
-{
-	struct pci_dev *gfx_dev = to_pci_dev(dev->dev);
-	struct pci_dev *bridge_fn3_dev;
-	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
-	u8 type, clock;
-	int ret;
-
-	bridge_fn3_dev =
-		pci_get_domain_bus_and_slot(pci_domain_nr(gfx_dev->bus), 0,
-						PCI_DEVFN(0, 3));
-	if (!bridge_fn3_dev) {
-		ret = -ENODEV;
-		drm_err(dev, "Host Bridge Function 3 not found! errno: %d\n",
-			ret);
-		goto exit;
-	}
-
-	ret = pci_read_config_byte(bridge_fn3_dev, 0x6c, &type);
-	if (ret) {
-		goto error_pci_cfg_read;
-	}
-
-	ret = pci_read_config_byte(bridge_fn3_dev, 0x90, &clock);
-	if (ret) {
-		goto error_pci_cfg_read;
-	}
-
-	type &= 0x40;
-	type >>= 6;
-	switch (type) {
-	case 0x00:
-		switch (clock & 0x07) {
-		case 0x00:
-			dev_priv->vram_type = VIA_MEM_DDR_200;
-			break;
-		case 0x01:
-			dev_priv->vram_type = VIA_MEM_DDR_266;
-			break;
-		case 0x02:
-			dev_priv->vram_type = VIA_MEM_DDR_333;
-			break;
-		case 0x03:
-			dev_priv->vram_type = VIA_MEM_DDR_400;
-			break;
-		default:
-			break;
-		}
-
-		break;
-	case 0x01:
-		switch (clock & 0x07) {
-		case 0x03:
-			dev_priv->vram_type = VIA_MEM_DDR2_400;
-			break;
-		case 0x04:
-			dev_priv->vram_type = VIA_MEM_DDR2_533;
-			break;
 		case 0x05:
 			dev_priv->vram_type = VIA_MEM_DDR2_667;
 			break;
@@ -1078,19 +1004,6 @@ static int via_vram_init(struct drm_device *dev)
 	case PCI_DEVICE_ID_VIA_P4M890:
 	/* CX700(M / M2) / VX700(M / M2) */
 	case PCI_DEVICE_ID_VIA_VT3324:
-		ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
-		if (ret)
-			goto error_hb_fn3;
-		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
-
-		if (hb_fn0->device != PCI_DEVICE_ID_VIA_P4M800CE)
-			dev_priv->vram_size <<= 2;
-
-		ret = cn700_mem_type(dev);
-		if (ret)
-			goto error_hb_fn3;
-		break;
-
 	/* P4M900 / VN896 / CN896 */
 	case PCI_DEVICE_ID_VIA_VT3364:
 	/* VX800 / VX820 */
@@ -1100,9 +1013,12 @@ static int via_vram_init(struct drm_device *dev)
 		ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
 		if (ret)
 			goto error_hb_fn3;
-		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 22;
+		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
 
-		ret = p4m900_mem_type(dev);
+		if (hb_fn0->device != PCI_DEVICE_ID_VIA_P4M800CE)
+			dev_priv->vram_size <<= 2;
+
+		ret = cn700_mem_type(dev);
 		if (ret)
 			goto error_hb_fn3;
 		break;
