@@ -950,12 +950,6 @@ static int via_vram_init(struct drm_device *dev)
 		}
 	}
 
-	if (pdev->device == PCI_DEVICE_ID_VIA_CHROME9_HD) {
-		dev_priv->vram_start = pci_resource_start(pdev, 2);
-	} else {
-		dev_priv->vram_start = pci_resource_start(pdev, 0);
-	}
-
 	switch (hb_fn0->vendor) {
 	case PCI_VENDOR_ID_VIA:
 		switch (hb_fn0->device) {
@@ -1141,6 +1135,12 @@ static int via_vram_init(struct drm_device *dev)
 	}
 
 	drm_dbg_driver(dev, "Found %s video RAM.\n", name);
+
+	if (pdev->device == PCI_DEVICE_ID_VIA_CHROME9_HD) {
+		dev_priv->vram_start = pci_resource_start(pdev, 2);
+	} else {
+		dev_priv->vram_start = pci_resource_start(pdev, 0);
+	}
 
 	/* Add an MTRR for the video RAM. */
 	dev_priv->vram_mtrr = arch_phys_wc_add(dev_priv->vram_start,
