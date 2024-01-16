@@ -953,36 +953,45 @@ static int via_vram_init(struct drm_device *dev)
 		/* CLE266 */
 		case PCI_DEVICE_ID_VIA_862X_0:
 			ret = cle266_mem_type(dev);
-			if (ret)
+			if (ret) {
 				goto exit;
+			}
 
 			ret = pci_read_config_byte(bridge_fn0_dev, 0xe1, &size);
-			if (ret)
+			if (ret) {
 				goto error_pci_cfg_read;
+			}
+
 			dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
 			break;
 
 		/* KM400(A) / KN400(A) */
 		case PCI_DEVICE_ID_VIA_8378_0:
 			ret = km400_mem_type(dev);
-			if (ret)
+			if (ret) {
 				goto exit;
+			}
 
 			ret = pci_read_config_byte(bridge_fn0_dev, 0xe1, &size);
-			if (ret)
+			if (ret) {
 				goto error_pci_cfg_read;
+			}
+
 			dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
 			break;
 
 		/* P4M800 */
 		case PCI_DEVICE_ID_VIA_3296_0:
 			ret = p4m800_mem_type(dev);
-			if (ret)
+			if (ret) {
 				goto exit;
+			}
 
 			ret = pci_read_config_byte(bridge_fn3_dev, 0xa1, &size);
-			if (ret)
+			if (ret) {
 				goto error_pci_cfg_read;
+			}
+
 			dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
 			break;
 
@@ -991,27 +1000,35 @@ static int via_vram_init(struct drm_device *dev)
 		/* K8M890 / K8N890 */
 		case PCI_DEVICE_ID_VIA_VT3336:
 			ret = km8xx_mem_type(dev);
-			if (ret)
+			if (ret) {
 				goto exit;
+			}
 
 			ret = pci_read_config_byte(bridge_fn3_dev, 0xa1, &size);
-			if (ret)
+			if (ret) {
 				goto error_pci_cfg_read;
-			dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
+			}
 
-			if (bridge_fn0_dev->device == PCI_DEVICE_ID_VIA_VT3336)
+			dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
+			if (bridge_fn0_dev->device ==
+						PCI_DEVICE_ID_VIA_VT3336) {
 				dev_priv->vram_size <<= 2;
+			}
+
 			break;
 
 		/* CN400 / PM800 / PN800 / PM880 / PN880 */
 		case PCI_DEVICE_ID_VIA_PX8X0_0:
 			ret = cn400_mem_type(dev);
-			if (ret)
+			if (ret) {
 				goto exit;
+			}
 
 			ret = pci_read_config_byte(bridge_fn3_dev, 0xa1, &size);
-			if (ret)
+			if (ret) {
 				goto error_pci_cfg_read;
+			}
+
 			dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
 			break;
 
@@ -1028,28 +1045,35 @@ static int via_vram_init(struct drm_device *dev)
 		/* VX855 / VX875 */
 		case PCI_DEVICE_ID_VIA_VX855_HB:
 			ret = cn700_mem_type(dev);
-			if (ret)
+			if (ret) {
 				goto exit;
+			}
 
 			ret = pci_read_config_byte(bridge_fn3_dev, 0xa1, &size);
-			if (ret)
+			if (ret) {
 				goto error_pci_cfg_read;
-			dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
+			}
 
+			dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
 			if (bridge_fn0_dev->device !=
-						PCI_DEVICE_ID_VIA_P4M800CE)
+						PCI_DEVICE_ID_VIA_P4M800CE) {
 				dev_priv->vram_size <<= 2;
+			}
+
 			break;
 
 		/* VX900(H) */
 		case PCI_DEVICE_ID_VIA_VX900_HB:
 			ret = vx900_mem_type(dev);
-			if (ret)
+			if (ret) {
 				goto exit;
+			}
 
 			ret = pci_read_config_byte(bridge_fn3_dev, 0xa1, &size);
-			if (ret)
+			if (ret) {
 				goto error_pci_cfg_read;
+			}
+
 			dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 22;
 			break;
 
@@ -1057,7 +1081,7 @@ static int via_vram_init(struct drm_device *dev)
 			ret = -ENODEV;
 			drm_err(dev, "Unknown Host Bridge device: 0x%04x\n",
 				bridge_fn0_dev->device);
-			goto exit;
+			break;
 		}
 
 		break;
