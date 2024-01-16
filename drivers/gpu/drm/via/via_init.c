@@ -41,22 +41,36 @@
 #include "via_drv.h"
 
 
-static int cle266_mem_type(struct drm_device *dev,
-				struct pci_dev *bridge)
+static int cle266_mem_type(struct drm_device *dev)
 {
+	struct pci_dev *gfx_dev = to_pci_dev(dev->dev);
+	struct pci_dev *bridge_fn0_dev;
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
-	u8 type, fsb, freq;
+	u8 fsb, freq, type;
 	int ret;
 
-	ret = pci_read_config_byte(bridge, 0x54, &fsb);
-	if (ret)
-		return ret;
-	ret = pci_read_config_byte(bridge, 0x69, &freq);
-	if (ret)
-		return ret;
+	bridge_fn0_dev =
+		pci_get_domain_bus_and_slot(pci_domain_nr(gfx_dev->bus), 0,
+						PCI_DEVFN(0, 0));
+	if (!bridge_fn0_dev) {
+		ret = -ENODEV;
+		drm_err(dev, "Host Bridge Function 0 not found! errno: %d\n",
+			ret);
+		goto exit;
+	}
 
-	freq >>= 6;
+	ret = pci_read_config_byte(bridge_fn0_dev, 0x54, &fsb);
+	if (ret) {
+		goto error_pci_cfg_read;
+	}
+
+	ret = pci_read_config_byte(bridge_fn0_dev, 0x69, &freq);
+	if (ret) {
+		goto error_pci_cfg_read;
+	}
+
 	fsb >>= 6;
+	freq >>= 6;
 
 	/* FSB frequency */
 	switch (fsb) {
@@ -75,8 +89,8 @@ static int cle266_mem_type(struct drm_device *dev,
 			freq = 0;
 			break;
 		}
-		break;
 
+		break;
 	case 0x02: /* 133 MHz */
 	case 0x03:
 		switch (freq) {
@@ -90,22 +104,27 @@ static int cle266_mem_type(struct drm_device *dev,
 			freq = 0;
 			break;
 		}
+
 		break;
 	default:
 		freq = 0;
 		break;
 	}
 
-	ret = pci_read_config_byte(bridge, 0x60, &fsb);
-	if (ret)
-		return ret;
-	ret = pci_read_config_byte(bridge, 0xe3, &type);
-	if (ret)
-		return ret;
+	ret = pci_read_config_byte(bridge_fn0_dev, 0x60, &fsb);
+	if (ret) {
+		goto error_pci_cfg_read;
+	}
+
+	ret = pci_read_config_byte(bridge_fn0_dev, 0xe3, &type);
+	if (ret) {
+		goto error_pci_cfg_read;
+	}
 
 	/* On bank 2/3 */
-	if (type & 0x02)
+	if (type & 0x02) {
 		fsb >>= 2;
+	}
 
 	/* Memory type */
 	switch (fsb & 0x03) {
@@ -123,8 +142,8 @@ static int cle266_mem_type(struct drm_device *dev,
 		default:
 			break;
 		}
-		break;
 
+		break;
 	case 0x02: /* DDR */
 		switch (freq) {
 		case 100:
@@ -136,10 +155,16 @@ static int cle266_mem_type(struct drm_device *dev,
 		default:
 			break;
 		}
+
 		break;
 	default:
 		break;
 	}
+
+	goto exit;
+error_pci_cfg_read:
+	drm_err(dev, "PCI configuration space read error! errno: %d\n", ret);
+exit:
 	return ret;
 }
 
@@ -840,7 +865,7 @@ static int via_vram_init(struct drm_device *dev)
 
 	/* CLE266 */
 	case PCI_DEVICE_ID_VIA_862X_0:
-		ret = cle266_mem_type(dev, hb_fn0);
+		ret = cle266_mem_type(dev);
 		if (ret)
 			goto error_hb_fn0;
 
