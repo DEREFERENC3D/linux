@@ -168,25 +168,41 @@ exit:
 	return ret;
 }
 
-static int km400_mem_type(struct drm_device *dev,
-				struct pci_dev *bridge)
+static int km400_mem_type(struct drm_device *dev)
 {
+	struct pci_dev *gfx_dev = to_pci_dev(dev->dev);
+	struct pci_dev *bridge_fn0_dev;
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	u8 fsb, freq, rev;
 	int ret;
 
-	ret = pci_read_config_byte(bridge, 0xf6, &rev);
-	if (ret)
-		return ret;
-	ret = pci_read_config_byte(bridge, 0x54, &fsb);
-	if (ret)
-		return ret;
-	ret = pci_read_config_byte(bridge, 0x69, &freq);
-	if (ret)
-		return ret;
+	bridge_fn0_dev =
+		pci_get_domain_bus_and_slot(pci_domain_nr(gfx_dev->bus), 0,
+						PCI_DEVFN(0, 0));
+	if (!bridge_fn0_dev) {
+		ret = -ENODEV;
+		drm_err(dev, "Host Bridge Function 0 not found! errno: %d\n",
+			ret);
+		goto exit;
+	}
 
-	freq >>= 6;
+	ret = pci_read_config_byte(bridge_fn0_dev, 0x54, &fsb);
+	if (ret) {
+		goto error_pci_cfg_read;
+	}
+
+	ret = pci_read_config_byte(bridge_fn0_dev, 0x69, &freq);
+	if (ret) {
+		goto error_pci_cfg_read;
+	}
+
 	fsb >>= 6;
+	freq >>= 6;
+
+	ret = pci_read_config_byte(bridge_fn0_dev, 0xf6, &rev);
+	if (ret) {
+		goto error_pci_cfg_read;
+	}
 
 	/* KM400 */
 	if (rev < 0x80) {
@@ -209,8 +225,8 @@ static int km400_mem_type(struct drm_device *dev,
 			default:
 				break;
 			}
-			break;
 
+			break;
 		case 0x01:
 			switch (freq) {
 			case 0x00:
@@ -225,8 +241,8 @@ static int km400_mem_type(struct drm_device *dev,
 			default:
 				break;
 			}
-			break;
 
+			break;
 		case 0x02:
 		case 0x03:
 			switch (freq) {
@@ -242,15 +258,18 @@ static int km400_mem_type(struct drm_device *dev,
 			default:
 				break;
 			}
+
 			break;
 		default:
 			break;
 		}
 	} else {
 		/* KM400A */
-		ret = pci_read_config_byte(bridge, 0x67, &rev);
-		if (ret)
-			return ret;
+		ret = pci_read_config_byte(bridge_fn0_dev, 0x67, &rev);
+		if (ret) {
+			goto error_pci_cfg_read;
+		}
+
 		if (rev & 0x80)
 			freq |= 0x04;
 
@@ -270,11 +289,10 @@ static int km400_mem_type(struct drm_device *dev,
 				dev_priv->vram_type = VIA_MEM_DDR_400;
 				break;
 			default:
-				dev_priv->vram_type = VIA_MEM_NONE;
 				break;
 			}
-			break;
 
+			break;
 		case 0x01:
 			switch (freq) {
 			case 0x00:
@@ -289,8 +307,8 @@ static int km400_mem_type(struct drm_device *dev,
 			default:
 				break;
 			}
-			break;
 
+			break;
 		case 0x02:
 			switch (freq) {
 			case 0x00:
@@ -305,8 +323,8 @@ static int km400_mem_type(struct drm_device *dev,
 			default:
 				break;
 			}
-			break;
 
+			break;
 		case 0x03:
 			switch (freq) {
 			case 0x00:
@@ -321,11 +339,17 @@ static int km400_mem_type(struct drm_device *dev,
 			default:
 				break;
 			}
+
 			break;
 		default:
 			break;
 		}
 	}
+
+	goto exit;
+error_pci_cfg_read:
+	drm_err(dev, "PCI configuration space read error! errno: %d\n", ret);
+exit:
 	return ret;
 }
 
@@ -875,9 +899,9 @@ static int via_vram_init(struct drm_device *dev)
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
 		break;
 
-	/* KM400 / KN400 / KM400A / KN400A */
+	/* KM400(A) / KN400(A) */
 	case PCI_DEVICE_ID_VIA_8378_0:
-		ret = km400_mem_type(dev, hb_fn0);
+		ret = km400_mem_type(dev);
 
 		ret = pci_read_config_byte(hb_fn0, 0xe1, &size);
 		if (ret)
