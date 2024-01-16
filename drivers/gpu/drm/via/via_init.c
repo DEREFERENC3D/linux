@@ -956,114 +956,128 @@ static int via_vram_init(struct drm_device *dev)
 		dev_priv->vram_start = pci_resource_start(pdev, 0);
 	}
 
-	switch (hb_fn0->device) {
+	switch (hb_fn0->vendor) {
+	case PCI_VENDOR_ID_VIA:
+		switch (hb_fn0->device) {
 
-	/* CLE266 */
-	case PCI_DEVICE_ID_VIA_862X_0:
-		ret = cle266_mem_type(dev);
-		if (ret)
-			goto error_hb_fn0;
+		/* CLE266 */
+		case PCI_DEVICE_ID_VIA_862X_0:
+			ret = cle266_mem_type(dev);
+			if (ret)
+				goto error_hb_fn0;
 
-		ret = pci_read_config_byte(hb_fn0, 0xe1, &size);
-		if (ret)
-			goto error_hb_fn0;
-		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
+			ret = pci_read_config_byte(hb_fn0, 0xe1, &size);
+			if (ret)
+				goto error_hb_fn0;
+			dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
+			break;
+
+		/* KM400(A) / KN400(A) */
+		case PCI_DEVICE_ID_VIA_8378_0:
+			ret = km400_mem_type(dev);
+			if (ret)
+				goto error_hb_fn0;
+
+			ret = pci_read_config_byte(hb_fn0, 0xe1, &size);
+			if (ret)
+				goto error_hb_fn0;
+			dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
+			break;
+
+		/* P4M800 */
+		case PCI_DEVICE_ID_VIA_3296_0:
+			ret = p4m800_mem_type(dev);
+			if (ret)
+				goto error_hb_fn3;
+
+			ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
+			if (ret)
+				goto error_hb_fn3;
+			dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
+			break;
+
+		/* K8M800(A) / K8N800(A) */
+		case PCI_DEVICE_ID_VIA_8380_0:
+		/* K8M890 / K8N890 */
+		case PCI_DEVICE_ID_VIA_VT3336:
+			ret = km8xx_mem_type(dev);
+			if (ret)
+				goto error_hb_fn3;
+
+			ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
+			if (ret)
+				goto error_hb_fn3;
+			dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
+
+			if (hb_fn0->device == PCI_DEVICE_ID_VIA_VT3336)
+				dev_priv->vram_size <<= 2;
+			break;
+
+		/* CN400 / PM800 / PN800 / PM880 / PN880 */
+		case PCI_DEVICE_ID_VIA_PX8X0_0:
+			ret = cn400_mem_type(dev);
+			if (ret)
+				goto error_hb_fn3;
+
+			ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
+			if (ret)
+				goto error_hb_fn3;
+			dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
+			break;
+
+		/* P4M800CE / P4M800 Pro / VN800 / CN700 */
+		case PCI_DEVICE_ID_VIA_P4M800CE:
+		/* P4M890 / VN890 / CN800 */
+		case PCI_DEVICE_ID_VIA_P4M890:
+		/* CX700(M / M2) / VX700(M / M2) */
+		case PCI_DEVICE_ID_VIA_VT3324:
+		/* P4M900 / VN896 / CN896 */
+		case PCI_DEVICE_ID_VIA_VT3364:
+		/* VX800 / VX820 */
+		case PCI_DEVICE_ID_VIA_VX800_HB:
+		/* VX855 / VX875 */
+		case PCI_DEVICE_ID_VIA_VX855_HB:
+			ret = cn700_mem_type(dev);
+			if (ret)
+				goto error_hb_fn3;
+
+			ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
+			if (ret)
+				goto error_hb_fn3;
+			dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
+
+			if (hb_fn0->device != PCI_DEVICE_ID_VIA_P4M800CE)
+				dev_priv->vram_size <<= 2;
+			break;
+
+		/* VX900(H) */
+		case PCI_DEVICE_ID_VIA_VX900_HB:
+			ret = vx900_mem_type(dev);
+			if (ret)
+				goto error_hb_fn3;
+
+			ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
+			if (ret)
+				goto error_hb_fn3;
+			dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 22;
+			break;
+
+		default:
+			ret = -ENODEV;
+			drm_err(dev, "Unknown Host Bridge device: 0x%04x\n",
+				hb_fn0->device);
+			goto error_hb_fn3;
+		}
+
 		break;
-
-	/* KM400(A) / KN400(A) */
-	case PCI_DEVICE_ID_VIA_8378_0:
-		ret = km400_mem_type(dev);
-		if (ret)
-			goto error_hb_fn0;
-
-		ret = pci_read_config_byte(hb_fn0, 0xe1, &size);
-		if (ret)
-			goto error_hb_fn0;
-		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
-		break;
-
-	/* P4M800 */
-	case PCI_DEVICE_ID_VIA_3296_0:
-		ret = p4m800_mem_type(dev);
-		if (ret)
-			goto error_hb_fn3;
-
-		ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
-		if (ret)
-			goto error_hb_fn3;
-		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
-		break;
-
-	/* K8M800(A) / K8N800(A) */
-	case PCI_DEVICE_ID_VIA_8380_0:
-	/* K8M890 / K8N890 */
-	case PCI_DEVICE_ID_VIA_VT3336:
-		ret = km8xx_mem_type(dev);
-		if (ret)
-			goto error_hb_fn3;
-
-		ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
-		if (ret)
-			goto error_hb_fn3;
-		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
-
-		if (hb_fn0->device == PCI_DEVICE_ID_VIA_VT3336)
-			dev_priv->vram_size <<= 2;
-		break;
-
-	/* CN400 / PM800 / PN800 / PM880 / PN880 */
-	case PCI_DEVICE_ID_VIA_PX8X0_0:
-		ret = cn400_mem_type(dev);
-		if (ret)
-			goto error_hb_fn3;
-
-		ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
-		if (ret)
-			goto error_hb_fn3;
-		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
-		break;
-
-	/* P4M800CE / P4M800 Pro / VN800 / CN700 */
-	case PCI_DEVICE_ID_VIA_P4M800CE:
-	/* P4M890 / VN890 / CN800 */
-	case PCI_DEVICE_ID_VIA_P4M890:
-	/* CX700(M / M2) / VX700(M / M2) */
-	case PCI_DEVICE_ID_VIA_VT3324:
-	/* P4M900 / VN896 / CN896 */
-	case PCI_DEVICE_ID_VIA_VT3364:
-	/* VX800 / VX820 */
-	case PCI_DEVICE_ID_VIA_VX800_HB:
-	/* VX855 / VX875 */
-	case PCI_DEVICE_ID_VIA_VX855_HB:
-		ret = cn700_mem_type(dev);
-		if (ret)
-			goto error_hb_fn3;
-
-		ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
-		if (ret)
-			goto error_hb_fn3;
-		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
-
-		if (hb_fn0->device != PCI_DEVICE_ID_VIA_P4M800CE)
-			dev_priv->vram_size <<= 2;
-		break;
-
-	/* VX900(H) */
-	case PCI_DEVICE_ID_VIA_VX900_HB:
-		ret = vx900_mem_type(dev);
-		if (ret)
-			goto error_hb_fn3;
-
-		ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
-		if (ret)
-			goto error_hb_fn3;
-		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 22;
-		break;
-
 	default:
 		ret = -ENODEV;
-		drm_err(dev, "Unknown Host Bridge device: 0x%04x\n",
-				hb_fn0->device);
+		drm_err(dev, "Unknown Host Bridge vendor: 0x%04x\n",
+			hb_fn0->vendor);
+		break;
+	}
+
+	if (ret) {
 		goto error_hb_fn3;
 	}
 
