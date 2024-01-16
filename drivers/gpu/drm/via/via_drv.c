@@ -169,8 +169,8 @@ static const struct drm_ioctl_desc via_driver_ioctls[] = {
 	DRM_IOCTL_DEF_DRV(VIA_WAIT_IRQ, drm_invalid_op, DRM_AUTH),
 	DRM_IOCTL_DEF_DRV(VIA_DMA_BLIT, drm_invalid_op, DRM_AUTH),
 	DRM_IOCTL_DEF_DRV(VIA_BLIT_SYNC, drm_invalid_op, DRM_AUTH),
-	DRM_IOCTL_DEF_DRV(VIA_GEM_ALLOC, via_gem_alloc_ioctl, DRM_AUTH | DRM_UNLOCKED),
-	DRM_IOCTL_DEF_DRV(VIA_GEM_MMAP, via_gem_mmap_ioctl, DRM_AUTH | DRM_UNLOCKED),
+	DRM_IOCTL_DEF_DRV(VIA_GEM_ALLOC, via_gem_alloc_ioctl, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(VIA_GEM_MMAP, via_gem_mmap_ioctl, DRM_AUTH),
 };
 
 static const struct file_operations via_driver_fops = {
