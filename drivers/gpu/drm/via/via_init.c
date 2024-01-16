@@ -915,54 +915,50 @@ static void via_quirks_init(struct drm_device *dev)
 
 static int via_vram_init(struct drm_device *dev)
 {
-	struct pci_dev *pdev = to_pci_dev(dev->dev);
-	struct pci_bus *bus;
-	struct pci_dev *hb_fn0 = NULL;
-	struct pci_dev *hb_fn3 = NULL;
+	struct pci_dev *gfx_dev = to_pci_dev(dev->dev);
+	struct pci_dev *bridge_fn0_dev = NULL;
+	struct pci_dev *bridge_fn3_dev = NULL;
 	char *name = "unknown";
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
 	u8 size;
 	int ret = 0;
 
-	drm_dbg_driver(dev, "Entered %s.\n", __func__);
-
-	bus = pci_find_bus(0, 0);
-	if (!bus) {
+	bridge_fn0_dev =
+		pci_get_domain_bus_and_slot(pci_domain_nr(gfx_dev->bus), 0,
+						PCI_DEVFN(0, 0));
+	if (!bridge_fn0_dev) {
 		ret = -ENODEV;
-		drm_err(dev, "PCI bus not found!\n");
+		drm_err(dev, "Host Bridge Function 0 not found! "
+				"errno: %d\n", ret);
 		goto exit;
 	}
 
-	hb_fn0 = pci_get_slot(bus, PCI_DEVFN(0, 0));
-	if (!hb_fn0) {
-		ret = -ENODEV;
-		drm_err(dev, "Host Bridge Function 0 not found!\n");
-		goto exit;
-	}
-
-	if ((pdev->device != PCI_DEVICE_ID_VIA_CLE266_GFX) ||
-		(pdev->device != PCI_DEVICE_ID_VIA_KM400_GFX)) {
-		hb_fn3 = pci_get_slot(bus, PCI_DEVFN(0, 3));
-		if (!hb_fn3) {
+	if ((gfx_dev->device != PCI_DEVICE_ID_VIA_CLE266_GFX) ||
+		(gfx_dev->device != PCI_DEVICE_ID_VIA_KM400_GFX)) {
+		bridge_fn3_dev =
+			pci_get_domain_bus_and_slot(pci_domain_nr(gfx_dev->bus),
+							0, PCI_DEVFN(0, 3));
+		if (!bridge_fn3_dev) {
 			ret = -ENODEV;
-			drm_err(dev, "Host Bridge Function 3 not found!\n");
-			goto error_hb_fn0;
+			drm_err(dev, "Host Bridge Function 3 not found! "
+					"errno: %d\n", ret);
+			goto exit;
 		}
 	}
 
-	switch (hb_fn0->vendor) {
+	switch (bridge_fn0_dev->vendor) {
 	case PCI_VENDOR_ID_VIA:
-		switch (hb_fn0->device) {
+		switch (bridge_fn0_dev->device) {
 
 		/* CLE266 */
 		case PCI_DEVICE_ID_VIA_862X_0:
 			ret = cle266_mem_type(dev);
 			if (ret)
-				goto error_hb_fn0;
+				goto exit;
 
-			ret = pci_read_config_byte(hb_fn0, 0xe1, &size);
+			ret = pci_read_config_byte(bridge_fn0_dev, 0xe1, &size);
 			if (ret)
-				goto error_hb_fn0;
+				goto error_pci_cfg_read;
 			dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
 			break;
 
@@ -970,11 +966,11 @@ static int via_vram_init(struct drm_device *dev)
 		case PCI_DEVICE_ID_VIA_8378_0:
 			ret = km400_mem_type(dev);
 			if (ret)
-				goto error_hb_fn0;
+				goto exit;
 
-			ret = pci_read_config_byte(hb_fn0, 0xe1, &size);
+			ret = pci_read_config_byte(bridge_fn0_dev, 0xe1, &size);
 			if (ret)
-				goto error_hb_fn0;
+				goto error_pci_cfg_read;
 			dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
 			break;
 
@@ -982,11 +978,11 @@ static int via_vram_init(struct drm_device *dev)
 		case PCI_DEVICE_ID_VIA_3296_0:
 			ret = p4m800_mem_type(dev);
 			if (ret)
-				goto error_hb_fn3;
+				goto exit;
 
-			ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
+			ret = pci_read_config_byte(bridge_fn3_dev, 0xa1, &size);
 			if (ret)
-				goto error_hb_fn3;
+				goto error_pci_cfg_read;
 			dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
 			break;
 
@@ -996,14 +992,14 @@ static int via_vram_init(struct drm_device *dev)
 		case PCI_DEVICE_ID_VIA_VT3336:
 			ret = km8xx_mem_type(dev);
 			if (ret)
-				goto error_hb_fn3;
+				goto exit;
 
-			ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
+			ret = pci_read_config_byte(bridge_fn3_dev, 0xa1, &size);
 			if (ret)
-				goto error_hb_fn3;
+				goto error_pci_cfg_read;
 			dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
 
-			if (hb_fn0->device == PCI_DEVICE_ID_VIA_VT3336)
+			if (bridge_fn0_dev->device == PCI_DEVICE_ID_VIA_VT3336)
 				dev_priv->vram_size <<= 2;
 			break;
 
@@ -1011,11 +1007,11 @@ static int via_vram_init(struct drm_device *dev)
 		case PCI_DEVICE_ID_VIA_PX8X0_0:
 			ret = cn400_mem_type(dev);
 			if (ret)
-				goto error_hb_fn3;
+				goto exit;
 
-			ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
+			ret = pci_read_config_byte(bridge_fn3_dev, 0xa1, &size);
 			if (ret)
-				goto error_hb_fn3;
+				goto error_pci_cfg_read;
 			dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
 			break;
 
@@ -1033,14 +1029,15 @@ static int via_vram_init(struct drm_device *dev)
 		case PCI_DEVICE_ID_VIA_VX855_HB:
 			ret = cn700_mem_type(dev);
 			if (ret)
-				goto error_hb_fn3;
+				goto exit;
 
-			ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
+			ret = pci_read_config_byte(bridge_fn3_dev, 0xa1, &size);
 			if (ret)
-				goto error_hb_fn3;
+				goto error_pci_cfg_read;
 			dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 20;
 
-			if (hb_fn0->device != PCI_DEVICE_ID_VIA_P4M800CE)
+			if (bridge_fn0_dev->device !=
+						PCI_DEVICE_ID_VIA_P4M800CE)
 				dev_priv->vram_size <<= 2;
 			break;
 
@@ -1048,31 +1045,31 @@ static int via_vram_init(struct drm_device *dev)
 		case PCI_DEVICE_ID_VIA_VX900_HB:
 			ret = vx900_mem_type(dev);
 			if (ret)
-				goto error_hb_fn3;
+				goto exit;
 
-			ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
+			ret = pci_read_config_byte(bridge_fn3_dev, 0xa1, &size);
 			if (ret)
-				goto error_hb_fn3;
+				goto error_pci_cfg_read;
 			dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 22;
 			break;
 
 		default:
 			ret = -ENODEV;
 			drm_err(dev, "Unknown Host Bridge device: 0x%04x\n",
-				hb_fn0->device);
-			goto error_hb_fn3;
+				bridge_fn0_dev->device);
+			goto exit;
 		}
 
 		break;
 	default:
 		ret = -ENODEV;
 		drm_err(dev, "Unknown Host Bridge vendor: 0x%04x\n",
-			hb_fn0->vendor);
+			bridge_fn0_dev->vendor);
 		break;
 	}
 
 	if (ret) {
-		goto error_hb_fn3;
+		goto exit;
 	}
 
 	switch (dev_priv->vram_type) {
@@ -1136,22 +1133,18 @@ static int via_vram_init(struct drm_device *dev)
 
 	drm_dbg_driver(dev, "Found %s video RAM.\n", name);
 
-	if (pdev->device == PCI_DEVICE_ID_VIA_CHROME9_HD) {
-		dev_priv->vram_start = pci_resource_start(pdev, 2);
+	if (gfx_dev->device == PCI_DEVICE_ID_VIA_CHROME9_HD) {
+		dev_priv->vram_start = pci_resource_start(gfx_dev, 2);
 	} else {
-		dev_priv->vram_start = pci_resource_start(pdev, 0);
+		dev_priv->vram_start = pci_resource_start(gfx_dev, 0);
 	}
 
 	/* Add an MTRR for the video RAM. */
 	dev_priv->vram_mtrr = arch_phys_wc_add(dev_priv->vram_start,
 						dev_priv->vram_size);
 	goto exit;
-error_hb_fn3:
-	if (hb_fn3)
-		pci_dev_put(hb_fn3);
-error_hb_fn0:
-	if (hb_fn0)
-		pci_dev_put(hb_fn0);
+error_pci_cfg_read:
+	drm_err(dev, "PCI configuration space read error! errno: %d\n", ret);
 exit:
 	drm_dbg_driver(dev, "Exiting %s.\n", __func__);
 	return ret;
