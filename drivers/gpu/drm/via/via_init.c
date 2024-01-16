@@ -762,75 +762,100 @@ exit:
 	return ret;
 }
 
-static int vx900_mem_type(struct drm_device *dev,
-				struct pci_dev *fn3)
+static int vx900_mem_type(struct drm_device *dev)
 {
+	struct pci_dev *gfx_dev = to_pci_dev(dev->dev);
+	struct pci_dev *bridge_fn3_dev;
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
+	u8 type, clock, volt;
 	int ret;
-	u8 clock, type, volt;
 
-	ret = pci_read_config_byte(fn3, 0x90, &clock);
-	if (ret)
-		return ret;
-	ret = pci_read_config_byte(fn3, 0x6c, &type);
-	if (ret)
-		return ret;
+	bridge_fn3_dev =
+		pci_get_domain_bus_and_slot(pci_domain_nr(gfx_dev->bus), 0,
+						PCI_DEVFN(0, 3));
+	if (!bridge_fn3_dev) {
+		ret = -ENODEV;
+		drm_err(dev, "Host Bridge Function 3 not found! errno: %d\n",
+			ret);
+		goto exit;
+	}
+
+	ret = pci_read_config_byte(bridge_fn3_dev, 0x6c, &type);
+	if (ret) {
+		goto error_pci_cfg_read;
+	}
+
+	ret = pci_read_config_byte(bridge_fn3_dev, 0x90, &clock);
+	if (ret) {
+		goto error_pci_cfg_read;
+	}
+
 	volt = type;
 	type &= 0xc0;
 	type >>= 6;
 	volt &= 0x20;
 	volt >>= 5;
-
 	switch (type) {
-	case 1:
+	case 0x01:
 		switch (clock & 0x0f) {
-		case 0:
-			if (volt)
+		case 0x00:
+			if (volt) {
 				dev_priv->vram_type = VIA_MEM_DDR2_800;
-			else
+			} else {
 				dev_priv->vram_type = VIA_MEM_DDR2_533;
+			}
+
 			break;
-		case 4:
+		case 0x04:
 			dev_priv->vram_type = VIA_MEM_DDR2_533;
 			break;
-		case 5:
+		case 0x05:
 			dev_priv->vram_type = VIA_MEM_DDR2_667;
 			break;
-		case 6:
+		case 0x06:
 			dev_priv->vram_type = VIA_MEM_DDR2_800;
 			break;
-		case 7:
+		case 0x07:
 			dev_priv->vram_type = VIA_MEM_DDR2_1066;
 			break;
 		default:
 			break;
 		}
+
 		break;
-	case 2:
+	case 0x02:
 		switch (clock & 0x0f) {
-		case 0:
-			if (volt)
+		case 0x00:
+			if (volt) {
 				dev_priv->vram_type = VIA_MEM_DDR3_800;
-			else
+			} else {
 				dev_priv->vram_type = VIA_MEM_DDR3_533;
+			}
+
 			break;
-		case 4:
+		case 0x04:
 			dev_priv->vram_type = VIA_MEM_DDR3_533;
 			break;
-		case 5:
+		case 0x05:
 			dev_priv->vram_type = VIA_MEM_DDR3_667;
 			break;
-		case 6:
+		case 0x06:
 			dev_priv->vram_type = VIA_MEM_DDR3_800;
 			break;
-		case 7:
+		case 0x07:
 			dev_priv->vram_type = VIA_MEM_DDR3_1066;
 			break;
 		default:
 			break;
 		}
+
 		break;
 	}
+
+	goto exit;
+error_pci_cfg_read:
+	drm_err(dev, "PCI configuration space read error! errno: %d\n", ret);
+exit:
 	return ret;
 }
 
@@ -1023,14 +1048,14 @@ static int via_vram_init(struct drm_device *dev)
 			goto error_hb_fn3;
 		break;
 
-	/* VX900 */
+	/* VX900(H) */
 	case PCI_DEVICE_ID_VIA_VX900_HB:
 		ret = pci_read_config_byte(hb_fn3, 0xa1, &size);
 		if (ret)
 			goto error_hb_fn3;
 		dev_priv->vram_size = (1 << ((size & 0x70) >> 4)) << 22;
 
-		ret = vx900_mem_type(dev, hb_fn3);
+		ret = vx900_mem_type(dev);
 		if (ret)
 			goto error_hb_fn3;
 		break;
