@@ -31,7 +31,12 @@
  *
  */
 
+#include <linux/dcache.h>
 #include <linux/pci.h>
+
+#include <drm/drm_debugfs.h>
+#include <drm/drm_file.h>
+#include <drm/drm_print.h>
 
 #include <drm/ttm/ttm_bo.h>
 #include <drm/ttm/ttm_tt.h>
@@ -180,3 +185,17 @@ struct ttm_device_funcs via_bo_driver = {
 	.delete_mem_notify = via_bo_delete_mem_notify,
 	.io_mem_reserve = via_bo_io_mem_reserve,
 };
+
+void via_ttm_debugfs_init(struct drm_device *dev)
+{
+#if defined(CONFIG_DEBUG_FS)
+	struct drm_minor *minor = dev->primary;
+	struct dentry *debugfs_root = minor->debugfs_root;
+	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
+
+	ttm_resource_manager_create_debugfs(ttm_manager_type(&dev_priv->bdev,
+								TTM_PL_VRAM),
+						debugfs_root,
+						"via_ttm_rman_vram");
+#endif
+}

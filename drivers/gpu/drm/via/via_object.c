@@ -305,6 +305,7 @@ int via_mm_init(struct drm_device *dev)
 		goto error_ttm_range_man;
 	}
 
+	via_ttm_debugfs_init(dev);
 	goto exit;
 error_ttm_range_man:
 	ttm_device_fini(&dev_priv->bdev);

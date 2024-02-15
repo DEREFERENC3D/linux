@@ -379,6 +379,7 @@ int via_dev_pm_ops_resume(struct device *dev);
 
 /* via_ttm.c */
 extern struct ttm_device_funcs via_bo_driver;
+void via_ttm_debugfs_init(struct drm_device *dev);
 
 /* via_tx.c */
 void via_transmitter_io_pad_state(struct drm_device *dev,
