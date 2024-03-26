@@ -1182,7 +1182,7 @@ void via_load_crtc_pixel_timing(struct drm_crtc *crtc,
 }
 
 /* Load CRTC timing registers */
-void via_load_crtc_timing(struct via_crtc *iga, struct drm_display_mode *mode)
+static void via_load_crtc_timing(struct via_crtc *iga, struct drm_display_mode *mode)
 {
 	struct drm_device *dev = iga->base.dev;
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
@@ -1278,7 +1278,7 @@ void via_load_crtc_timing(struct via_crtc *iga, struct drm_display_mode *mode)
  * crtc : which IGA
  * scale_type : upscaling(VIA_EXPAND) or downscaling(VIA_SHRINK)
  */
-void via_set_scale_path(struct drm_crtc *crtc, u32 scale_type)
+static void via_set_scale_path(struct drm_crtc *crtc, u32 scale_type)
 {
 	struct via_crtc *iga = container_of(crtc, struct via_crtc, base);
 	struct drm_device *dev = crtc->dev;
@@ -1369,7 +1369,7 @@ static void via_disable_iga_scaling(struct drm_crtc *crtc)
  * scale_type	=	VIA_HOR_EXPAND or VIA_VER_EXPAND or VIA_EXPAND or
  *			VIA_SHRINK or VIA_SHRINK + VIA_EXPAND
  */
-bool via_set_iga_scale_function(struct drm_crtc *crtc, u32 scale_type)
+static bool via_set_iga_scale_function(struct drm_crtc *crtc, u32 scale_type)
 {
 	struct via_crtc *iga = container_of(crtc, struct via_crtc, base);
 	struct drm_device *dev = crtc->dev;
@@ -1456,7 +1456,7 @@ bool via_set_iga_scale_function(struct drm_crtc *crtc, u32 scale_type)
  * 2. load scale factors into registers
  * 3. enable H or V scale ( set CRA2 bit7 or bit3 )
  */
-bool via_load_iga_scale_factor_regs(struct via_drm_priv *dev_priv,
+static bool via_load_iga_scale_factor_regs(struct via_drm_priv *dev_priv,
 					struct drm_display_mode *mode,
 					struct drm_display_mode *adjusted_mode,
 					u32 scale_type, u32 is_hor_or_ver)
@@ -1530,7 +1530,7 @@ bool via_load_iga_scale_factor_regs(struct via_drm_priv *dev_priv,
 	return true;
 }
 
-void via_set_iga2_downscale_source_timing(struct drm_crtc *crtc,
+static void via_set_iga2_downscale_source_timing(struct drm_crtc *crtc,
 				struct drm_display_mode *mode,
 				struct drm_display_mode *adjusted_mode)
 {
@@ -1580,7 +1580,7 @@ void via_set_iga2_downscale_source_timing(struct drm_crtc *crtc,
 	drm_mode_destroy(crtc->dev, src_timing);
 }
 
-void via_mode_set_nofb(struct drm_crtc *crtc)
+static void via_mode_set_nofb(struct drm_crtc *crtc)
 {
 	struct drm_device *dev = crtc->dev;
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
@@ -1892,7 +1892,7 @@ static void via_primary_atomic_disable(struct drm_plane *plane,
 	return;
 }
 
-void via_primary_atomic_update(struct drm_plane *plane,
+static void via_primary_atomic_update(struct drm_plane *plane,
 					struct drm_atomic_state *state)
 {
 	struct drm_plane_state *new_state =

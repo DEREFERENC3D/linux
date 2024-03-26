@@ -377,7 +377,7 @@ static void via_cursor_atomic_enable(struct drm_plane *plane,
 	}
 }
 
-void via_cursor_atomic_disable(struct drm_plane *plane,
+static void via_cursor_atomic_disable(struct drm_plane *plane,
 					struct drm_atomic_state *state)
 {
 	struct drm_plane_state *new_state =

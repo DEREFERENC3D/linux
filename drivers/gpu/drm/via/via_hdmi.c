@@ -377,7 +377,7 @@ static unsigned int via_check_hdmi_i2c_status(struct via_drm_priv *dev_priv,
 	return status;
 }
 
-unsigned int via_ddc_read_bytes_by_hdmi(struct via_drm_priv *dev_priv,
+static unsigned int via_ddc_read_bytes_by_hdmi(struct via_drm_priv *dev_priv,
 					unsigned int offset,
 					unsigned char *block)
 {
@@ -449,7 +449,7 @@ unsigned int via_ddc_read_bytes_by_hdmi(struct via_drm_priv *dev_priv,
 	return status;
 }
 
-struct edid* via_hdmi_get_edid(struct drm_connector *connector)
+static struct edid* via_hdmi_get_edid(struct drm_connector *connector)
 {
 	bool print_bad_edid = !connector->bad_edid_counter || (drm_debug_enabled(DRM_UT_KMS));
 	struct drm_device *dev = connector->dev;
@@ -592,7 +592,7 @@ static int via_hdmi_mode_valid(struct drm_connector *connector,
 	return MODE_OK;
 }
 
-int via_hdmi_get_modes(struct drm_connector *connector)
+static int via_hdmi_get_modes(struct drm_connector *connector)
 {
 	struct edid *edid = via_hdmi_get_edid(connector);
 

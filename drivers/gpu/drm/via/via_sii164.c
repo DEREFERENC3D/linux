@@ -401,7 +401,7 @@ static const struct drm_connector_funcs via_sii164_drm_connector_funcs = {
 };
 
 
-int via_sii164_mode_valid(struct drm_connector *connector,
+static int via_sii164_mode_valid(struct drm_connector *connector,
 					struct drm_display_mode *mode)
 {
 	struct drm_device *dev = connector->dev;

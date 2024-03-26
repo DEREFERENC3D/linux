@@ -1337,7 +1337,7 @@ static const struct drm_mode_config_funcs via_drm_mode_config_funcs = {
 	.atomic_commit		= drm_atomic_helper_commit,
 };
 
-int via_modeset_init(struct drm_device *dev)
+static int via_modeset_init(struct drm_device *dev)
 {
 	struct pci_dev *pdev = to_pci_dev(dev->dev);
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
@@ -1415,7 +1415,7 @@ exit:
 	return ret;
 }
 
-void via_modeset_fini(struct drm_device *dev)
+static void via_modeset_fini(struct drm_device *dev)
 {
 	drm_kms_helper_poll_fini(dev);
 

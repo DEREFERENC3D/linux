@@ -421,7 +421,7 @@ static const struct drm_connector_funcs via_vt1632_drm_connector_funcs = {
 };
 
 
-int via_vt1632_mode_valid(struct drm_connector *connector,
+static int via_vt1632_mode_valid(struct drm_connector *connector,
 					struct drm_display_mode *mode)
 {
 	struct drm_device *dev = connector->dev;
