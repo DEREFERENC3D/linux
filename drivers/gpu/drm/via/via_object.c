@@ -79,7 +79,6 @@ void via_ttm_domain_to_placement(struct via_bo *bo,
 	drm_dbg_driver(dev, "Entered %s.\n", __func__);
 
 	bo->placement.placement = bo->placements;
-	bo->placement.busy_placement = bo->placements;
 
 	if (ttm_domain == TTM_PL_SYSTEM) {
 		bo->placements[i].fpfn = 0;
@@ -106,7 +105,6 @@ void via_ttm_domain_to_placement(struct via_bo *bo,
 	}
 
 	bo->placement.num_placement = i;
-	bo->placement.num_busy_placement = i;
 
 	drm_dbg_driver(dev, "Exiting %s.\n", __func__);
 }
