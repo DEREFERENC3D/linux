@@ -114,7 +114,6 @@ static int create_i2c_bus(struct drm_device *dev,
 
 	sprintf(adapter->name, "via i2c bit bus 0x%02x", i2c_par->i2c_port);
 	adapter->owner = THIS_MODULE;
-	adapter->class = I2C_CLASS_DDC;
 	adapter->algo_data = algo;
 	i2c_set_adapdata(adapter, dev);
 
