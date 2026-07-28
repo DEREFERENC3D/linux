@@ -1805,7 +1805,7 @@ via_dmablit_handler(struct drm_device *dev, int engine, int from_irq)
 				mod_timer(&blitq->poll_timer, jiffies + 1);
 		} else {
 			if (timer_pending(&blitq->poll_timer))
-				del_timer(&blitq->poll_timer);
+				timer_delete(&blitq->poll_timer);
 			via_dmablit_engine_off(dev, engine);
 		}
 	}
