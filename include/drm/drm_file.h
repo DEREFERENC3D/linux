@@ -416,6 +416,11 @@ struct drm_file {
 	 * debugfs directory for each client under a drm node.
 	 */
 	struct dentry *debugfs_client;
+
+	/* private: */
+#if IS_ENABLED(CONFIG_DRM_LEGACY)
+	unsigned long lock_count; /* DRI1 legacy lock count */
+#endif
 };
 
 /**
