@@ -50,7 +50,6 @@
 
 #define DRIVER_NAME		"via"
 #define DRIVER_DESC		"VIA Unichrome / Pro"
-#define DRIVER_DATE		"20070202"
 
 #define DRIVER_MAJOR		2
 #define DRIVER_MINOR		11
@@ -3599,7 +3598,6 @@ static struct drm_driver driver = {
 	.fops = &via_driver_fops,
 	.name = DRIVER_NAME,
 	.desc = DRIVER_DESC,
-	.date = DRIVER_DATE,
 	.major = DRIVER_MAJOR,
 	.minor = DRIVER_MINOR,
 	.patchlevel = DRIVER_PATCHLEVEL,
