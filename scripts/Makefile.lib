@@ -465,10 +465,10 @@ quiet_cmd_zstd = ZSTD    $@
       cmd_zstd = cat $(real-prereqs) | $(ZSTD) -19 > $@
 
 quiet_cmd_zstd22 = ZSTD22  $@
-      cmd_zstd22 = cat $(real-prereqs) | $(ZSTD) -22 --ultra > $@
+      cmd_zstd22 = cat $(real-prereqs) | $(ZSTD) -19 > $@
 
 quiet_cmd_zstd22_with_size = ZSTD22  $@
-      cmd_zstd22_with_size = { cat $(real-prereqs) | $(ZSTD) -22 --ultra; $(size_append); } > $@
+      cmd_zstd22_with_size = { cat $(real-prereqs) | $(ZSTD) -19; $(size_append); } > $@
 
 # ASM offsets
 # ---------------------------------------------------------------------------
