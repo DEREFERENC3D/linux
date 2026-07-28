@@ -1879,7 +1879,7 @@ via_dmablit_sync(struct drm_device *dev, uint32_t handle, int engine)
 static void
 via_dmablit_timer(struct timer_list *t)
 {
-	drm_via_blitq_t *blitq = from_timer(blitq, t, poll_timer);
+	drm_via_blitq_t *blitq = timer_container_of(blitq, t, poll_timer);
 	struct drm_device *dev = blitq->dev;
 	int engine = (int)
 		(blitq - ((drm_via_private_t *)dev->dev_private)->blit_queues);
