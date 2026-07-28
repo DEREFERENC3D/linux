@@ -378,5 +378,12 @@ menuconfig DRM_LEGACY
 	  perform 3D emulation in user-space.
 	  Unless you have strong reasons to go rogue, say "N".
 if DRM_LEGACY
-# leave here to list legacy drivers
+
+config DRM_VIA
+	tristate "Via unichrome video cards"
+	depends on DRM && PCI
+	help
+	  Choose this option if you have a Via unichrome or compatible video
+	  chipset. If M is selected the module will be called via.
+
 endif # DRM_LEGACY
