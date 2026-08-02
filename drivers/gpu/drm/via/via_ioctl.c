@@ -26,7 +26,8 @@
 
 #include <drm/drm_gem.h>
 
-#include <drm/ttm/ttm_bo.h>
+#include <drm/ttm/ttm_bo_api.h>
+#include <drm/ttm/ttm_bo_driver.h>
 
 #include <uapi/drm/via_drm.h>
 

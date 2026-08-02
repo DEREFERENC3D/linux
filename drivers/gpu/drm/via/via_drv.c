@@ -26,6 +26,7 @@
  * James Simmons <jsimmons@infradead.org>
  */
 
+#include <linux/fs.h>
 #include <linux/pci.h>
 
 #include <drm/drm_aperture.h>
@@ -36,8 +37,10 @@
 #include <drm/drm_gem.h>
 #include <drm/drm_ioctl.h>
 #include <drm/drm_prime.h>
+#include <drm/drm_vma_manager.h>
 
-#include <drm/ttm/ttm_bo.h>
+#include <drm/ttm/ttm_bo_api.h>
+#include <drm/ttm/ttm_bo_driver.h>
 
 #include <uapi/drm/via_drm.h>
 
@@ -55,25 +58,29 @@ module_param_named(modeset, via_modeset, int, 0400);
 static int via_driver_open(struct drm_device *dev,
 					struct drm_file *file_priv)
 {
+	struct via_file_private *file;
 	int ret = 0;
 
 	drm_dbg_driver(dev, "Entered %s.\n", __func__);
 
+	file = kzalloc(sizeof(*file), GFP_KERNEL);
+	if (!file) {
+		ret = -ENOMEM;
+		goto exit;
+	}
+
+	INIT_LIST_HEAD(&file->obj_list);
+	file_priv->driver_priv = file;
+exit:
 	drm_dbg_driver(dev, "Exiting %s.\n", __func__);
 	return ret;
-}
-
-static void via_driver_postclose(struct drm_device *dev,
-					struct drm_file *file_priv)
-{
-	drm_dbg_driver(dev, "Entered %s.\n", __func__);
-
-	drm_dbg_driver(dev, "Exiting %s.\n", __func__);
 }
 
 static void via_driver_lastclose(struct drm_device *dev)
 {
 	drm_dbg_driver(dev, "Entered %s.\n", __func__);
+
+	via_ring_lastclose(dev);
 
 	drm_fb_helper_lastclose(dev);
 
@@ -151,30 +158,44 @@ exit:
 }
 
 static const struct drm_ioctl_desc via_driver_ioctls[] = {
-	DRM_IOCTL_DEF_DRV(VIA_ALLOCMEM, drm_invalid_op, DRM_AUTH),
-	DRM_IOCTL_DEF_DRV(VIA_FREEMEM, drm_invalid_op, DRM_AUTH),
-	DRM_IOCTL_DEF_DRV(VIA_AGP_INIT, drm_invalid_op, DRM_AUTH | DRM_MASTER),
-	DRM_IOCTL_DEF_DRV(VIA_FB_INIT, drm_invalid_op, DRM_AUTH | DRM_MASTER),
+	DRM_IOCTL_DEF_DRV(VIA_ALLOCMEM, via_mem_alloc_ioctl, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(VIA_FREEMEM, via_mem_free_ioctl, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(VIA_AGP_INIT, via_agp_init_ioctl, DRM_AUTH | DRM_MASTER),
+	DRM_IOCTL_DEF_DRV(VIA_FB_INIT, via_fb_init_ioctl, DRM_AUTH | DRM_MASTER),
 	DRM_IOCTL_DEF_DRV(VIA_MAP_INIT, drm_invalid_op, DRM_AUTH | DRM_MASTER),
 	DRM_IOCTL_DEF_DRV(VIA_DEC_FUTEX, drm_invalid_op, DRM_AUTH),
-	DRM_IOCTL_DEF_DRV(VIA_DMA_INIT, drm_invalid_op, DRM_AUTH),
-	DRM_IOCTL_DEF_DRV(VIA_CMDBUFFER, drm_invalid_op, DRM_AUTH),
-	DRM_IOCTL_DEF_DRV(VIA_FLUSH, drm_invalid_op, DRM_AUTH),
-	DRM_IOCTL_DEF_DRV(VIA_PCICMD, drm_invalid_op, DRM_AUTH),
-	DRM_IOCTL_DEF_DRV(VIA_CMDBUF_SIZE, drm_invalid_op, DRM_AUTH),
-	DRM_IOCTL_DEF_DRV(VIA_WAIT_IRQ, drm_invalid_op, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(VIA_DMA_INIT, via_dma_init_ioctl, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(VIA_CMDBUFFER, via_cmdbuffer_ioctl, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(VIA_FLUSH, via_flush_ioctl, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(VIA_PCICMD, via_pci_cmdbuffer_ioctl, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(VIA_CMDBUF_SIZE, via_cmdbuf_size_ioctl, DRM_AUTH),
+	DRM_IOCTL_DEF_DRV(VIA_WAIT_IRQ, via_wait_irq_ioctl, DRM_AUTH),
 	DRM_IOCTL_DEF_DRV(VIA_DMA_BLIT, drm_invalid_op, DRM_AUTH),
 	DRM_IOCTL_DEF_DRV(VIA_BLIT_SYNC, drm_invalid_op, DRM_AUTH),
 	DRM_IOCTL_DEF_DRV(VIA_GEM_ALLOC, via_gem_alloc_ioctl, DRM_AUTH),
 	DRM_IOCTL_DEF_DRV(VIA_GEM_MMAP, via_gem_mmap_ioctl, DRM_AUTH),
 };
 
+static int via_driver_mmap(struct file *filp, struct vm_area_struct *vma)
+{
+	/*
+	 * Legacy maps (created via DRM_IOCTL_ADD_MAP, used for the AGP
+	 * ring-buffer, MMIO and framebuffer) are hashed below
+	 * DRM_FILE_PAGE_OFFSET_START, while GEM objects are allocated
+	 * offsets above it.
+	 */
+	if (vma->vm_pgoff < DRM_FILE_PAGE_OFFSET_START)
+		return drm_legacy_mmap(filp, vma);
+
+	return drm_gem_mmap(filp, vma);
+}
+
 static const struct file_operations via_driver_fops = {
 	.owner		= THIS_MODULE,
 	.open		= drm_open,
 	.release	= drm_release,
 	.unlocked_ioctl = drm_ioctl,
-	.mmap		= drm_gem_mmap,
+	.mmap		= via_driver_mmap,
 	.poll		= drm_poll,
 	.llseek		= noop_llseek,
 };
@@ -196,7 +217,15 @@ static struct drm_driver via_driver = {
 
 	.driver_features = DRIVER_GEM |
 				DRIVER_MODESET |
-				DRIVER_ATOMIC,
+				DRIVER_ATOMIC |
+				DRIVER_USE_AGP |
+				DRIVER_HAVE_IRQ |
+				DRIVER_KMS_LEGACY_CONTEXT,
+
+	.dma_quiescent = via_driver_dma_quiescent,
+	.get_vblank_counter = via_get_vblank_counter,
+	.enable_vblank = via_enable_vblank,
+	.disable_vblank = via_disable_vblank,
 
 	.ioctls = via_driver_ioctls,
 	.num_ioctls = ARRAY_SIZE(via_driver_ioctls),

@@ -933,7 +933,7 @@ static int via_vram_init(struct drm_device *dev)
 		goto exit;
 	}
 
-	if ((gfx_dev->device != PCI_DEVICE_ID_VIA_CLE266_GFX) ||
+	if ((gfx_dev->device != PCI_DEVICE_ID_VIA_CLE266_GFX) &&
 		(gfx_dev->device != PCI_DEVICE_ID_VIA_KM400_GFX)) {
 		bridge_fn3_dev =
 			pci_get_domain_bus_and_slot(pci_domain_nr(gfx_dev->bus),
@@ -1444,6 +1444,20 @@ int via_drm_init(struct drm_device *dev)
 
 	via_chip_revision_info(dev);
 
+	/*
+	 * Install the GPU IRQ handler BEFORE any mode-setting init. The
+	 * modeset probe pokes the display hardware (i2c/GPIO/DDC, external
+	 * TMDS/DVI reads) which uses the same INTx/GPIO (VBLANK /
+	 * SMBus-alert) line as the GPU's interrupt. Without a registered
+	 * irqaction, an interrupt asserting during that bit-bang dispatches
+	 * to a NULL handler (EIP: 0x0) and panics the kernel.
+	 */
+	ret = via_ring_legacy_init(dev);
+	if (ret) {
+		drm_err(dev, "Failed to initialize legacy DMA ring!\n");
+		goto error_ring_legacy_init;
+	}
+
 	ret = via_modeset_init(dev);
 	if (ret) {
 		drm_err(dev, "Failed to initialize mode setting!\n");
@@ -1452,6 +1466,8 @@ int via_drm_init(struct drm_device *dev)
 
 	goto exit;
 error_modeset_init:
+	via_ring_legacy_fini(dev);
+error_ring_legacy_init:
 	via_mm_fini(dev);
 error_mm_init:
 	via_device_fini(dev);
@@ -1463,6 +1479,8 @@ exit:
 void via_drm_fini(struct drm_device *dev)
 {
 	drm_dbg_driver(dev, "Entered %s.\n", __func__);
+
+	via_ring_legacy_fini(dev);
 
 	via_modeset_fini(dev);
 	via_mm_fini(dev);

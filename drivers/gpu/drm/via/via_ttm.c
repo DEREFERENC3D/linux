@@ -38,7 +38,8 @@
 #include <drm/drm_file.h>
 #include <drm/drm_print.h>
 
-#include <drm/ttm/ttm_bo.h>
+#include <drm/ttm/ttm_bo_api.h>
+#include <drm/ttm/ttm_bo_driver.h>
 #include <drm/ttm/ttm_tt.h>
 
 #include "via_drv.h"

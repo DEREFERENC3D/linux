@@ -18,6 +18,7 @@ via-y := via_connector.o \
 		via_object.o \
 		via_pll.o \
 		via_pm.o \
+		via_ring.o \
 		via_sii164.o \
 		via_tmds.o \
 		via_ttm.o \

@@ -33,10 +33,20 @@
 #include <drm/drm_connector.h>
 #include <drm/drm_crtc.h>
 #include <drm/drm_encoder.h>
+#include <drm/drm_legacy.h>
+#include <drm/drm_mm.h>
 #include <drm/drm_plane.h>
 
-#include <drm/ttm/ttm_bo.h>
+#include <drm/ttm/ttm_bo_api.h>
+#include <drm/ttm/ttm_bo_driver.h>
 #include <drm/ttm/ttm_placement.h>
+
+#include <drm/via_drm.h>
+
+#include <linux/atomic.h>
+#include <linux/idr.h>
+#include <linux/mutex.h>
+#include <linux/wait.h>
 
 #include "via_crtc_hw.h"
 #include "via_regs.h"
@@ -66,6 +76,72 @@
 #define CX700_REVISION_700	0x0
 #define CX700_REVISION_700M	0x1
 #define CX700_REVISION_700M2	0x2
+
+#define VIA_PCI_BUF_SIZE		60000
+#define VIA_FIRE_BUF_SIZE		1024
+#define VIA_NUM_IRQS		4
+
+#define VIA_MM_ALIGN_SHIFT		4
+#define VIA_MM_ALIGN_MASK		((1 << VIA_MM_ALIGN_SHIFT) - 1)
+
+enum via_family {
+	VIA_OTHER = 0,		/* Baseline */
+	VIA_PRO_GROUP_A,	/* Another video engine and DMA commands */
+	VIA_DX9_0		/* Same video as pro_group_a, but 3D unsupported */
+};
+
+typedef enum {
+	no_sequence = 0,
+	z_address,
+	dest_address,
+	tex_address
+} drm_via_sequence_t;
+
+typedef struct {
+	unsigned texture;
+	uint32_t z_addr;
+	uint32_t d_addr;
+	uint32_t t_addr[2][10];
+	uint32_t pitch[2][10];
+	uint32_t height[2][10];
+	uint32_t tex_level_lo[2];
+	uint32_t tex_level_hi[2];
+	uint32_t tex_palette_size[2];
+	uint32_t tex_npot[2];
+	drm_via_sequence_t unfinished;
+	int agp_texture;
+	int multitex;
+	struct drm_device *dev;
+	drm_local_map_t *map_cache;
+	uint32_t vertex_count;
+	int agp;
+	const uint32_t *buf_start;
+} drm_via_state_t;
+
+typedef uint32_t maskarray_t[5];
+
+typedef struct drm_via_irq {
+	atomic_t irq_received;
+	uint32_t pending_mask;
+	uint32_t enable_mask;
+	wait_queue_head_t irq_queue;
+} drm_via_irq_t;
+
+typedef struct drm_via_ring_buffer {
+	drm_local_map_t map;
+	char *virtual_start;
+} drm_via_ring_buffer_t;
+
+struct via_memblock {
+	struct drm_mm_node mm_node;
+	struct list_head owner_list;
+	int idr_key;
+};
+
+struct via_file_private {
+	struct list_head obj_list;
+};
+
 
 #define VIA_MEM_NONE		0x00
 #define VIA_MEM_SDR66		0x01
@@ -278,6 +354,53 @@ struct via_drm_priv {
 	u32 number_fp;
 
 	u32 mapped_i2c_bus;
+
+	/*
+	 * Serializes access to the command (DMA ring) buffer. In the legacy
+	 * DRI stack this was done with the DRM hardware lock, but DRI2
+	 * clients do not use that lock, so the kernel must serialize ring
+	 * submissions itself.
+	 */
+	struct mutex ring_lock;
+
+	/* VIA 3D engine command ring buffer. */
+	unsigned long agpAddr;
+	char *dma_ptr;
+	unsigned int dma_low;
+	unsigned int dma_high;
+	unsigned int dma_offset;
+	uint32_t dma_wrap;
+	volatile uint32_t *last_pause_ptr;
+	volatile uint32_t *hw_addr_ptr;
+	drm_via_ring_buffer_t ring;
+	drm_via_state_t hc_state;
+	char pci_buf[VIA_PCI_BUF_SIZE];
+	const uint32_t *fire_offsets[VIA_FIRE_BUF_SIZE];
+	uint32_t num_fire_offsets;
+	uint32_t dma_diff;
+
+	/* IRQ / vblank state. */
+	drm_via_irq_t via_irqs[VIA_NUM_IRQS];
+	unsigned num_irqs;
+	maskarray_t *irq_masks;
+	uint32_t irq_enable_mask;
+	uint32_t irq_pending_mask;
+	int *irq_map;
+	ktime_t last_vblank;
+	int last_vblank_valid;
+	ktime_t nsec_per_vblank;
+	atomic_t vbl_received;
+
+	/* Legacy memory managers used by VIA_ALLOCMEM / VIA_FREEMEM. */
+	int vram_initialized;
+	struct drm_mm vram_mm;
+	int agp_initialized;
+	struct drm_mm agp_mm;
+	struct idr object_idr;
+	unsigned long vram_offset;
+	unsigned long agp_offset;
+
+	int chipset;
 };
 
 
@@ -380,6 +503,37 @@ int via_dev_pm_ops_resume(struct device *dev);
 /* via_ttm.c */
 extern struct ttm_device_funcs via_bo_driver;
 void via_ttm_debugfs_init(struct drm_device *dev);
+
+/* via_ring.c */
+int via_ring_legacy_init(struct drm_device *dev);
+void via_ring_legacy_fini(struct drm_device *dev);
+int via_dma_init_ioctl(struct drm_device *dev, void *data,
+			struct drm_file *file_priv);
+int via_cmdbuffer_ioctl(struct drm_device *dev, void *data,
+			struct drm_file *file_priv);
+int via_pci_cmdbuffer_ioctl(struct drm_device *dev, void *data,
+			    struct drm_file *file_priv);
+int via_cmdbuf_size_ioctl(struct drm_device *dev, void *data,
+			  struct drm_file *file_priv);
+int via_flush_ioctl(struct drm_device *dev, void *data,
+		    struct drm_file *file_priv);
+int via_wait_irq_ioctl(struct drm_device *dev, void *data,
+		       struct drm_file *file_priv);
+int via_agp_init_ioctl(struct drm_device *dev, void *data,
+		       struct drm_file *file_priv);
+int via_fb_init_ioctl(struct drm_device *dev, void *data,
+		      struct drm_file *file_priv);
+int via_mem_alloc_ioctl(struct drm_device *dev, void *data,
+			struct drm_file *file_priv);
+int via_mem_free_ioctl(struct drm_device *dev, void *data,
+		       struct drm_file *file_priv);
+int via_driver_dma_quiescent(struct drm_device *dev);
+void via_driver_postclose(struct drm_device *dev, struct drm_file *file_priv);
+void via_ring_lastclose(struct drm_device *dev);
+u32 via_get_vblank_counter(struct drm_device *dev, unsigned int pipe);
+int via_enable_vblank(struct drm_device *dev, unsigned int pipe);
+void via_disable_vblank(struct drm_device *dev, unsigned int pipe);
+irqreturn_t via_ring_irq_handler(int irq, void *arg);
 
 /* via_tx.c */
 void via_transmitter_io_pad_state(struct drm_device *dev,
