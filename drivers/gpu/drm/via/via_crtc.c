@@ -28,6 +28,7 @@
  * James Simmons <jsimmons@infradead.org>
  */
 
+#include <linux/hrtimer.h>
 #include <linux/pci.h>
 #include <linux/pci_ids.h>
 
@@ -42,6 +43,7 @@
 #include <drm/drm_mode.h>
 #include <drm/drm_modeset_helper_vtables.h>
 #include <drm/drm_plane.h>
+#include <drm/drm_vblank.h>
 
 #include <drm/ttm/ttm_bo_api.h>
 #include <drm/ttm/ttm_bo_driver.h>
@@ -345,6 +347,67 @@ static void via_crtc_destroy(struct drm_crtc *crtc)
 	kfree(iga);
 }
 
+/*
+ * Some boards ship with a defective IO-APIC IRQ route for the GPU. As a
+ * result the via driver can never install a working display interrupt, so
+ * the DRM vblank machinery would otherwise never fire and every atomic
+ * commit would stall waiting 10s for a flip_done event (see
+ * drm_atomic_helper_wait_for_flip_done()).
+ *
+ * Instead we simulate vblank using a per-CRTC hrtimer, exactly like the
+ * virtual vkms driver does (drivers/gpu/drm/vkms/vkms_crtc.c).  The timer
+ * fires once per frame, calls drm_crtc_handle_vblank(), which delivers the
+ * pending flip event and completes the commit's flip_done completion.
+ */
+static enum hrtimer_restart via_vblank_simulate(struct hrtimer *timer)
+{
+	struct via_crtc *iga = container_of(timer, struct via_crtc,
+					    vblank_hrtimer);
+	struct drm_crtc *crtc = &iga->base;
+	struct drm_device *dev = crtc->dev;
+	bool ret;
+
+	ret = drm_crtc_handle_vblank(crtc);
+	if (!ret)
+		drm_err(dev, "via failed to handle vblank\n");
+
+	hrtimer_forward_now(timer, iga->vblank_period_ns);
+	return HRTIMER_RESTART;
+}
+
+static int via_crtc_enable_vblank(struct drm_crtc *crtc)
+{
+	struct drm_device *dev = crtc->dev;
+	unsigned int pipe = drm_crtc_index(crtc);
+	struct drm_vblank_crtc *vblank = &dev->vblank[pipe];
+	struct via_crtc *iga = container_of(crtc, struct via_crtc, base);
+
+	drm_calc_timestamping_constants(crtc, &crtc->mode);
+
+	hrtimer_init(&iga->vblank_hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+	iga->vblank_hrtimer.function = &via_vblank_simulate;
+	iga->vblank_period_ns = ktime_set(0, vblank->framedur_ns);
+
+	/*
+	 * If the frame period is unknown (no valid mode yet) default to a
+	 * 60 Hz tick so the vblank engine still runs.
+	 */
+	if (!ktime_to_ns(iga->vblank_period_ns))
+		iga->vblank_period_ns = ktime_set(0, 16666667);
+
+	hrtimer_start(&iga->vblank_hrtimer, iga->vblank_period_ns,
+		      HRTIMER_MODE_REL);
+
+	return 0;
+}
+
+static void via_crtc_disable_vblank(struct drm_crtc *crtc)
+{
+	struct via_crtc *iga = container_of(crtc, struct via_crtc, base);
+
+	hrtimer_cancel(&iga->vblank_hrtimer);
+}
+
 static const struct drm_crtc_funcs via_drm_crtc_funcs = {
 	.reset = drm_atomic_helper_crtc_reset,
 	.gamma_set = via_gamma_set,
@@ -353,6 +416,8 @@ static const struct drm_crtc_funcs via_drm_crtc_funcs = {
 	.page_flip = drm_atomic_helper_page_flip,
 	.atomic_duplicate_state = drm_atomic_helper_crtc_duplicate_state,
 	.atomic_destroy_state = drm_atomic_helper_crtc_destroy_state,
+	.enable_vblank = via_crtc_enable_vblank,
+	.disable_vblank = via_crtc_disable_vblank,
 };
 
 static void via_load_vpit_regs(struct via_drm_priv *dev_priv)
@@ -1832,8 +1897,24 @@ static void via_crtc_helper_atomic_disable(struct drm_crtc *crtc,
 	drm_dbg_kms(dev, "Exiting %s.\n", __func__);
 }
 
+static void via_crtc_helper_atomic_flush(struct drm_crtc *crtc,
+					struct drm_atomic_state *state)
+{
+	if (crtc->state->event) {
+		spin_lock_irq(&crtc->dev->event_lock);
+		if (drm_crtc_vblank_get(crtc) != 0)
+			drm_crtc_send_vblank_event(crtc, crtc->state->event);
+		else
+			drm_crtc_arm_vblank_event(crtc, crtc->state->event);
+		spin_unlock_irq(&crtc->dev->event_lock);
+
+		crtc->state->event = NULL;
+	}
+}
+
 static const struct drm_crtc_helper_funcs via_drm_crtc_helper_funcs = {
 	.mode_set_nofb = via_mode_set_nofb,
+	.atomic_flush = via_crtc_helper_atomic_flush,
 	.atomic_enable = via_crtc_helper_atomic_enable,
 	.atomic_disable = via_crtc_helper_atomic_disable,
 };

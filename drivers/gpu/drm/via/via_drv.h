@@ -44,6 +44,7 @@
 #include <drm/via_drm.h>
 
 #include <linux/atomic.h>
+#include <linux/hrtimer.h>
 #include <linux/idr.h>
 #include <linux/mutex.h>
 #include <linux/wait.h>
@@ -228,6 +229,8 @@ struct via_crtc {
 	struct vga_registers fetch;
 	int scaling_mode;
 	uint32_t index;
+	struct hrtimer vblank_hrtimer;
+	ktime_t vblank_period_ns;
 };
 
 struct via_connector {
