@@ -211,5 +211,5 @@ void via_i2c_exit(void)
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(via_i2c_par); i++)
-		i2c_del_adapter(&via_i2c_par->adapter);
+		i2c_del_adapter(&via_i2c_par[i].adapter);
 }
