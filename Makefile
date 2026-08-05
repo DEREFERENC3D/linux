@@ -1073,6 +1073,11 @@ KBUILD_CFLAGS   += $(call cc-option,-Werror=incompatible-pointer-types)
 # Require designated initializers for all marked structures
 KBUILD_CFLAGS   += $(call cc-option,-Werror=designated-init)
 
+# clang >= 18 warns about const members/default init that -ftrivial-auto-var-init
+# cannot zero; those are false positives for kernel builds (Werror -> build break)
+KBUILD_CFLAGS   += $(call cc-option,-Wno-default-const-init-var-unsafe)
+KBUILD_CFLAGS   += $(call cc-option,-Wno-default-const-init-field-unsafe)
+
 # change __FILE__ to the relative path from the srctree
 KBUILD_CPPFLAGS += $(call cc-option,-fmacro-prefix-map=$(srctree)/=)
 
