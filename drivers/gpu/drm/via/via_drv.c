@@ -44,14 +44,10 @@
 #include "via_drv.h"
 
 
-/*
- * For now, this device driver will be disabled, unless the
- * user decides to enable it.
- */
-int via_modeset = 0;
+int via_modeset = -1;
 
 MODULE_PARM_DESC(modeset, "Enable DRM device driver "
-				"(Default: Disabled, "
+				"(Default: Auto, "
 				"0 = Disabled,"
 				"1 = Enabled)");
 module_param_named(modeset, via_modeset, int, 0400);
