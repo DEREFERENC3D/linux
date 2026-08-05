@@ -309,8 +309,16 @@ static void via_pci_remove(struct pci_dev *pdev)
 
 	dev_info(&pdev->dev, "Entered %s.\n", __func__);
 
-	via_drm_fini(dev);
+	/*
+	 * Unregister the DRM device before tearing down the driver's own
+	 * resources. drm_dev_unregister() unregisters the fbdev client and
+	 * releases the framebuffer GEM objects; if via_drm_fini() (which
+	 * destroys the TTM range managers) ran first, those frees would hit
+	 * a torn-down TTM device and NULL-pointer Oops in
+	 * ttm_resource_free().
+	 */
 	drm_dev_unregister(dev);
+	via_drm_fini(dev);
 
 	dev_info(&pdev->dev, "Exiting %s.\n", __func__);
 }
