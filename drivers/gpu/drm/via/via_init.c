@@ -1419,7 +1419,7 @@ static void via_modeset_fini(struct drm_device *dev)
 {
 	drm_kms_helper_poll_fini(dev);
 
-	drm_helper_force_disable_all(dev);
+	drm_atomic_helper_shutdown(dev);
 
 	via_i2c_exit();
 }
