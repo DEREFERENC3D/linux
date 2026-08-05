@@ -1,8 +1,10 @@
 config DRM_VIA
 	tristate "OpenChrome (VIA Technologies Chrome)"
-	depends on DRM && PCI && X86
+	depends on DRM && PCI && X86 && FB
 	select DRM_KMS_HELPER
 	select DRM_TTM
+	select DRM_TTM_HELPER
+	select DRM_FBDEV_EMULATION
 	help
 	  Choose this option if you have VIA Technologies UniChrome or
 	  Chrome9 integrated graphics. If M is selected the module will
