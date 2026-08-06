@@ -331,6 +331,7 @@ void via_mm_fini(struct drm_device *dev)
 
 	drm_dbg_driver(dev, "Entered %s.\n", __func__);
 
+	via_ttm_debugfs_remove(dev);
 	ttm_range_man_fini(&dev_priv->bdev, TTM_PL_VRAM);
 	ttm_range_man_fini(&dev_priv->bdev, TTM_PL_TT);
 

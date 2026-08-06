@@ -216,3 +216,14 @@ void via_ttm_debugfs_init(struct drm_device *dev)
 						"via_ttm_rman_gtt");
 #endif
 }
+
+void via_ttm_debugfs_remove(struct drm_device *dev)
+{
+#if defined(CONFIG_DEBUG_FS)
+	struct drm_minor *minor = dev->primary;
+	struct dentry *debugfs_root = minor->debugfs_root;
+
+	debugfs_lookup_and_remove("via_ttm_rman_vram", debugfs_root);
+	debugfs_lookup_and_remove("via_ttm_rman_gtt", debugfs_root);
+#endif
+}

@@ -507,6 +507,7 @@ int via_dev_pm_ops_resume(struct device *dev);
 /* via_ttm.c */
 extern struct ttm_device_funcs via_bo_driver;
 void via_ttm_debugfs_init(struct drm_device *dev);
+void via_ttm_debugfs_remove(struct drm_device *dev);
 
 /* via_ring.c */
 int via_ring_legacy_init(struct drm_device *dev);
