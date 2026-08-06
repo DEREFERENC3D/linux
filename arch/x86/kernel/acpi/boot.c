@@ -1564,6 +1564,14 @@ static const struct dmi_system_id acpi_dmi_table_late[] __initconst = {
 		     DMI_MATCH(DMI_PRODUCT_NAME, "AMILO PRO V2030"),
 		     },
 	 },
+	{
+	 .callback = dmi_ignore_irq0_timer_override,
+	 .ident = "FUJITSU SIEMENS",
+	 .matches = {
+		     DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU SIEMENS"),
+		     DMI_MATCH(DMI_PRODUCT_NAME, "AMILO PRO V2035"),
+		     },
+	 },
 	{}
 };
 
