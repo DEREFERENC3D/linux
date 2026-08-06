@@ -227,6 +227,8 @@ static struct drm_driver via_driver = {
 	.enable_vblank = via_enable_vblank,
 	.disable_vblank = via_disable_vblank,
 
+	.debugfs_init = via_ttm_debugfs_init,
+
 	.ioctls = via_driver_ioctls,
 	.num_ioctls = ARRAY_SIZE(via_driver_ioctls),
 

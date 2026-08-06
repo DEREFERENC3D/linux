@@ -199,31 +199,37 @@ struct ttm_device_funcs via_bo_driver = {
 	.io_mem_reserve = via_bo_io_mem_reserve,
 };
 
-void via_ttm_debugfs_init(struct drm_device *dev)
+static int via_ttm_rman_debugfs_show(struct seq_file *m, void *unused)
 {
-#if defined(CONFIG_DEBUG_FS)
-	struct drm_minor *minor = dev->primary;
-	struct dentry *debugfs_root = minor->debugfs_root;
+	struct drm_info_node *node = m->private;
+	struct drm_device *dev = node->minor->dev;
 	struct via_drm_priv *dev_priv = to_via_drm_priv(dev);
+	struct drm_printer p = drm_seq_file_printer(m);
+	int mem_type = (int)(uintptr_t)node->info_ent->data;
 
-	ttm_resource_manager_create_debugfs(ttm_manager_type(&dev_priv->bdev,
-								TTM_PL_VRAM),
-						debugfs_root,
-						"via_ttm_rman_vram");
-	ttm_resource_manager_create_debugfs(ttm_manager_type(&dev_priv->bdev,
-								TTM_PL_TT),
-						debugfs_root,
-						"via_ttm_rman_gtt");
-#endif
+	ttm_resource_manager_debug(ttm_manager_type(&dev_priv->bdev,
+					mem_type), &p);
+	return 0;
 }
 
-void via_ttm_debugfs_remove(struct drm_device *dev)
-{
-#if defined(CONFIG_DEBUG_FS)
-	struct drm_minor *minor = dev->primary;
-	struct dentry *debugfs_root = minor->debugfs_root;
+static const struct drm_info_list via_ttm_debugfs_list[] = {
+	{ "via_ttm_rman_vram", via_ttm_rman_debugfs_show, 0, (void *)TTM_PL_VRAM },
+	{ "via_ttm_rman_gtt",  via_ttm_rman_debugfs_show, 0, (void *)TTM_PL_TT },
+};
 
-	debugfs_lookup_and_remove("via_ttm_rman_vram", debugfs_root);
-	debugfs_lookup_and_remove("via_ttm_rman_gtt", debugfs_root);
-#endif
+void via_ttm_debugfs_init(struct drm_minor *minor)
+{
+	drm_debugfs_create_files(via_ttm_debugfs_list,
+				 ARRAY_SIZE(via_ttm_debugfs_list),
+				 minor->debugfs_root, minor);
+}
+
+void via_ttm_debugfs_remove(struct drm_minor *minor)
+{
+	if (!minor || !minor->debugfs_root)
+		return;
+
+	drm_debugfs_remove_files(via_ttm_debugfs_list,
+				 ARRAY_SIZE(via_ttm_debugfs_list),
+				 minor);
 }
