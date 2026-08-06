@@ -173,6 +173,7 @@ static int via_bo_io_mem_reserve(struct ttm_device *bdev,
 
 	switch (mem->mem_type) {
 	case TTM_PL_SYSTEM:
+	case TTM_PL_TT:
 		break;
 	case TTM_PL_VRAM:
 		mem->bus.offset = dev_priv->vram_start +

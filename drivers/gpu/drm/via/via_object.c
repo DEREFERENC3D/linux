@@ -304,8 +304,20 @@ int via_mm_init(struct drm_device *dev)
 		goto error_ttm_range_man;
 	}
 
+	/*
+	 * Initialize TTM range manager for GTT (AGP) management.
+	 */
+	ret = ttm_range_man_init(&dev_priv->bdev, TTM_PL_TT, true,
+					dev_priv->gtt_size >> PAGE_SHIFT);
+	if (ret) {
+		drm_err(dev, "Failed initializing TTM GTT memory manager!\n");
+		goto error_ttm_range_man_gtt;
+	}
+
 	via_ttm_debugfs_init(dev);
 	goto exit;
+error_ttm_range_man_gtt:
+	ttm_range_man_fini(&dev_priv->bdev, TTM_PL_VRAM);
 error_ttm_range_man:
 	ttm_device_fini(&dev_priv->bdev);
 exit:
@@ -320,6 +332,7 @@ void via_mm_fini(struct drm_device *dev)
 	drm_dbg_driver(dev, "Entered %s.\n", __func__);
 
 	ttm_range_man_fini(&dev_priv->bdev, TTM_PL_VRAM);
+	ttm_range_man_fini(&dev_priv->bdev, TTM_PL_TT);
 
 	ttm_device_fini(&dev_priv->bdev);
 

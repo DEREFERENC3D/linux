@@ -1313,6 +1313,25 @@ static int via_device_init(struct drm_device *dev)
 	}
 
 	via_graphics_unlock(dev);
+
+	/*
+	 * Set up the AGP aperture and record its size. This must happen
+	 * before via_mm_init() so the TTM GTT range manager can be sized
+	 * from the AGP aperture. If no PCI AGP capability is present,
+	 * gtt_size stays 0 and only the SYSTEM/TT (non-AGP-backed) paths
+	 * are available.
+	 */
+	if (pci_find_capability(to_pci_dev(dev->dev), PCI_CAP_ID_AGP)) {
+		dev->agp = drm_legacy_agp_init(dev);
+		if (dev->agp) {
+			dev->agp->agp_mtrr = arch_phys_wc_add(
+				dev->agp->agp_info.aper_base,
+				dev->agp->agp_info.aper_size * 1024 * 1024);
+			to_via_drm_priv(dev)->gtt_size =
+				dev->agp->agp_info.aper_size * 1024 * 1024;
+		}
+	}
+
 	goto exit;
 error_mmio_init:
 	via_vram_fini(dev);
@@ -1327,6 +1346,12 @@ static void via_device_fini(struct drm_device *dev)
 
 	via_mmio_fini(dev);
 	via_vram_fini(dev);
+
+	if (dev->agp) {
+		arch_phys_wc_del(dev->agp->agp_mtrr);
+		kfree(dev->agp);
+		dev->agp = NULL;
+	}
 
 	drm_dbg_driver(dev, "Exiting %s.\n", __func__);
 }

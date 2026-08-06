@@ -267,6 +267,7 @@ struct via_drm_priv {
 	u8 vram_type;
 	resource_size_t vram_start;
 	resource_size_t vram_size;
+	resource_size_t gtt_size;
 	int vram_mtrr;
 
 	resource_size_t mmio_base;

@@ -2498,15 +2498,9 @@ int via_ring_legacy_init(struct drm_device *dev)
 	if (ret)
 		return ret;
 
-	/* Set up the AGP aperture so the legacy AGP ioctls work. */
-	if (pci_find_capability(pdev, PCI_CAP_ID_AGP)) {
-		dev->agp = drm_legacy_agp_init(dev);
-		if (dev->agp) {
-			dev->agp->agp_mtrr = arch_phys_wc_add(
-				dev->agp->agp_info.aper_base,
-				dev->agp->agp_info.aper_size * 1024 * 1024);
-		}
-	}
+	/* The AGP aperture setup now happens in via_device_init() so that
+	 * gtt_size is available when via_mm_init() sizes the TTM GTT
+	 * range manager. dev->agp is therefore already valid here. */
 
 	pci_set_master(pdev);
 
@@ -2556,12 +2550,6 @@ void via_ring_legacy_fini(struct drm_device *dev)
 	via_ring_irq_uninstall(dev);
 
 	via_dma_cleanup(dev);
-
-	if (dev->agp) {
-		arch_phys_wc_del(dev->agp->agp_mtrr);
-		kfree(dev->agp);
-		dev->agp = NULL;
-	}
 
 	idr_destroy(&dev_priv->object_idr);
 	mutex_destroy(&dev_priv->ring_lock);
