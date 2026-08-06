@@ -127,6 +127,17 @@ static int via_bo_move(struct ttm_buffer_object *bo, bool evict,
 		return 0;
 	}
 
+	/*
+	 * The initial SYSTEM resource is pre-allocated by
+	 * ttm_bo_init_reserved(). When the BO was never backed by
+	 * system pages (bo->ttm == NULL), there is nothing to copy;
+	 * just assign the new resource. Mirrors radeon_ttm.
+	 */
+	if (bo->resource->mem_type == TTM_PL_SYSTEM && bo->ttm == NULL) {
+		ttm_bo_move_null(bo, new_mem);
+		return 0;
+	}
+
 	via_bo_move_notify(bo, evict, new_mem);
 	ret = ttm_bo_move_memcpy(bo, ctx, new_mem);
 	if (ret) {
