@@ -210,5 +210,9 @@ void via_ttm_debugfs_init(struct drm_device *dev)
 								TTM_PL_VRAM),
 						debugfs_root,
 						"via_ttm_rman_vram");
+	ttm_resource_manager_create_debugfs(ttm_manager_type(&dev_priv->bdev,
+								TTM_PL_TT),
+						debugfs_root,
+						"via_ttm_rman_gtt");
 #endif
 }
