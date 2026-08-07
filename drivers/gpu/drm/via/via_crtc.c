@@ -348,16 +348,26 @@ static void via_crtc_destroy(struct drm_crtc *crtc)
 }
 
 /*
- * Some boards ship with a defective IO-APIC IRQ route for the GPU. As a
- * result the via driver can never install a working display interrupt, so
- * the DRM vblank machinery would otherwise never fire and every atomic
- * commit would stall waiting 10s for a flip_done event (see
- * drm_atomic_helper_wait_for_flip_done()).
+ * VBlank delivery.
  *
- * Instead we simulate vblank using a per-CRTC hrtimer, exactly like the
- * virtual vkms driver does (drivers/gpu/drm/vkms/vkms_crtc.c).  The timer
- * fires once per frame, calls drm_crtc_handle_vblank(), which delivers the
- * pending flip event and completes the commit's flip_done completion.
+ * The preferred path is the real display interrupt: the DRM vblank engine
+ * is driven by via_ring_irq_handler() (see via_ring.c), which fires on the
+ * hardware VBLANK status bit.  This is used whenever the kernel assigned
+ * the GPU a working IRQ line (dev->irq).
+ *
+ * However, some boards (e.g. the Fujitsu-Siemens Amilo Pro V2035 ships with
+ * a defective IO-APIC IRQ route for the GPU, INT_SRC_OVR mapping the GPU
+ * INTx line to IRQ 0 / GSI 16 as level-triggered) can never run a display
+ * interrupt.  There the DRM vblank machinery would never fire and every
+ * atomic commit would stall waiting 10s for a flip_done event (see
+ * drm_atomic_helper_wait_for_flip_done()), freezing console output.
+ *
+ * For that case we simulate vblank with a per-CRTC hrtimer, exactly like
+ * the virtual vkms driver does (drivers/gpu/drm/vkms/vkms_crtc.c): the
+ * timer fires once per frame, calls drm_crtc_handle_vblank(), which
+ * delivers the pending flip event and completes the commit's flip_done
+ * completion.  The simulation is only armed when no working hardware IRQ
+ * is available; a real IRQ always takes precedence.
  */
 static enum hrtimer_restart via_vblank_simulate(struct hrtimer *timer)
 {
@@ -382,6 +392,18 @@ static int via_crtc_enable_vblank(struct drm_crtc *crtc)
 	struct drm_vblank_crtc *vblank = &dev->vblank[pipe];
 	struct via_crtc *iga = container_of(crtc, struct via_crtc, base);
 
+	/*
+	 * Prefer the real hardware VBLANK interrupt when the kernel assigned
+	 * us a working IRQ line.  via_enable_vblank() arms the VBLANK bits
+	 * so via_ring_irq_handler() drives the vblank engine; this takes
+	 * precedence over the hrtimer fallback because the crtc funcs hook
+	 * shadows the legacy driver vblank hooks (see __enable_vblank in
+	 * drm_vblank.c).
+	 */
+	if (dev->irq)
+		return via_enable_vblank(dev, pipe);
+
+	/* No usable IRQ (see comment above): simulate vblank with a timer. */
 	drm_calc_timestamping_constants(crtc, &crtc->mode);
 
 	hrtimer_init(&iga->vblank_hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
@@ -403,9 +425,15 @@ static int via_crtc_enable_vblank(struct drm_crtc *crtc)
 
 static void via_crtc_disable_vblank(struct drm_crtc *crtc)
 {
+	struct drm_device *dev = crtc->dev;
+	unsigned int pipe = drm_crtc_index(crtc);
 	struct via_crtc *iga = container_of(crtc, struct via_crtc, base);
 
-	hrtimer_cancel(&iga->vblank_hrtimer);
+	if (dev->irq) {
+		via_disable_vblank(dev, pipe);
+	} else {
+		hrtimer_cancel(&iga->vblank_hrtimer);
+	}
 }
 
 static const struct drm_crtc_funcs via_drm_crtc_funcs = {
