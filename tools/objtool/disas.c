@@ -109,7 +109,7 @@ static int sprint_name(char *str, const char *name, unsigned long offset)
 #define DINFO_FPRINTF(dinfo, ...)	\
 	((*(dinfo)->fprintf_func)((dinfo)->stream, __VA_ARGS__))
 #define bfd_vma_fmt			\
-	__builtin_choose_expr(sizeof(bfd_vma) == sizeof(unsigned long), "%#lx <%s>", "%#llx <%s>")
+	__builtin_choose_expr(sizeof(bfd_vma) == sizeof(unsigned long), "%#x <%s>", "%#llx <%s>")
 
 static int disas_result_fprintf(struct disas_context *dctx,
 				const char *fmt, va_list ap)
