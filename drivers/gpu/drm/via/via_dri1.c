@@ -3567,6 +3567,7 @@ static struct pci_device_id pciidlist[] = {
 
 static const struct file_operations via_driver_fops = {
 	.owner = THIS_MODULE,
+	.fop_flags = FOP_UNSIGNED_OFFSET,
 	.open = drm_open,
 	.release = drm_release,
 	.unlocked_ioctl = drm_ioctl,
